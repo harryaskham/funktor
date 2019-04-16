@@ -1,2 +1,1 @@
 # funktor
-Music in Haskell
