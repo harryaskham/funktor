@@ -22,6 +22,7 @@ description:         Please see the README on GitHub at <https://github.com/harr
 dependencies:
 - base >= 4.7 && < 5
 - csound-expression
+- csound-catalog
 
 library:
   source-dirs: src
