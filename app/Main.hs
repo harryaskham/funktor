@@ -2,6 +2,7 @@ module Main where
 
 import Csound.Base
 import qualified Scratch
+import qualified Drums
 
 -- Create simple drum sequences
 -- Use >>= to create layered combinations

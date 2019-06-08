@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 01a8f1e793c0e8e404d40b374ee53a3a15066ffb40b3c36afd70cc502a0845da
+-- hash: f9ae77ed00cfd791b66c7e078b42321f24889aeb62a061f70bef64d846aa854b
 
 name:           funktor
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Drums
       Lib
       Scratch
   other-modules:
