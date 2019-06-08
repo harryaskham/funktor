@@ -1,18 +1,14 @@
 module Main where
 
 import Csound.Base
+import qualified Scratch
 
-bpm = 140
-
-bps = bpm / 60
-
-sin4 = osc bps
-
-sin8 = osc $ 2 * bps
-
-sin1 = osc $ bps / 4
-
-drums = sin8 * tri 110
+-- Create simple drum sequences
+-- Use >>= to create layered combinations
+-- Other functional stuff to chop-and-screw
+-- Create other seqs of e.g. bass, lead, etc
+-- >>= them all together
+-- Use some metric over the space to move through it bar-by-bar in interesting way
 
 main :: IO ()
-main = dac $ drums
+main = dac Scratch.song
