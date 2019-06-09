@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - csound-expression
 - csound-catalog
+- csound-sampler
 
 library:
   source-dirs: src

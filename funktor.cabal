@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f9ae77ed00cfd791b66c7e078b42321f24889aeb62a061f70bef64d846aa854b
+-- hash: 6480d1f5984c87484ca8c0c073ced5ef30423b683469f0af50ac3533632a0e0f
 
 name:           funktor
 version:        0.1.0.0
@@ -28,8 +28,10 @@ source-repository head
 library
   exposed-modules:
       Drums
+      FirstSong
       Lib
       Scratch
+      Tools
   other-modules:
       Paths_funktor
   hs-source-dirs:
@@ -38,6 +40,7 @@ library
       base >=4.7 && <5
     , csound-catalog
     , csound-expression
+    , csound-sampler
   default-language: Haskell2010
 
 executable funktor-exe
@@ -51,6 +54,7 @@ executable funktor-exe
       base >=4.7 && <5
     , csound-catalog
     , csound-expression
+    , csound-sampler
     , funktor
   default-language: Haskell2010
 
@@ -66,5 +70,6 @@ test-suite funktor-test
       base >=4.7 && <5
     , csound-catalog
     , csound-expression
+    , csound-sampler
     , funktor
   default-language: Haskell2010

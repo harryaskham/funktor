@@ -1,4 +1,4 @@
-module Scratch where
+module Scratch (song) where
 
 import Csound.Base
 
