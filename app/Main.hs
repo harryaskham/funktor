@@ -8,4 +8,4 @@ import Tools
 import FirstSong
 
 main :: IO ()
-main = dac song
+main = dac scratchSong
