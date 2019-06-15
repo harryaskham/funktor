@@ -8,6 +8,7 @@ import Csound.Sam
 -- TODO: Once in a state to split up, do so into commented composable utils
 
 -- Global controls + derivations
+-- TODO: Might also need to pair this with 'setBpm x >> song'
 bpm = 140
 bps = 140 / 60
 spb = 1 / bps
@@ -15,7 +16,12 @@ spb = 1 / bps
 kicks = pat' [1, 0.7, 0.9, 0.7] [4] bd
 hats = del 3 $ pat' [1, 0.6] [3, 5] chh
 snares = pat' [1, 0.5] [4] sn
-drums = runSam (bpm * 4) $ kicks + hats + snares
+
+-- Takes a list of drum tracks and compiles to a signal.
+compileDrums :: [Sample Sig2] -> SE Sig2
+compileDrums = runSam (bpm * 4) . sum
+
+drums = compileDrums [kicks, hats, snares]
 
 p1 a b = mel $ fmap temp [a, a, b, b]
 p2 a b = mel [mel $ fmap temp [a, a], str 2 $ temp b]
@@ -35,9 +41,9 @@ oscInstr x = return $ mul (linsegr [0, 0.03, 1, 0.2, 0] 0.1 0) $ osc $ sig x
 
 -- Compiles the given track using the given instrument, ensuring BPM matches.
 -- TODO: Extend to non-mono, non-simple instruments
-compile :: (D -> SE Sig) -> Track Sig D -> Sig
-compile instr = mix . sco instr . fmap cpspch . str spb
+compileTrack :: (D -> SE Sig) -> Track Sig D -> Sig
+compileTrack instr = mix . sco instr . fmap cpspch . str spb
 
-melody = fromMono . compile oscInstr $ ph
+melody = fromMono . compileTrac oscInstr $ ph
 
 song = sum [pure melody, drums]
