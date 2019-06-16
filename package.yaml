@@ -24,6 +24,7 @@ dependencies:
 - csound-expression
 - csound-catalog
 - csound-sampler
+- split
 
 library:
   source-dirs: src
