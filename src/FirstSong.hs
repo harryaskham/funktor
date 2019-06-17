@@ -26,13 +26,13 @@ compileSample = runSam (bpm * 4)
 
 -- Takes those tabs and turns em into musak
 compileTabs :: [DrumTab] -> SE Sig2
-compileTabs tabs = compileSample . sum $ compileTab <$> tabs
+compileTabs = compileSample . sum . fmap compileTab
 
 -- Basic first pass
 basicKicks = DrumTab "O _ _ _|. _ _ _|o _ _ _|. _ _ _" bd
 basicHatss = DrumTab "_ _ _ o|O _ _ _" chh
 basicSnare = DrumTab "O _ _ _|. _ _ _" sn
-basicDrums = compileSample . sum $ compileTab <$> [basicKicks, basicHatss, basicSnare]
+basicDrums = compileTabs [basicKicks, basicHatss, basicSnare]
 
 -- DnB riddim
 dnbKicks = DrumTab "O _ o _|_ _ _ _|_ _ O _|_ _ _ _" bd
@@ -42,12 +42,17 @@ dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
 
 dnbTabs = [dnbKicks, dnbSnare, dnbChats, dnbOhats]
 dnbDrums = compileSample . sum $ compileTab <$> dnbTabs
+dnbSong = sum [pure melody, dnbDrums]
 
 -- sequences = bass >> snares / hat >> full song >> fade out
 -- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one at a time. Like x bars incoming, many bars sustained, few bars dropoff
+-- TODO: Use >>= binding to generate all combinations of drums and play through on loop
+-- TODO: Tab generation (all possible tabs) for randomized beats.
 
 -- Minimal drums
-minKick = DrumTab "O____|o___|o___|o___"
+minKick = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" bd
+minDrums = compileTabs [minKick]
+minSong = sum [minDrums]
 
 
 -- Instrument defn
@@ -60,5 +65,3 @@ compileTrack :: (D -> SE Sig) -> Track Sig D -> Sig
 compileTrack instr = mix . sco instr . fmap cpspch . str spb
 
 melody = fromMono . compileTrack oscInstr $ twinkle
-
-song = sum [pure melody, dnbDrums]
