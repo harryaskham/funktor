@@ -14,18 +14,41 @@ import Tabs
 -- Global controls + derivations
 -- TODO: Might also need to pair this with 'setBpm x >> song'
 bpm = 140
-bps = 140 / 60
+bps = bpm / 60
 spb = 1 / bps
 
-kicks = compileTab $ DrumTab "O___|.___|o___|.___" bd
-hats = compileTab $ DrumTab "___ o|O___" chh
-snares = compileTab $ DrumTab "O___|.___" sn
+-- AVAILABLE TR808 DRUMS
+-- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
 
 -- Takes a list of drum tracks and compiles to a signal.
-compileDrums :: [Sample Sig2] -> SE Sig2
-compileDrums = runSam (bpm * 4) . sum
+compileSample :: Sample Sig2 -> SE Sig2
+compileSample = runSam (bpm * 4)
 
-drums = compileDrums [kicks, hats, snares]
+-- Takes those tabs and turns em into musak
+compileTabs :: [DrumTab] -> SE Sig2
+compileTabs tabs = compileSample . sum $ compileTab <$> tabs
+
+-- Basic first pass
+basicKicks = DrumTab "O _ _ _|. _ _ _|o _ _ _|. _ _ _" bd
+basicHatss = DrumTab "_ _ _ o|O _ _ _" chh
+basicSnare = DrumTab "O _ _ _|. _ _ _" sn
+basicDrums = compileSample . sum $ compileTab <$> [basicKicks, basicHatss, basicSnare]
+
+-- DnB riddim
+dnbKicks = DrumTab "O _ o _|_ _ _ _|_ _ O _|_ _ _ _" bd
+dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." sn
+dnbChats = DrumTab "_ _ _ _|_ _ o _|o _ _ _|_ _ . _" chh
+dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
+
+dnbTabs = [dnbKicks, dnbSnare, dnbChats, dnbOhats]
+dnbDrums = compileSample . sum $ compileTab <$> dnbTabs
+
+-- sequences = bass >> snares / hat >> full song >> fade out
+-- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one at a time. Like x bars incoming, many bars sustained, few bars dropoff
+
+-- Minimal drums
+minKick = DrumTab "O____|o___|o___|o___"
+
 
 -- Instrument defn
 oscInstr :: D -> SE Sig
@@ -38,4 +61,4 @@ compileTrack instr = mix . sco instr . fmap cpspch . str spb
 
 melody = fromMono . compileTrack oscInstr $ twinkle
 
-song = sum [pure melody, drums]
+song = sum [pure melody, dnbDrums]

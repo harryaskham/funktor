@@ -16,8 +16,8 @@ import Data.List.Split
 data DrumTab = DrumTab String Sam 
 
 type BeatLength = D
-type Velocity = D
-type Beat = (BeatLength, Velocity)
+type BeatVelocity = D
+type Beat = (BeatLength, BeatVelocity)
 
 -- | Compiles a tab intno a polyphonic signal.
 compileTab :: DrumTab -> Sample Sig2
@@ -33,12 +33,12 @@ compileBar bar = compileBeat <$> splitBar bar
 -- | Compiles a single beat string
 compileBeat :: String -> Beat
 compileBeat b@('_':_) = (fromIntegral $ length b, 0.0)
-compileBeat b@('.':_) = (fromIntegral $ length b, 0.6)
-compileBeat b@('o':_) = (fromIntegral $ length b, 0.9)
-compileBeat b@('O':_) = (fromIntegral $ length b, 1.0)
+compileBeat b@('.':_) = (fromIntegral $ length b, 0.4)
+compileBeat b@('o':_) = (fromIntegral $ length b, 0.7)
+compileBeat b@('O':_) = (fromIntegral $ length b, 0.9)
+compileBeat b@('X':_) = (fromIntegral $ length b, 1.0)
 compileBeat b = error $ "Invalid beat: " ++ b
 
 -- Split the given bar into its constituent beat strings
--- TODO: Remove reliance on space-splitting
 splitBar :: String -> [String]
 splitBar = filter (not . null) . splitOn " "
