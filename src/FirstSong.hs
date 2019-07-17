@@ -17,22 +17,18 @@ bpm = 140
 bps = bpm / 60
 spb = 1 / bps
 
+-- Run the given song respecting the global BPM.
+run :: SE Sig2 -> IO()
+run song = dac $ setBpm bpm >> song
+
 -- AVAILABLE TR808 DRUMS
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
-
--- Takes a list of drum tracks and compiles to a signal.
-compileSample :: Sample Sig2 -> SE Sig2
-compileSample = runSam (bpm * 4)
-
--- Takes those tabs and turns em into musak
-compileTabs :: [DrumTab] -> SE Sig2
-compileTabs = compileSample . sum . fmap compileTab
 
 -- Basic first pass
 basicKicks = DrumTab "O _ _ _|. _ _ _|o _ _ _|. _ _ _" bd
 basicHatss = DrumTab "_ _ _ o|O _ _ _" chh
 basicSnare = DrumTab "O _ _ _|. _ _ _" sn
-basicDrums = compileTabs [basicKicks, basicHatss, basicSnare]
+basicDrums = compileTabs bpm [basicKicks, basicHatss, basicSnare]
 
 -- DnB riddim
 dnbKicks = DrumTab "O _ o _|_ _ _ _|_ _ O _|_ _ _ _" bd
@@ -41,21 +37,35 @@ dnbChats = DrumTab "_ _ _ _|_ _ o _|o _ _ _|_ _ . _" chh
 dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
 
 dnbTabs = [dnbKicks, dnbSnare, dnbChats, dnbOhats]
-dnbDrums = compileSample . sum $ compileTab <$> dnbTabs
+dnbDrums = compileTabs bpm dnbTabs
 dnbSong = sum [pure melody, dnbDrums]
 
 -- sequences = bass >> snares / hat >> full song >> fade out
--- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one at a time. Like x bars incoming, many bars sustained, few bars dropoff
+-- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one
+--       at a time. Like x bars incoming, many bars sustained, few bars dropoff
 -- TODO: Use >>= binding to generate all combinations of drums and play through on loop
 -- TODO: Tab generation (all possible tabs) for randomized beats.
 
--- Minimal drums
+-- Minimal song
 minKick = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" bd
-minDrums = compileTabs [minKick]
+
+minDrums :: SE Sig2
+minDrums = compileTabs bpm [minKick]
+
+minSong :: SE Sig2
 minSong = sum [minDrums]
 
+-- Modifiers (WIP)
+
+-- Phases in and out over two bars
+inOutFilter :: SigSpace a => a -> a
+inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
+
+filteredMinSong :: SE Sig2
+filteredMinSong = inOutFilter <$> minSong
 
 -- Instrument defn
+-- TODO: Neat way of using patches
 oscInstr :: D -> SE Sig
 oscInstr x = return $ mul (linsegr [0, 0.03, 1, 0.2, 0] 0.1 0) $ osc $ sig x
 

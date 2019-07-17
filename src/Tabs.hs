@@ -1,8 +1,9 @@
-module Tabs (DrumTab(..), compileTab) where
+module Tabs (DrumTab(..), compileTabs) where
 
 import Csound.Base
 import Csound.Patch
 import Csound.Sam
+import Csound.Sam.Core
 import Data.List.Split
 
 -- A pairing of intensity tab and sample to play.
@@ -18,6 +19,14 @@ data DrumTab = DrumTab String Sam
 type BeatLength = D
 type BeatVelocity = D
 type Beat = (BeatLength, BeatVelocity)
+
+-- Takes a list of drum tracks and compiles to a signal.
+compileSample :: Sig -> Sample Sig2 -> SE Sig2
+compileSample bpm = runSam (bpm * 4)
+
+-- Takes those tabs and turns em into musak
+compileTabs :: Sig -> [DrumTab] -> SE Sig2
+compileTabs bpm = compileSample bpm . sum . fmap compileTab
 
 -- | Compiles a tab intno a polyphonic signal.
 compileTab :: DrumTab -> Sample Sig2

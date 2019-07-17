@@ -3,6 +3,8 @@ module Melodies (twinkle) where
 import Csound.Base
 import Csound.Sam
 
+-- TODO: Coherent way of sequencing notes that isn't float numbers
+
 p1 a b = mel $ fmap temp [a, a, b, b]
 p2 a b = mel [mel $ fmap temp [a, a], str 2 $ temp b]
 p3 a b c d = mel [p1 a b, p2 c d]
