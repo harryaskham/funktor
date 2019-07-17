@@ -24,12 +24,6 @@ run song = dac $ setBpm bpm >> song
 -- AVAILABLE TR808 DRUMS
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
 
--- Basic first pass
-basicKicks = DrumTab "O _ _ _|. _ _ _|o _ _ _|. _ _ _" bd
-basicHatss = DrumTab "_ _ _ o|O _ _ _" chh
-basicSnare = DrumTab "O _ _ _|. _ _ _" sn
-basicDrums = compileTabs bpm [basicKicks, basicHatss, basicSnare]
-
 -- DnB riddim
 dnbKicks = DrumTab "O _ o _|_ _ _ _|_ _ O _|_ _ _ _" bd
 dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." sn
@@ -47,13 +41,23 @@ dnbSong = sum [pure melody, dnbDrums]
 -- TODO: Tab generation (all possible tabs) for randomized beats.
 
 -- Minimal song
-minKick = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" bd
+minKick  = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" bd
+minSnare = DrumTab "_ _ _ O|_ _ _ _|_ _ _ o|_ _ _ _" sn
+minChats = DrumTab "O o o .|" chh
 
 minDrums :: SE Sig2
-minDrums = compileTabs bpm [minKick]
+minDrums = compileTabs bpm [minKick, minSnare, minChats]
+
+-- TODO: Loop and change the instrument
+minMel :: Sig2
+minMel = compileMelody $ str (1/2) combined
+  where
+    loop1 = loopBy 4 $ mel $ temp <$> [8.00, 8.01, 8.02, 8.03]
+    loop2 = loopBy 4 $ mel $ temp <$> [7.03, 7.04, 7.05, 7.06]
+    combined = loopBy 32 $ mel [loop1, loop2]
 
 minSong :: SE Sig2
-minSong = sum [minDrums]
+minSong = inOutFilter <$> sum [pure minMel, minDrums]
 
 -- Modifiers (WIP)
 
@@ -74,4 +78,7 @@ oscInstr x = return $ mul (linsegr [0, 0.03, 1, 0.2, 0] 0.1 0) $ osc $ sig x
 compileTrack :: (D -> SE Sig) -> Track Sig D -> Sig
 compileTrack instr = mix . sco instr . fmap cpspch . str spb
 
-melody = fromMono . compileTrack oscInstr $ twinkle
+compileMelody :: Track Sig D -> Sig2
+compileMelody = fromMono . compileTrack oscInstr
+
+melody = compileMelody twinkle
