@@ -6,7 +6,6 @@ import Csound.Patch
 import Csound.Sam
 import Csound.Sam.Core
 import Data.List.Split
-import Melodies
 import Tabs
 import Tools
 import Note
@@ -34,7 +33,7 @@ dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
 
 dnbTabs = [dnbKicks, dnbSnare, dnbChats, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
-dnbSong = sum [pure melody, dnbDrums]
+dnbSong = sum [pure minMel, dnbDrums]
 
 -- sequences = bass >> snares / hat >> full song >> fade out
 -- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one
@@ -52,7 +51,7 @@ minDrums = compileTabs bpm [minKick, minSnare, minChats]
 
 -- TODO: Loop and change the instrument
 minMel :: Sig2
-minMel = compileMelodyP (vibhu 65) $ str (1/2) combined
+minMel = compileMelodyP vibraphone1 $ str (1/2) combined
   where
     loop1 = loopBy 4 $ toMel ([Pch C, Pch F, Pch Fs, Pch G] <*> pure 8)
     loop2 = loopBy 4 $ toMel ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
@@ -85,5 +84,3 @@ compileMelodyP patch = mix . atSco patch . fmap cpspch2 . str spb
 
 compileMelody :: Track Sig D -> Sig2
 compileMelody = fromMono . compileTrack oscInstr
-
-melody = compileMelody twinkle
