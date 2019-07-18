@@ -1,6 +1,5 @@
 module FirstSong where
 
-import Csound
 import Csound.Base hiding (Tab)
 import Csound.Catalog.Drum.Tr808
 import Csound.Patch
@@ -9,6 +8,7 @@ import Csound.Sam.Core
 import Data.List.Split
 import Melodies
 import Tabs
+import Tools
 import Note
 
 -- TODO: Once in a state to split up, do so into commented composable utils
@@ -52,7 +52,7 @@ minDrums = compileTabs bpm [minKick, minSnare, minChats]
 
 -- TODO: Loop and change the instrument
 minMel :: Sig2
-minMel = compileMelody $ str (1/2) combined
+minMel = compileMelodyP (vibhu 65) $ str (1/2) combined
   where
     loop1 = loopBy 4 $ toMel ([Pch C, Pch F, Pch Fs, Pch G] <*> pure 8)
     loop2 = loopBy 4 $ toMel ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
@@ -76,11 +76,12 @@ oscInstr :: D -> SE Sig
 oscInstr x = return $ mul (linsegr [0, 0.03, 1, 0.2, 0] 0.1 0) $ osc $ sig x
 
 -- Compiles the given track using the given instrument, ensuring BPM matches.
--- TODO: Extend to non-mono, non-simple instruments
 compileTrack :: (D -> SE Sig) -> Track Sig D -> Sig
 compileTrack instr = mix . sco instr . fmap cpspch . str spb
 
-playC = dac $ mul 0.2 $ magicCave $ mix $ notes vibraphone2 $ mel [c, e, g, high c, rest 15]
+-- Compiles the given track using the given patch.
+compileMelodyP :: Patch2 -> Track Sig (D, D) -> Sig2
+compileMelodyP patch = mix . atSco patch . fmap cpspch2 . str spb
 
 compileMelody :: Track Sig D -> Sig2
 compileMelody = fromMono . compileTrack oscInstr

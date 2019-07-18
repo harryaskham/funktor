@@ -32,14 +32,18 @@ toD (Pch n o) = octaveN + noteN
     octaveN = fromIntegral o
     noteN = 0.01 * fromIntegral (toIndex n)
 
+-- TODO: Respect velocity.
+toDD :: Pch -> (D, D)
+toDD p = (0.5, toD p)
+
 -- Converts notes to temps
-toTemps :: [Pch] -> [Track Sig D]
-toTemps pchs = temp . toD <$> pchs
+toTemps :: [Pch] -> [Track Sig (D, D)]
+toTemps pchs = temp . toDD <$> pchs
 
 -- Converts notes to melody
-toMel :: [Pch] -> Track Sig D
+toMel :: [Pch] -> Track Sig (D, D)
 toMel = mel . toTemps
 
 -- Converts notes to chord
-toChord :: [Pch] -> Track Sig D
+toChord :: [Pch] -> Track Sig (D, D)
 toChord = har . toTemps

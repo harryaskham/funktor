@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 369257ce9fef0393cbed384681e938d5d884c546b623e3f36e3b3d9a9895bcae
+-- hash: ee044e95efbd21d97fec99e72578c30ebef81ae675fd32770908c754cfb1704e
 
 name:           funktor
 version:        0.1.0.0
@@ -43,7 +43,6 @@ library
     , csound-expression
     , csound-sampler
     , split
-    , temporal-csound
   default-language: Haskell2010
 
 executable funktor-exe
@@ -60,7 +59,6 @@ executable funktor-exe
     , csound-sampler
     , funktor
     , split
-    , temporal-csound
   default-language: Haskell2010
 
 test-suite funktor-test
@@ -78,5 +76,4 @@ test-suite funktor-test
     , csound-sampler
     , funktor
     , split
-    , temporal-csound
   default-language: Haskell2010

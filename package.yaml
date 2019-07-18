@@ -24,7 +24,6 @@ dependencies:
 - csound-expression
 - csound-catalog
 - csound-sampler
-- temporal-csound
 - split
 
 library:
