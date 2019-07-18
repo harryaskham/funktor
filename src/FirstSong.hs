@@ -52,8 +52,8 @@ minDrums = compileTabs bpm [minKick, minSnare, minChats]
 minMel :: Sig2
 minMel = compileMelody vibraphone1 combined
   where
-    loop1 = loopBy 2 $ toMel ([Pch C, Pch F, Pch Fs, Pch G] <*> pure 8)
-    loop2 = loopBy 2 $ toMel ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
+    loop1 = loopBy 2 $ toMel (Pch <$> [C, F, Fs, G] <*> [7, 8])
+    loop2 = loopBy 2 $ toMel (Pch <$> [C, E, G, Bb] <*> [7, 8])
     combined = loopBy 32 $ mel [loop1, loop2]
 
 minSong :: SE Sig2
