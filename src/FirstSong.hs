@@ -49,7 +49,6 @@ minChats = DrumTab "O o o .|" chh
 minDrums :: SE Sig2
 minDrums = compileTabs bpm [minKick, minSnare, minChats]
 
--- TODO: Loop and change the instrument
 minMel :: Sig2
 minMel = compileMelodyP vibraphone1 $ str (1/2) combined
   where
@@ -65,9 +64,6 @@ minSong = inOutFilter <$> sum [pure minMel, minDrums]
 -- Phases in and out over two bars
 inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
-
-filteredMinSong :: SE Sig2
-filteredMinSong = inOutFilter <$> minSong
 
 -- Instrument defn
 -- TODO: Neat way of using patches
