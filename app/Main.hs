@@ -5,6 +5,7 @@ import Csound.Patch
 import Scratch
 import Tools
 import FirstSong
+import Note
 
 main :: IO ()
 main = dac scratchSong

@@ -8,6 +8,7 @@ import Csound.Sam.Core
 import Data.List.Split
 import Melodies
 import Tabs
+import Note
 
 -- TODO: Once in a state to split up, do so into commented composable utils
 
@@ -52,8 +53,8 @@ minDrums = compileTabs bpm [minKick, minSnare, minChats]
 minMel :: Sig2
 minMel = compileMelody $ str (1/2) combined
   where
-    loop1 = loopBy 4 $ mel $ temp <$> [8.00, 8.01, 8.02, 8.03]
-    loop2 = loopBy 4 $ mel $ temp <$> [7.03, 7.04, 7.05, 7.06]
+    loop1 = loopBy 4 $ toMel ([Pch C, Pch Cs, Pch D, Pch Ds] <*> pure 8)
+    loop2 = loopBy 4 $ toChord ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
     combined = loopBy 32 $ mel [loop1, loop2]
 
 minSong :: SE Sig2

@@ -2,6 +2,7 @@ module Melodies (twinkle) where
 
 import Csound.Base
 import Csound.Sam
+import Note
 
 -- TODO: Coherent way of sequencing notes that isn't float numbers
 
