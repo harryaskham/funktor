@@ -65,18 +65,6 @@ minSong = inOutFilter <$> sum [pure minMel, minDrums]
 inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
 
--- Instrument defn
--- TODO: Neat way of using patches
-oscInstr :: D -> SE Sig
-oscInstr x = return $ mul (linsegr [0, 0.03, 1, 0.2, 0] 0.1 0) $ osc $ sig x
-
--- Compiles the given track using the given instrument, ensuring BPM matches.
-compileTrack :: (D -> SE Sig) -> Track Sig D -> Sig
-compileTrack instr = mix . sco instr . fmap cpspch . str spb
-
 -- Compiles the given track using the given patch.
 compileMelodyP :: Patch2 -> Track Sig (D, D) -> Sig2
 compileMelodyP patch = mix . atSco patch . fmap cpspch2 . str spb
-
-compileMelody :: Track Sig D -> Sig2
-compileMelody = fromMono . compileTrack oscInstr
