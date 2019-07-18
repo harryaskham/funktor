@@ -50,10 +50,10 @@ minDrums :: SE Sig2
 minDrums = compileTabs bpm [minKick, minSnare, minChats]
 
 minMel :: Sig2
-minMel = compileMelodyP vibraphone1 $ str (1/2) combined
+minMel = compileMelody vibraphone1 combined
   where
-    loop1 = loopBy 4 $ toMel ([Pch C, Pch F, Pch Fs, Pch G] <*> pure 8)
-    loop2 = loopBy 4 $ toMel ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
+    loop1 = loopBy 2 $ toMel ([Pch C, Pch F, Pch Fs, Pch G] <*> pure 8)
+    loop2 = loopBy 2 $ toMel ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
     combined = loopBy 32 $ mel [loop1, loop2]
 
 minSong :: SE Sig2
@@ -66,5 +66,5 @@ inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
 
 -- Compiles the given track using the given patch.
-compileMelodyP :: Patch2 -> Track Sig (D, D) -> Sig2
-compileMelodyP patch = mix . atSco patch . fmap cpspch2 . str spb
+compileMelody :: Patch2 -> Track Sig (D, D) -> Sig2
+compileMelody patch = mix . atSco patch . fmap cpspch2 . str spb
