@@ -15,7 +15,7 @@ toIndex Ds = 3
 toIndex Eb = 3
 toIndex E = 4
 toIndex F = 5
-toIndex Fs = 4
+toIndex Fs = 6
 toIndex Gb = 6
 toIndex G = 7
 toIndex Gs = 8
@@ -25,6 +25,7 @@ toIndex As = 10
 toIndex Bb = 10
 toIndex B = 11
 
+-- Converts Pch note to its corresponding D e.g. 8.00 for mid-C
 toD :: Pch -> D
 toD (Pch n o) = octaveN + noteN
   where

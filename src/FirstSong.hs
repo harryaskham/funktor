@@ -1,5 +1,6 @@
 module FirstSong where
 
+import Csound
 import Csound.Base hiding (Tab)
 import Csound.Catalog.Drum.Tr808
 import Csound.Patch
@@ -53,8 +54,8 @@ minDrums = compileTabs bpm [minKick, minSnare, minChats]
 minMel :: Sig2
 minMel = compileMelody $ str (1/2) combined
   where
-    loop1 = loopBy 4 $ toMel ([Pch C, Pch Cs, Pch D, Pch Ds] <*> pure 8)
-    loop2 = loopBy 4 $ toChord ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
+    loop1 = loopBy 4 $ toMel ([Pch C, Pch F, Pch Fs, Pch G] <*> pure 8)
+    loop2 = loopBy 4 $ toMel ([Pch C, Pch E, Pch G, Pch Bb] <*> pure 8)
     combined = loopBy 32 $ mel [loop1, loop2]
 
 minSong :: SE Sig2
@@ -78,6 +79,8 @@ oscInstr x = return $ mul (linsegr [0, 0.03, 1, 0.2, 0] 0.1 0) $ osc $ sig x
 -- TODO: Extend to non-mono, non-simple instruments
 compileTrack :: (D -> SE Sig) -> Track Sig D -> Sig
 compileTrack instr = mix . sco instr . fmap cpspch . str spb
+
+playC = dac $ mul 0.2 $ magicCave $ mix $ notes vibraphone2 $ mel [c, e, g, high c, rest 15]
 
 compileMelody :: Track Sig D -> Sig2
 compileMelody = fromMono . compileTrack oscInstr
