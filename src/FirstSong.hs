@@ -13,7 +13,6 @@ import Note
 -- TODO: Once in a state to split up, do so into commented composable utils
 
 -- Global controls + derivations
--- TODO: Might also need to pair this with 'setBpm x >> song'
 bpm = 140
 bps = bpm / 60
 spb = 1 / bps
@@ -40,20 +39,30 @@ dnbSong = sum [pure minMel, dnbDrums]
 --       at a time. Like x bars incoming, many bars sustained, few bars dropoff
 -- TODO: Use >>= binding to generate all combinations of drums and play through on loop
 -- TODO: Tab generation (all possible tabs) for randomized beats.
+-- TODO: Experiment with pads
 
 -- Minimal song
 minKick  = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" bd
 minSnare = DrumTab "_ _ _ O|_ _ _ _|_ _ _ o|_ _ _ _" sn
 minChats = DrumTab "O o o .|" chh
+minOhats = DrumTab "_ _ _ _|_ _ O _|" ohh
+minHtoms = DrumTab "_ _ o _|_ _ _ _|_ . _ _|_ _ _ _" htom
+minMtoms = DrumTab "_ _ _ o|_ _ _ _|o _ _ _|_ _ _ ." mtom
+minLtoms = DrumTab "_ _ _ _|_ _ _ o|_ _ _ _|_ _ O _" ltom
+minCyms  = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ O" cym
+minCls   = DrumTab "_ . _ _|_ . _ _|_ o _ _|_ . _ _" cl
 
 minDrums :: SE Sig2
-minDrums = compileTabs bpm [minKick, minSnare, minChats]
+minDrums = compileTabs bpm [minKick, minSnare, minChats, minOhats, minHtoms, minLtoms, minCyms, minCls]
+
+-- Attempt at progressive drums
+
 
 minMel :: Sig2
-minMel = compileMelody vibraphone1 combined
+minMel = compileMelody vibraphone2 combined
   where
-    loop1 = loopBy 2 $ toMel (Pch <$> [C, F, Fs, G] <*> [7, 8])
-    loop2 = loopBy 2 $ toMel (Pch <$> [C, E, G, Bb] <*> [7, 8])
+    loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/2])
+    loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/3, 2/3])
     combined = loopBy 32 $ mel [loop1, loop2]
 
 minSong :: SE Sig2
