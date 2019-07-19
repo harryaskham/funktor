@@ -13,7 +13,7 @@ import Note
 -- TODO: Once in a state to split up, do so into commented composable utils
 
 -- Global controls + derivations
-bpm = 140
+bpm = 180
 bps = bpm / 60
 spb = 1 / bps
 
@@ -32,7 +32,7 @@ dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
 
 dnbTabs = [dnbKicks, dnbSnare, dnbChats, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
-dnbSong = sum [pure minMel, dnbDrums]
+dnbSong = sum [pure minBass, dnbDrums]
 
 -- sequences = bass >> snares / hat >> full song >> fade out
 -- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one
@@ -40,6 +40,8 @@ dnbSong = sum [pure minMel, dnbDrums]
 -- TODO: Use >>= binding to generate all combinations of drums and play through on loop
 -- TODO: Tab generation (all possible tabs) for randomized beats.
 -- TODO: Experiment with pads
+-- TODO: Get the intermediary compiled-tab form of Drums and use these with any kind of generation function
+-- TODO: "Humanizer" that combines up small variants on velocity in order to naturalize a sound.
 
 -- Minimal song
 minKick  = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" bd
@@ -57,16 +59,19 @@ minDrums = compileTabs bpm [minKick, minSnare, minChats, minOhats, minHtoms, min
 
 -- Attempt at progressive drums
 
-
 minMel :: Sig2
-minMel = compileMelody vibraphone2 combined
+minMel = compileMelody razorLead combined
   where
-    loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/2])
-    loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/3, 2/3])
+    loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/2, 1/2])
+    loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/4, 1/4])
     combined = loopBy 32 $ mel [loop1, loop2]
 
+-- TODO
+minBass :: Sig2
+minBass = compileMelody simpleBass . loopBy 32 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
+
 minSong :: SE Sig2
-minSong = inOutFilter <$> sum [pure minMel, minDrums]
+minSong = sum [pure minMel, pure minBass, minDrums]
 
 -- Modifiers (WIP)
 
