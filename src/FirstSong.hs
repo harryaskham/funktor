@@ -54,10 +54,19 @@ minLtoms = DrumTab "_ _ _ _|_ _ _ o|_ _ _ _|_ _ O _" ltom
 minCyms  = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ O" cym
 minCls   = DrumTab "_ . _ _|_ . _ _|_ o _ _|_ . _ _" cl
 
-minDrums :: SE Sig2
-minDrums = compileTabs bpm [minKick, minSnare, minChats, minOhats, minHtoms, minLtoms, minCyms, minCls]
+minTabs :: [DrumTab]
+minTabs = [minKick, minSnare, minChats, minOhats, minHtoms, minLtoms, minCyms, minCls]
 
--- Attempt at progressive drums
+minDrums :: SE Sig2
+minDrums = compileTabs bpm minTabs
+
+-- TODO: Attempt at progressive drums - start just by growing permutations of drums using order
+
+increasingMinDrums :: [SE Sig2] --TODO: Need to figure out a way to sequence these instead of playing them over each other with sum
+increasingMinDrums = compileTabs bpm <$> increasingSequences minTabs
+
+-- NOT DONE YET
+-- END DRUMS
 
 minMel :: Sig2
 minMel = compileMelody razorLead combined
@@ -80,5 +89,6 @@ inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
 
 -- Compiles the given track using the given patch.
+-- TODO: Take bpm as a parameter
 compileMelody :: Patch2 -> Track Sig (D, D) -> Sig2
 compileMelody patch = mix . atSco patch . fmap cpspch2 . str spb
