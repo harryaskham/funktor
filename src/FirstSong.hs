@@ -60,14 +60,15 @@ increasingMinDrums :: [SE Sig2]
 increasingMinDrums = compileTabs bpm <$> increasingSequences minTabs
 
 -- Plays in sequence with specified bar length.
-compileIncreasing :: D -> [SE Sig2] -> Sig2
+compileIncreasing :: Sig -> [SE Sig2] -> SE Sig2
 compileIncreasing bars drums = sigDrums
   where
     drums' = sequenceA drums
-    limDrums = lim bars <$> drums'
+    bars' = fromMono bars
+    limDrums = fmap (fmap $ lim bars') drums'
     segDrums = fmap (fmap toSeg) limDrums
-    melDrums = fmap mel segDrums
-    sigDrums = fmap runSeg melDrums
+    melDrums = mel <$> segDrums
+    sigDrums = runSeg <$> melDrums
 
 -- NOT DONE YET
 -- END DRUMS
