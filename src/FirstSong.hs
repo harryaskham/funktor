@@ -64,9 +64,8 @@ compileIncreasing :: Sig -> [SE Sig2] -> SE Sig2
 compileIncreasing bars drums = sigDrums
   where
     drums' = sequenceA drums
-    bars' = fromMono bars
-    limDrums = fmap (fmap $ lim bars') drums'
-    segDrums = fmap (fmap toSeg) limDrums
+    segDrums = (fmap . fmap) toSeg drums'
+    limDrums = (fmap . fmap) (constLim bars) segDrums
     melDrums = mel <$> segDrums
     sigDrums = runSeg <$> melDrums
 
