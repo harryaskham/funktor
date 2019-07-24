@@ -55,15 +55,19 @@ minDrums = compileTabs bpm minTabs
 
 -- TODO: Attempt at progressive drums - start just by growing permutations of drums using order
 
--- TODO: flow fn needs using here on Sam types
-
 -- The minDrums in increasing order.
 increasingMinDrums :: [SE Sig2]
 increasingMinDrums = compileTabs bpm <$> increasingSequences minTabs
 
 -- Plays in sequence with specified bar length.
-compileIncreasing :: D -> [SE Sig2] -> SE Sig2
-compileIncreasing bars drums = seq $ fmap (lim bars) drums
+compileIncreasing :: D -> [SE Sig2] -> Sig2
+compileIncreasing bars drums = sigDrums
+  where
+    drums' = sequenceA drums
+    limDrums = lim bars <$> drums'
+    segDrums = fmap (fmap toSeg) limDrums
+    melDrums = fmap mel segDrums
+    sigDrums = fmap runSeg melDrums
 
 -- NOT DONE YET
 -- END DRUMS
