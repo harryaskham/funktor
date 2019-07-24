@@ -12,14 +12,7 @@ import Note
 
 -- TODO: Once in a state to split up, do so into commented composable utils
 
--- Global controls + derivations
 bpm = 180
-bps = bpm / 60
-spb = 1 / bps
-
--- Run the given song respecting the global BPM.
-run :: SE Sig2 -> IO()
-run song = dac $ setBpm bpm >> song
 
 -- AVAILABLE TR808 DRUMS
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
@@ -62,22 +55,29 @@ minDrums = compileTabs bpm minTabs
 
 -- TODO: Attempt at progressive drums - start just by growing permutations of drums using order
 
-increasingMinDrums :: [SE Sig2] --TODO: Need to figure out a way to sequence these instead of playing them over each other with sum
+-- TODO: flow fn needs using here on Sam types
+
+-- The minDrums in increasing order.
+increasingMinDrums :: [SE Sig2]
 increasingMinDrums = compileTabs bpm <$> increasingSequences minTabs
+
+-- Plays in sequence with specified bar length.
+compileIncreasing :: D -> [SE Sig2] -> SE Sig2
+compileIncreasing bars drums = seq $ fmap (lim bars) drums
 
 -- NOT DONE YET
 -- END DRUMS
 
 minMel :: Sig2
-minMel = compileMelody razorLead combined
+minMel = compileMelody bpm razorLead combined
   where
     loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/2, 1/2])
     loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/4, 1/4])
-    combined = loopBy 32 $ mel [loop1, loop2]
+    combined = loopBy 4 $ har [loop1, loop2]
 
 -- TODO
 minBass :: Sig2
-minBass = compileMelody simpleBass . loopBy 32 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
+minBass = compileMelody bpm simpleBass . loopBy 4 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
 
 minSong :: SE Sig2
 minSong = sum [pure minMel, pure minBass, minDrums]
@@ -89,6 +89,5 @@ inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
 
 -- Compiles the given track using the given patch.
--- TODO: Take bpm as a parameter
-compileMelody :: Patch2 -> Track Sig (D, D) -> Sig2
-compileMelody patch = mix . atSco patch . fmap cpspch2 . str spb
+compileMelody :: BPM -> Patch2 -> Track Sig (D, D) -> Sig2
+compileMelody bpm patch = mix . atSco patch . fmap cpspch2 . str (spb bpm)

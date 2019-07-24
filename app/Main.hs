@@ -8,4 +8,4 @@ import FirstSong
 import Note
 
 main :: IO ()
-main = dac scratchSong
+main = runToDisk minSong
