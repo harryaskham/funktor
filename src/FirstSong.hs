@@ -56,16 +56,19 @@ minDrums = compileTabs bpm minTabs
 -- TODO: Attempt at progressive drums - start just by growing permutations of drums using order
 
 -- The minDrums in increasing order.
-increasingMinDrums :: SE [Sig2]
-increasingMinDrums = sequenceA $ compileTabs bpm <$> increasingSequences minTabs
+increasingMinDrums :: [[DrumTab]]
+increasingMinDrums = increasingSequences minTabs
 
--- Plays in sequence with specified bar length.
-compileIncreasing :: Sig -> [Sig2] -> Sig2
-compileIncreasing bars = runSeg . mel . fmap ((constLim $ takt bars) . toSeg)
+compileIncreasing :: [[DrumTab]] -> SE [Sig2]
+compileIncreasing = traverse (compileTabs bpm)
 
 -- TODO: This won't play, why
-debugDrums :: SE Sig2
-debugDrums = compileIncreasing 10 <$> increasingMinDrums
+--debugDrums :: SE Sig2
+--debugDrums = sequenced
+--  where
+--    compiled = compileIncreasing increasingMinDrums
+--    limited = (fmap . fmap) (limSig 10) compiled
+--    sequenced = flow $ (fmap . fmap) toSeg limited
 
 -- NOT DONE YET
 -- END DRUMS
@@ -75,21 +78,21 @@ loopSig :: Sig2 -> Sig2
 loopSig = runSeg . loop . toSeg
 
 limSig :: Sig -> Sig2 -> Sig2
-limSig bars = runSeg . (constLim $ takt bars) . toSeg
+limSig bars = runSeg . constLim (takt bars) . toSeg
 
 minMel :: Sig2
 minMel = compileMelody bpm razorLead combined
   where
     loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/2, 1/2])
     loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/4, 1/4])
-    combined = mel [loop1, loop2]
+    combined = loopBy 32 $ mel [loop1, loop2]
 
 -- TODO
 minBass :: Sig2
-minBass = compileMelody bpm simpleBass . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
+minBass = compileMelody bpm simpleBass . loopBy 4 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
 
 minSong :: SE Sig2
-minSong = sum [pure $ loopSig minMel, pure $ loopSig minBass, compileIncreasing 4 <$> increasingMinDrums]
+minSong = sum [pure minMel, pure minBass, minDrums]
 
 -- Modifiers (WIP)
 
