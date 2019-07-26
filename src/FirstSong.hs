@@ -13,6 +13,7 @@ import Note
 -- TODO: Once in a state to split up, do so into commented composable utils
 
 bpm = 180
+runF = run bpm
 
 -- AVAILABLE TR808 DRUMS
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
@@ -59,16 +60,15 @@ minDrums = compileTabs bpm minTabs
 increasingMinDrums :: [[DrumTab]]
 increasingMinDrums = increasingSequences minTabs
 
-compileIncreasing :: [[DrumTab]] -> SE [Sig2]
-compileIncreasing = traverse (compileTabs bpm)
+compileIncreasing :: [[DrumTab]] -> [SE Sig2]
+compileIncreasing = fmap (compileTabs bpm)
 
 -- TODO: This won't play, why
---debugDrums :: SE Sig2
---debugDrums = sequenced
---  where
---    compiled = compileIncreasing increasingMinDrums
---    limited = (fmap . fmap) (limSig 10) compiled
---    sequenced = flow $ (fmap . fmap) toSeg limited
+debugDrums :: [SE Sig2]
+debugDrums = limited
+  where
+    compiled = compileIncreasing increasingMinDrums
+    limited = (fmap . fmap) (limSig 10) compiled
 
 -- NOT DONE YET
 -- END DRUMS
