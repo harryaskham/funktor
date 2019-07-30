@@ -14,7 +14,8 @@ import Data.List.Split
 -- O = heavy beat
 -- | = bar separator
 -- ' ' = beat separator
-data DrumTab = DrumTab String Sam 
+data DrumTab = DrumTab String Sam
+
 
 type BeatLength = D
 type BeatVelocity = D

@@ -13,7 +13,10 @@ import Melody
 
 -- TODO: Once in a state to split up, do so into commented composable utils
 
+bpm :: Bpm
 bpm = 180
+
+runF :: SE Sig2 -> IO ()
 runF = run bpm
 
 -- AVAILABLE TR808 DRUMS
@@ -68,20 +71,13 @@ compileIncreasing = fmap (compileTabs bpm)
 -- Work in tab-space only to fix this, only do the signal generation towards the very end
 -- We might need to use 'flow' to list samples
 debugDrums :: [SE Sig2]
-debugDrums = [compiled !! 4]
+debugDrums = limited
   where
     compiled = compileIncreasing increasingMinDrums
-    -- limited = (fmap . fmap) (limSig 10) compiled
+    limited = (fmap . fmap) (limSig 10) compiled
 
 -- NOT DONE YET
 -- END DRUMS
-
--- Allows us to loop a signal, not just a segment
-loopSig :: Sig2 -> Sig2
-loopSig = runSeg . loop . toSeg
-
-limSig :: Sig -> Sig2 -> Sig2
-limSig bars = runSeg . constLim (takt bars) . toSeg
 
 minMel :: Sig2
 minMel = compileMelody bpm razorLead combined
