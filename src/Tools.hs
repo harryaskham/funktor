@@ -25,3 +25,11 @@ increasingSequences = tail . inits
 -- Get the spb from the bpm
 spb :: Bpm -> Spb
 spb bpm = 60 / bpm 
+
+-- Allows us to loop a signal, not just a segment
+loopSig :: Sig2 -> Sig2
+loopSig = runSeg . loop . toSeg
+
+-- ALlows us to limit a signal, not just a segment
+limSig :: Sig -> Sig2 -> Sig2
+limSig bars = runSeg . constLim (takt bars) . toSeg

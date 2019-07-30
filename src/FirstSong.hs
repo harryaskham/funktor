@@ -9,6 +9,7 @@ import Data.List.Split
 import Tabs
 import Tools
 import Note
+import Melody
 
 -- TODO: Once in a state to split up, do so into commented composable utils
 
@@ -101,7 +102,3 @@ minSong = sum [pure minMel, pure minBass, minDrums]
 -- Phases in and out over two bars
 inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
-
--- Compiles the given track using the given patch.
-compileMelody :: Bpm -> Patch2 -> Track Sig (D, D) -> Sig2
-compileMelody bpm patch = mix . atSco patch . fmap cpspch2 . str (spb bpm)
