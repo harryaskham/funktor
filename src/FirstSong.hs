@@ -16,8 +16,8 @@ import Melody
 bpm :: Bpm
 bpm = 180
 
-runF :: SE Sig2 -> IO ()
-runF = run bpm
+run :: SE Sig2 -> IO ()
+run = runB bpm
 
 -- AVAILABLE TR808 DRUMS
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
@@ -98,3 +98,17 @@ minSong = sum [pure minMel, pure minBass, minDrums]
 -- Phases in and out over two bars
 inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
+
+-- TODO: Mega cheesy house.
+-- Starts with simple 4-4 bass.
+-- Then kicks.
+-- Then apocalyptic BWAOOOOO
+-- Then kicks.
+-- Then BWAOOOOO
+-- etc
+-- then drum build up
+-- bass build up
+-- lyrical sample
+-- deep deep drop of some sort with a solid bottom
+-- repeat
+-- TRACK

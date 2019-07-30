@@ -7,8 +7,8 @@ import Csound.Sam
 type Spb = Sig
 
 -- Run the given song respecting the global Bpm.
-run :: Bpm -> SE Sig2 -> IO ()
-run bpm song = dac $ setBpm bpm >> song
+runB :: Bpm -> SE Sig2 -> IO ()
+runB bpm song = dac $ setBpm bpm >> song
 
 -- Writes song to disk in offline-render (useful for working on Mac with earphones, which csound hates)
 runToDisk :: SE Sig2 -> IO ()
