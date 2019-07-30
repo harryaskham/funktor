@@ -64,11 +64,13 @@ compileIncreasing :: [[DrumTab]] -> [SE Sig2]
 compileIncreasing = fmap (compileTabs bpm)
 
 -- TODO: This won't play, why
+-- Work in tab-space only to fix this, only do the signal generation towards the very end
+-- We might need to use 'flow' to list samples
 debugDrums :: [SE Sig2]
-debugDrums = limited
+debugDrums = [compiled !! 4]
   where
     compiled = compileIncreasing increasingMinDrums
-    limited = (fmap . fmap) (limSig 10) compiled
+    -- limited = (fmap . fmap) (limSig 10) compiled
 
 -- NOT DONE YET
 -- END DRUMS
@@ -101,5 +103,5 @@ inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
 
 -- Compiles the given track using the given patch.
-compileMelody :: BPM -> Patch2 -> Track Sig (D, D) -> Sig2
+compileMelody :: Bpm -> Patch2 -> Track Sig (D, D) -> Sig2
 compileMelody bpm patch = mix . atSco patch . fmap cpspch2 . str (spb bpm)

@@ -1,11 +1,12 @@
 module Tools where
 
 import Csound.Base
+import Csound.Sam
 
-type BPM = Sig
+type Spb = Sig
 
--- Run the given song respecting the global BPM.
-run :: BPM -> SE Sig2 -> IO ()
+-- Run the given song respecting the global Bpm.
+run :: Bpm -> SE Sig2 -> IO ()
 run bpm song = dac $ setBpm bpm >> song
 
 -- Writes song to disk in offline-render (useful for working on Mac with earphones, which csound hates)
@@ -21,5 +22,5 @@ increasingSequences :: [a] -> [[a]]
 increasingSequences ts = take <$> [1..length ts] <*> pure ts
 
 -- Get the spb from the bpm
-spb :: BPM -> Sig
+spb :: Bpm -> Spb
 spb bpm = 60 / bpm 

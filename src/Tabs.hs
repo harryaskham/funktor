@@ -21,7 +21,7 @@ type BeatVelocity = D
 type Beat = (BeatLength, BeatVelocity)
 
 -- Takes a list of drum tracks and compiles to a signal.
-compileSample :: Sig -> Sample Sig2 -> SE Sig2
+compileSample :: Sig -> Sam -> SE Sig2
 compileSample bpm = runSam (bpm * 4)
 
 -- Takes those tabs and turns em into musak
@@ -29,7 +29,7 @@ compileTabs :: Sig -> [DrumTab] -> SE Sig2
 compileTabs bpm = compileSample bpm . sum . fmap compileTab
 
 -- | Compiles a tab intno a polyphonic signal.
-compileTab :: DrumTab -> Sample Sig2
+compileTab :: DrumTab -> Sam
 compileTab (DrumTab t s) = pat' velocities (sig <$> lengths) s
   where
     beats = concat $ compileBar <$> splitOn "|" t
