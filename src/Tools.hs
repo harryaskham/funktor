@@ -6,6 +6,7 @@ import Csound.Sam
 
 type Spb = Sig
 
+infixl 5 <$$>
 (<$$>) :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
 (<$$>) = fmap . fmap
 
