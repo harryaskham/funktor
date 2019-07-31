@@ -54,9 +54,9 @@ compileTabSequence :: Bpm -> Sig -> [[DrumTab]] -> SE Sig2
 compileTabSequence = compileTabSequenceWithLimiter map
 
 compileTabSequenceWithLimiter :: ((Sam -> Sam) -> [Sam] -> [Sam]) -> Bpm -> Sig -> [[DrumTab]] -> SE Sig2
-compileTabSequenceWithLimiter mapper bpm limit drums = compileSample bpm limitedSams
+compileTabSequenceWithLimiter mapper bpm limit tabLists = compileSample bpm limitedSams
   where
-    compiledSams = sum <$> (fmap . fmap) compileTab drums
+    compiledSams = sum <$> compileTab <$$> tabLists
     limitedSams = flow $ mapper (lim limit) compiledSams
 
 -- | Compiles the given bar segment into its constituent beats.

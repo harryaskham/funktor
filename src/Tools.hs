@@ -6,6 +6,9 @@ import Csound.Sam
 
 type Spb = Sig
 
+(<$$>) :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
+(<$$>) = fmap . fmap
+
 -- Run the given song respecting the global Bpm.
 runB :: Bpm -> SE Sig2 -> IO ()
 runB bpm song = dac $ setBpm bpm >> song
