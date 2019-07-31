@@ -21,6 +21,9 @@ type BeatLength = D
 type BeatVelocity = D
 type Beat = (BeatLength, BeatVelocity)
 
+runTab :: DrumTab -> IO ()
+runTab = runB 140 . compileTabs 140 . pure
+
 -- Takes a list of drum tracks and compiles to a signal.
 compileSample :: Bpm -> Sam -> SE Sig2
 compileSample bpm = runSam (bpm * 4)

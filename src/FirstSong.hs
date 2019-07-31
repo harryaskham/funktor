@@ -113,11 +113,8 @@ houseSn2 = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ O O" Hm.sn2
 houseChh = DrumTab ". _ . _|. _ . _|. _ . _|. _ . _" Hm.chh
 houseOhh = DrumTab "_ o _ o|_ . _ .|_ O _ o|_ . _ ." Hm.ohh
 houseClp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ _ _" Hm.clap
-
-runTab = run . compileTabs houseBpm . pure
-
 houseTabs = [houseBd2, houseSn1, houseSn2, houseChh, houseOhh, houseClp]
-debugHouseDrums = compileTabs houseBpm houseTabs
+allHouseDrums = compileTabs houseBpm houseTabs
 
 -- First build up to full set
 sequences1 = increasingSequences houseTabs
@@ -128,10 +125,16 @@ sequences2 = drop 2 $ increasingSequences houseTabs
 -- Then don't drop down much at all
 sequences3 = drop 3 $ increasingSequences houseTabs
 
-houseDrums = compileTabSequence houseBpm 64 sequences1 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
+houseDrums = compileTabSequenceWithLoop houseBpm 128 sequences1 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
 
 housePad = compileMelody houseBpm dreamPad notes
   where
-    notes = loopBy 32 $ toMel [Pch C 8 1.0 8, Silent 8]
+    chord = toChord ((\n -> Pch n 6 1.0 8) <$> [C, Eb, G])
+    notes = loopBy 128 $ mel [chord, toMel [Silent 8]]
 
-houseSong = sum [houseDrums, pure housePad]
+houseLead = compileMelody houseBpm overtoneLead $ mel [silence, notes]
+  where
+    silence = toMel [Silent 64]
+    notes = loopBy 128 $ toMel $ Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [1.0] <*> [1]
+
+houseSong = sum [houseDrums, pure housePad, pure houseLead]
