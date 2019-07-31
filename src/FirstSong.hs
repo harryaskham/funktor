@@ -75,9 +75,14 @@ increasingMinSams = (fmap . fmap) compileTab increasingMinDrums
 increasingMinSam :: [Sam]
 increasingMinSam = sum <$> increasingMinSams
 
+mapToAllButLast :: (a -> a) -> [a] -> [a]
+mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)
+ where
+   rev = reverse xs
+
 -- TODO: Sensible lim value
 increasingMinLim :: [Sam]
-increasingMinLim = lim 10 <$> increasingMinSam
+increasingMinLim = mapToAllButLast (lim 10) increasingMinSam
 
 increasingMinFlowed :: Sam
 increasingMinFlowed = flow increasingMinLim

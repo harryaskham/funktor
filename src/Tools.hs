@@ -33,3 +33,10 @@ loopSig = runSeg . loop . toSeg
 -- ALlows us to limit a signal, not just a segment
 limSig :: Sig -> Sig2 -> Sig2
 limSig bars = runSeg . constLim (takt bars) . toSeg
+
+-- Maps the given function to all but the last member of a list.
+mapToAllButLast :: (a -> a) -> [a] -> [a]
+mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)
+ where
+   rev = reverse xs
+
