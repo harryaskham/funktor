@@ -23,7 +23,7 @@ run = runB bpm
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
 
 -- DnB riddim
-dnbKicks = DrumTab "O _ o _|o _ _ _|O _ O _|O _ _ _" bd
+dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" bd
 dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." sn
 dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" chh
 dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
@@ -31,7 +31,7 @@ dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
 dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
 increasingDnbDrums = compileTabSequence bpm 64 $ increasingSequences dnbTabs
-dnbSong = sum [pure minBass, pure minMel, increasingDnbDrums]
+dnbSong = sum [pure minBass, pure minMel2, increasingDnbDrums]
 
 -- sequences = bass >> snares / hat >> full song >> fade out
 -- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one
@@ -69,18 +69,24 @@ increasingMinDrums = compileTabSequence bpm 64 $ increasingSequences minTabs
 -- END DRUMS
 
 minMel :: Sig2
-minMel = compileMelody bpm razorLead combined
+minMel = compileMelody bpm guitar combined
   where
     loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/2, 1/2])
     loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/4, 1/4])
     combined = loopBy 32 $ mel [loop1, loop2]
+
+minMel2 :: Sig2
+minMel2 = compileMelody bpm guitar combined
+  where
+    loop1 = toMel $ (\o -> Pch <$> [B, Fs, E, Ab, C, Db] <*> [o] <*> [0.5] <*> [1 / 2]) =<< [8, 9, 6, 7]
+    combined = loopBy 32 $ mel [loop1]
 
 -- TODO
 minBass :: Sig2
 minBass = compileMelody bpm simpleBass . loopBy 400 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
 
 minSong :: SE Sig2
-minSong = sum [pure minMel, pure minBass, increasingMinDrums]
+minSong = sum [pure minMel2, pure minBass, increasingMinDrums]
 
 -- Modifiers (WIP)
 
