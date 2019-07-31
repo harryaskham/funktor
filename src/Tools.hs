@@ -40,3 +40,7 @@ mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)
  where
    rev = reverse xs
 
+-- Phases in and out over two bars
+inOutFilter :: SigSpace a => a -> a
+inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
+

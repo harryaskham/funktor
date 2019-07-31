@@ -41,11 +41,20 @@ compileTabs :: Bpm -> [DrumTab] -> SE Sig2
 compileTabs bpm = compileSamples bpm . fmap compileTab
 
 -- | Compiles a sequence of tabs one after the other, with the given limit.
+-- | Ends up looping the final beat forever.
+compileTabSequenceWithLoop :: Bpm -> Sig -> [[DrumTab]] -> SE Sig2
+compileTabSequenceWithLoop = compileTabSequenceWithLimiter mapToAllButLast
+
+-- | Compiles a sequence of tabs one after the other, with the given limit.
+-- | The final beat is also truncated.
 compileTabSequence :: Bpm -> Sig -> [[DrumTab]] -> SE Sig2
-compileTabSequence bpm limit drums = compileSample bpm limitedSams
+compileTabSequence = compileTabSequenceWithLimiter map
+
+compileTabSequenceWithLimiter :: ((Sam -> Sam) -> [Sam] -> [Sam]) -> Bpm -> Sig -> [[DrumTab]] -> SE Sig2
+compileTabSequenceWithLimiter mapper bpm limit drums = compileSample bpm limitedSams
   where
     compiledSams = sum <$> (fmap . fmap) compileTab drums
-    limitedSams = flow $ mapToAllButLast (lim limit) compiledSams
+    limitedSams = flow $ mapper (lim limit) compiledSams
 
 -- | Compiles the given bar segment into its constituent beats.
 compileBar :: String -> [Beat]

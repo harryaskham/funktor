@@ -1,7 +1,8 @@
 module FirstSong where
 
 import Csound.Base hiding (Tab)
-import Csound.Catalog.Drum.Tr808
+import qualified Csound.Catalog.Drum.Tr808 as Tr808
+import qualified Csound.Catalog.Drum.Hm as Hm
 import Csound.Patch
 import Csound.Sam
 import Csound.Sam.Core
@@ -23,10 +24,10 @@ run = runB bpm
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
 
 -- DnB riddim
-dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" bd
-dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." sn
-dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" chh
-dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
+dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" Tr808.bd
+dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." Tr808.sn
+dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" Tr808.chh
+dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" Tr808.ohh
 
 dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
@@ -43,15 +44,15 @@ dnbSong = sum [pure minBass, pure minMel2, increasingDnbDrums]
 -- TODO: "Humanizer" that combines up small variants on velocity in order to naturalize a sound.
 
 -- Minimal song
-minKick  = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" bd
-minSnare = DrumTab "_ _ _ O|_ _ _ _|_ _ _ o|_ _ _ _" sn
-minChats = DrumTab "O o o .|" chh
-minOhats = DrumTab "_ _ _ _|_ _ O _|" ohh
-minHtoms = DrumTab "_ _ o _|_ _ _ _|_ . _ _|_ _ _ _" htom
-minMtoms = DrumTab "_ _ _ o|_ _ _ _|o _ _ _|_ _ _ ." mtom
-minLtoms = DrumTab "_ _ _ _|_ _ _ o|_ _ _ _|_ _ O _" ltom
-minCyms  = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ O" cym
-minCls   = DrumTab "_ . _ _|_ . _ _|_ o _ _|_ . _ _" cl
+minKick  = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Tr808.bd
+minSnare = DrumTab "_ _ _ O|_ _ _ _|_ _ _ o|_ _ _ _" Tr808.sn
+minChats = DrumTab "O o o .|" Tr808.chh
+minOhats = DrumTab "_ _ _ _|_ _ O _|" Tr808.ohh
+minHtoms = DrumTab "_ _ o _|_ _ _ _|_ . _ _|_ _ _ _" Tr808.htom
+minMtoms = DrumTab "_ _ _ o|_ _ _ _|o _ _ _|_ _ _ ." Tr808.mtom
+minLtoms = DrumTab "_ _ _ _|_ _ _ o|_ _ _ _|_ _ O _" Tr808.ltom
+minCyms  = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ O" Tr808.cym
+minCls   = DrumTab "_ . _ _|_ . _ _|_ o _ _|_ . _ _" Tr808.cl
 
 minTabs :: [DrumTab]
 minTabs = [minKick, minSnare, minChats, minOhats, minHtoms, minLtoms, minCyms, minCls]
@@ -90,10 +91,6 @@ minSong = sum [pure minMel2, pure minBass, increasingMinDrums]
 
 -- Modifiers (WIP)
 
--- Phases in and out over two bars
-inOutFilter :: SigSpace a => a -> a
-inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
-
 -- TODO: Mega cheesy house.
 -- Starts with simple 4-4 bass.
 -- Then kicks.
@@ -107,3 +104,34 @@ inOutFilter = at (mlp (500 + 4500 * uosc (takt 4)) 0.55)
 -- deep deep drop of some sort with a solid bottom
 -- repeat
 -- TRACK
+-- Put some effects on the drums
+-- Inject bits of silence into the drums
+houseBpm = 140
+houseBd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2
+houseSn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1
+houseSn2 = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ O O" Hm.sn2
+houseChh = DrumTab ". _ . _|. _ . _|. _ . _|. _ . _" Hm.chh
+houseOhh = DrumTab "_ o _ o|_ . _ .|_ O _ o|_ . _ ." Hm.ohh
+houseClp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ _ _" Hm.clap
+
+runTab = run . compileTabs houseBpm . pure
+
+houseTabs = [houseBd2, houseSn1, houseSn2, houseChh, houseOhh, houseClp]
+debugHouseDrums = compileTabs houseBpm houseTabs
+
+-- First build up to full set
+sequences1 = increasingSequences houseTabs
+
+-- The drop it down again, but not all the way, and not building up all the way
+sequences2 = drop 2 $ increasingSequences houseTabs
+
+-- Then don't drop down much at all
+sequences3 = drop 3 $ increasingSequences houseTabs
+
+houseDrums = compileTabSequence houseBpm 64 sequences1 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
+
+housePad = compileMelody houseBpm dreamPad notes
+  where
+    notes = loopBy 32 $ toMel [Pch C 8 1.0 8, Silent 8]
+
+houseSong = sum [houseDrums, pure housePad]

@@ -6,7 +6,7 @@ data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As |
 type Octave = Int
 type Duration = Sig
 type Velocity = D
-data Pch = Pch Note Octave Velocity Duration
+data Pch = Pch Note Octave Velocity Duration | Silent Duration
 
 toIndex :: Note -> Int
 toIndex C = 0
@@ -33,14 +33,17 @@ toD (Pch n o v d) = octaveN + noteN
   where
     octaveN = fromIntegral o
     noteN = 0.01 * fromIntegral (toIndex n)
+toD (Silent d) = error "wtf"
 
 -- Converts to CsdNote type with velocity
 toDD :: Pch -> (D, D)
 toDD p@(Pch _ _ v _) = (v, toD p)
+toDD (Silent d) = error "wtf"
 
 -- Converts single note to temp
 toTemp :: Pch -> Track Sig (D, D)
 toTemp p@(Pch n o v d) = str d . temp . toDD $ p
+toTemp (Silent d) = rest d
 
 -- Converts notes to temps
 toTemps :: [Pch] -> [Track Sig (D, D)]
