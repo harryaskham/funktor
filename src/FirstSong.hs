@@ -64,17 +64,17 @@ minDrums = compileTabs bpm minTabs
 increasingMinDrums :: [[DrumTab]]
 increasingMinDrums = increasingSequences minTabs
 
-compileIncreasing :: [[DrumTab]] -> [SE Sig2]
-compileIncreasing = fmap (compileTabs bpm)
+compileIncreasing :: [[DrumTab]] -> [[Sam]]
+compileIncreasing = (fmap . fmap) compileTab
 
 -- TODO: This won't play, why
 -- Work in tab-space only to fix this, only do the signal generation towards the very end
 -- We might need to use 'flow' to list samples
-debugDrums :: [SE Sig2]
-debugDrums = limited
+debugDrums :: [[SE Sig2]]
+debugDrums = sigs
   where
-    compiled = compileIncreasing increasingMinDrums
-    limited = (fmap . fmap) (limSig 10) compiled
+    sams = compileIncreasing increasingMinDrums
+    sigs = (fmap . fmap) (runSam bpm) sams
 
 -- NOT DONE YET
 -- END DRUMS

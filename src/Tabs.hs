@@ -1,4 +1,4 @@
-module Tabs (DrumTab(..), compileTabs) where
+module Tabs where
 
 import Csound.Base
 import Csound.Patch
@@ -16,18 +16,17 @@ import Data.List.Split
 -- ' ' = beat separator
 data DrumTab = DrumTab String Sam
 
-
 type BeatLength = D
 type BeatVelocity = D
 type Beat = (BeatLength, BeatVelocity)
 
 -- Takes a list of drum tracks and compiles to a signal.
-compileSample :: Sig -> Sam -> SE Sig2
+compileSample :: Bpm -> Sam -> SE Sig2
 compileSample bpm = runSam (bpm * 4)
 
--- Takes those tabs and turns em into musak
-compileTabs :: Sig -> [DrumTab] -> SE Sig2
-compileTabs bpm = compileSample bpm . sum . fmap compileTab
+-- Compiles only the given samples, at the given bpm
+compileSamples :: Bpm -> [Sam] -> SE Sig2
+compileSamples bpm = compileSample bpm . sum
 
 -- | Compiles a tab intno a polyphonic signal.
 compileTab :: DrumTab -> Sam
@@ -35,6 +34,10 @@ compileTab (DrumTab t s) = pat' velocities (sig <$> lengths) s
   where
     beats = concat $ compileBar <$> splitOn "|" t
     (lengths, velocities) = unzip beats
+
+-- | Compiles a list of tabs into a beat.
+compileTabs :: Bpm -> [DrumTab] -> SE Sig2
+compileTabs bpm = compileSamples bpm . fmap compileTab
 
 -- | Compiles the given bar segment into its constituent beats.
 compileBar :: String -> [Beat]
