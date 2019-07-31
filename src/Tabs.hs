@@ -5,6 +5,7 @@ import Csound.Patch
 import Csound.Sam
 import Csound.Sam.Core
 import Data.List.Split
+import Tools
 
 -- A pairing of intensity tab and sample to play.
 -- Visual drum sequencer.
@@ -38,6 +39,13 @@ compileTab (DrumTab t s) = pat' velocities (sig <$> lengths) s
 -- | Compiles a list of tabs into a beat.
 compileTabs :: Bpm -> [DrumTab] -> SE Sig2
 compileTabs bpm = compileSamples bpm . fmap compileTab
+
+-- | Compiles a sequence of tabs one after the other, with the given limit.
+compileTabSequence :: Bpm -> Sig -> [[DrumTab]] -> SE Sig2
+compileTabSequence bpm limit drums = compileSample bpm limitedSams
+  where
+    compiledSams = sum <$> (fmap . fmap) compileTab drums
+    limitedSams = flow $ mapToAllButLast (lim limit) compiledSams
 
 -- | Compiles the given bar segment into its constituent beats.
 compileBar :: String -> [Beat]

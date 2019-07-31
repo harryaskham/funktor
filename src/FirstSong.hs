@@ -23,14 +23,15 @@ run = runB bpm
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
 
 -- DnB riddim
-dnbKicks = DrumTab "O _ o _|_ _ _ _|_ _ O _|_ _ _ _" bd
+dnbKicks = DrumTab "O _ o _|o _ _ _|O _ O _|O _ _ _" bd
 dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." sn
-dnbChats = DrumTab "_ _ _ _|_ _ o _|o _ _ _|_ _ . _" chh
+dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" chh
 dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" ohh
 
-dnbTabs = [dnbKicks, dnbSnare, dnbChats, dnbOhats]
+dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
-dnbSong = sum [pure minBass, dnbDrums]
+increasingDnbDrums = compileTabSequence bpm 64 $ increasingSequences dnbTabs
+dnbSong = sum [pure minBass, pure minMel, increasingDnbDrums]
 
 -- sequences = bass >> snares / hat >> full song >> fade out
 -- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one
@@ -61,34 +62,8 @@ minDrums = compileTabs bpm minTabs
 -- TODO: Attempt at progressive drums - start just by growing permutations of drums using order
 
 -- The minDrums in increasing order.
-increasingMinDrums :: [[DrumTab]]
-increasingMinDrums = increasingSequences minTabs
-
-compileIncreasing :: [[DrumTab]] -> [SE Sig2]
-compileIncreasing = fmap $ compileTabs bpm
-
---
-
-increasingMinSams :: [[Sam]]
-increasingMinSams = (fmap . fmap) compileTab increasingMinDrums
-
-increasingMinSam :: [Sam]
-increasingMinSam = sum <$> increasingMinSams
-
-mapToAllButLast :: (a -> a) -> [a] -> [a]
-mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)
- where
-   rev = reverse xs
-
--- TODO: Sensible lim value
-increasingMinLim :: [Sam]
-increasingMinLim = mapToAllButLast (lim 10) increasingMinSam
-
-increasingMinFlowed :: Sam
-increasingMinFlowed = flow increasingMinLim
-
-debugDrums :: SE Sig2
-debugDrums = compileSample bpm increasingMinFlowed
+increasingMinDrums :: SE Sig2
+increasingMinDrums = compileTabSequence bpm 64 $ increasingSequences minTabs
 
 -- NOT DONE YET
 -- END DRUMS
@@ -102,10 +77,10 @@ minMel = compileMelody bpm razorLead combined
 
 -- TODO
 minBass :: Sig2
-minBass = compileMelody bpm simpleBass . loopBy 4 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
+minBass = compileMelody bpm simpleBass . loopBy 400 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
 
 minSong :: SE Sig2
-minSong = sum [pure minMel, pure minBass, minDrums]
+minSong = sum [pure minMel, pure minBass, increasingMinDrums]
 
 -- Modifiers (WIP)
 
