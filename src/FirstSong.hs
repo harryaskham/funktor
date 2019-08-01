@@ -125,7 +125,7 @@ sequences2 = drop 2 $ increasingSequences houseTabs
 -- Then don't drop down much at all
 sequences3 = drop 3 $ increasingSequences houseTabs
 
-houseDrums = compileTabSequenceWithLoop houseBpm 128 sequences2 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
+houseDrums = compileTabSequenceWithLoop houseBpm 128 sequences1 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
 
 housePad = compileMelody houseBpm dreamPad notes
   where
@@ -151,8 +151,7 @@ houseArp = compileMelody houseBpm banyan $ mel [silence, melody]
 debugHouseSong = sum [allHouseDrums, pure housePad, pure houseTinkle, pure houseArp]
 houseSong = sum [houseDrums, pure housePad, pure houseTinkle, pure houseArp]
 
-
-
+--
 
 tetrisNotes1 :: [Pch]
 tetrisNotes1 =
@@ -183,4 +182,4 @@ tetrisNotes3 =
 
 tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
 tetrisLead = compileMelody houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
-tetrisHouseSong = sum [houseDrums, pure tetrisLead]
+tetrisHouseSong = sum [houseDrums, inOutFilter $ pure tetrisLead]
