@@ -12,10 +12,8 @@ import Tools
 import Note
 import Melody
 
--- TODO: Once in a state to split up, do so into commented composable utils
-
 bpm :: Bpm
-bpm = 180
+bpm = 174
 
 run :: SE Sig2 -> IO ()
 run = runB bpm
@@ -31,8 +29,9 @@ dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" Tr808.ohh
 
 dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
-increasingDnbDrums = compileTabSequence bpm 64 $ increasingSequences dnbTabs
+increasingDnbDrums = compileTabSequenceWithLoop bpm 64 $ increasingSequences dnbTabs
 dnbSong = sum [pure minBass, pure minMel2, increasingDnbDrums]
+dnbTetrisSong = sum [pure minBass, pure minMel2, increasingDnbDrums]
 
 -- sequences = bass >> snares / hat >> full song >> fade out
 -- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one
@@ -60,43 +59,34 @@ minTabs = [minKick, minSnare, minChats, minOhats, minHtoms, minLtoms, minCyms, m
 minDrums :: SE Sig2
 minDrums = compileTabs bpm minTabs
 
--- TODO: Attempt at progressive drums - start just by growing permutations of drums using order
-
--- The minDrums in increasing order.
 increasingMinDrums :: SE Sig2
 increasingMinDrums = compileTabSequence bpm 64 $ increasingSequences minTabs
 
--- NOT DONE YET
--- END DRUMS
-
 minMel :: Sig2
-minMel = compileMelody bpm guitar combined
+minMel = compileMelody $ MelSegment bpm guitar combined
   where
     loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/2, 1/2])
     loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/4, 1/4])
     combined = loopBy 32 $ mel [loop1, loop2]
 
 minMel2 :: Sig2
-minMel2 = compileMelody bpm guitar combined
+minMel2 = compileMelody $ MelSegment bpm guitar combined
   where
     loop1 = toMel $ (\o -> Pch <$> [B, Fs, E, Ab, C, Db] <*> [o] <*> [0.5] <*> [1 / 2]) =<< [8, 9, 6, 7]
     combined = loopBy 32 $ mel [loop1]
 
--- TODO
 minBass :: Sig2
-minBass = compileMelody bpm simpleBass . loopBy 400 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
+minBass = compileMelody $ MelSegment bpm simpleBass . loopBy 400 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
 
 minSong :: SE Sig2
 minSong = sum [pure minMel2, pure minBass, increasingMinDrums]
-
--- Modifiers (WIP)
 
 -- TODO: finish mega cheesy house experiment
 -- Put some effects on the drums
 -- Inject bits of silence into the drums
 -- Figure out a vocal sample
 -- Notion of 'verse' / 'chorus' / 'verse' structure to compose
-houseBpm = 140
+houseBpm = 128
 houseBd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2
 houseSn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1
 houseSn2 = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ O O" Hm.sn2
@@ -119,27 +109,25 @@ houseDrums = compileTabSequenceWithLoop houseBpm 128 <$> houseTabSeqs
 -- TODO: Need a newtype for these melodies which we can compile at song creation time
 -- Means we can stay in Mel-space for longer and e.g. introduce intro-delays later on.
 
-housePad = compileMelody houseBpm dreamPad notes
+housePad = MelSegment houseBpm dreamPad notes
   where
     chord1 = toChord $ Pch <$> [C, Eb, G] <*> [6] <*> [1.0] <*> [8]
     chord2 = toChord $ Pch <$> [F, Ab, C] <*> [6] <*> [1.0] <*> [8]
     silence = toMel [Silent 8]
     notes = loopBy 128 $ mel [chord1, silence, chord2, silence]
 
-houseTinkle = compileMelody houseBpm overtoneLead $ mel [introSilence, melody]
+houseTinkle = MelSegment houseBpm overtoneLead melody
   where
-    introSilence = toMel [Silent 64]
     notes = Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [1.0] <*> [1]
-    melody = loopBy 128 . mel $ [toMel notes, toMel [Silent 32]]
+    melody = loopBy 32 . mel $ [toMel notes, toMel [Silent 32]]
 
-houseArp = compileMelody houseBpm banyan $ mel [introSilence, melody]
+houseArp = MelSegment houseBpm banyan melody
   where
-    introSilence = toMel [Silent 128]
     notes = Pch <$> reverse [C, Bb, Eb, F, G, Ab, D, C] <*> [7, 8] <*> [0.7] <*> [1/2]
-    melody = loopBy 128 $ toMel notes
+    melody = loopBy 32 $ toMel notes
 
-debugHouseSong = sum [allHouseDrums, pure housePad, pure houseTinkle, pure houseArp]
-houseSong = sum [head houseDrums, pure housePad, pure houseTinkle, pure houseArp]
+debugHouseSong = allHouseDrums + sum (pure . compileMelody <$> [housePad, houseTinkle, houseArp])
+houseSong = head houseDrums + sum (pure . compileMelody <$> [housePad, withDelay 64 houseTinkle, withDelay 128 houseArp])
 
 --
 
@@ -171,5 +159,6 @@ tetrisNotes3 =
   ZipList ([4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 2, 2, 2, 2, 8] <**> pure (*0.25))
 
 tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
-tetrisLead = compileMelody houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
+tetrisLead = compileMelody $ MelSegment houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
 tetrisHouseSong = sum [head houseDrums, inOutFilter $ pure tetrisLead]
+tetrisDnbSong = sum [increasingDnbDrums, pure $ compileMelody $ MelSegment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes]

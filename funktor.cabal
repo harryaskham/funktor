@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 855992220f74326943e02cbd3a06918ea9448cc9c95a1808290967f25d414e02
+-- hash: 5ae44087e12b1e485c1f7f50ebcda0427d71bd75787068980f6a0819fc620935
 
 name:           funktor
 version:        0.1.0.0
@@ -30,7 +30,6 @@ library
       FirstSong
       Melody
       Note
-      Scratch
       Tabs
       Tools
   other-modules:
