@@ -127,6 +127,9 @@ sequences3 = drop 3 $ increasingSequences houseTabs
 
 houseDrums = compileTabSequenceWithLoop houseBpm 128 sequences1 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
 
+-- TODO: Need a newtype for these melodies which we can compile at song creation time
+-- Means we can stay in Mel-space for longer.
+
 housePad = compileMelody houseBpm dreamPad notes
   where
     chord1 = toChord ((\n -> Pch n 6 1.0 8) <$> [C, Eb, G])
@@ -136,15 +139,15 @@ housePad = compileMelody houseBpm dreamPad notes
 
 houseTinkle = compileMelody houseBpm overtoneLead $ mel [silence, melody]
   where
-    --silence = toMel [Silent 64]
-    silence = toMel [Silent 0]
+    silence = toMel [Silent 64]
+    --silence = toMel [Silent 0]
     notes = Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [1.0] <*> [1]
     melody = loopBy 128 . mel $ [toMel notes, toMel [Silent 32]]
 
 houseArp = compileMelody houseBpm banyan $ mel [silence, melody]
   where
-    --silence = toMel [Silent 128]
-    silence = toMel [Silent 0]
+    silence = toMel [Silent 128]
+    --silence = toMel [Silent 0]
     notes = Pch <$> reverse [C, Bb, Eb, F, G, Ab, D, C] <*> [7, 8] <*> [0.7] <*> [1/2]
     melody = loopBy 128 $ toMel notes
 
