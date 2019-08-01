@@ -91,21 +91,11 @@ minSong = sum [pure minMel2, pure minBass, increasingMinDrums]
 
 -- Modifiers (WIP)
 
--- TODO: Mega cheesy house.
--- Starts with simple 4-4 bass.
--- Then kicks.
--- Then apocalyptic BWAOOOOO
--- Then kicks.
--- Then BWAOOOOO
--- etc
--- then drum build up
--- bass build up
--- lyrical sample
--- deep deep drop of some sort with a solid bottom
--- repeat
--- TRACK
+-- TODO: finish mega cheesy house experiment
 -- Put some effects on the drums
 -- Inject bits of silence into the drums
+-- Figure out a vocal sample
+-- Notion of 'verse' / 'chorus' / 'verse' structure to compose
 houseBpm = 140
 houseBd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2
 houseSn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1
@@ -116,43 +106,40 @@ houseClp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ 
 houseTabs = [houseBd2, houseSn1, houseSn2, houseChh, houseOhh, houseClp]
 allHouseDrums = compileTabs houseBpm houseTabs
 
--- First build up to full set
-sequences1 = increasingSequences houseTabs
+houseTabSeqs = [
+  -- First build up to full set
+  increasingSequences houseTabs,
+  -- The drop it down again, but not all the way, and not building up all the way
+  drop 2 $ increasingSequences houseTabs,
+  -- Then don't drop down much at all
+  drop 3 $ increasingSequences houseTabs]
 
--- The drop it down again, but not all the way, and not building up all the way
-sequences2 = drop 2 $ increasingSequences houseTabs
-
--- Then don't drop down much at all
-sequences3 = drop 3 $ increasingSequences houseTabs
-
-houseDrums = compileTabSequenceWithLoop houseBpm 128 sequences1 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
+houseDrums = compileTabSequenceWithLoop houseBpm 128 <$> houseTabSeqs
 
 -- TODO: Need a newtype for these melodies which we can compile at song creation time
--- Means we can stay in Mel-space for longer.
+-- Means we can stay in Mel-space for longer and e.g. introduce intro-delays later on.
 
 housePad = compileMelody houseBpm dreamPad notes
   where
-    chord1 = toChord ((\n -> Pch n 6 1.0 8) <$> [C, Eb, G])
-    chord2 = toChord ((\n -> Pch n 6 1.0 8) <$> [F, Ab, C])
+    chord1 = toChord $ Pch <$> [C, Eb, G] <*> [6] <*> [1.0] <*> [8]
+    chord2 = toChord $ Pch <$> [F, Ab, C] <*> [6] <*> [1.0] <*> [8]
     silence = toMel [Silent 8]
     notes = loopBy 128 $ mel [chord1, silence, chord2, silence]
 
-houseTinkle = compileMelody houseBpm overtoneLead $ mel [silence, melody]
+houseTinkle = compileMelody houseBpm overtoneLead $ mel [introSilence, melody]
   where
-    silence = toMel [Silent 64]
-    --silence = toMel [Silent 0]
+    introSilence = toMel [Silent 64]
     notes = Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [1.0] <*> [1]
     melody = loopBy 128 . mel $ [toMel notes, toMel [Silent 32]]
 
-houseArp = compileMelody houseBpm banyan $ mel [silence, melody]
+houseArp = compileMelody houseBpm banyan $ mel [introSilence, melody]
   where
-    silence = toMel [Silent 128]
-    --silence = toMel [Silent 0]
+    introSilence = toMel [Silent 128]
     notes = Pch <$> reverse [C, Bb, Eb, F, G, Ab, D, C] <*> [7, 8] <*> [0.7] <*> [1/2]
     melody = loopBy 128 $ toMel notes
 
 debugHouseSong = sum [allHouseDrums, pure housePad, pure houseTinkle, pure houseArp]
-houseSong = sum [houseDrums, pure housePad, pure houseTinkle, pure houseArp]
+houseSong = sum [head houseDrums, pure housePad, pure houseTinkle, pure houseArp]
 
 --
 
@@ -185,4 +172,4 @@ tetrisNotes3 =
 
 tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
 tetrisLead = compileMelody houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
-tetrisHouseSong = sum [houseDrums, inOutFilter $ pure tetrisLead]
+tetrisHouseSong = sum [head houseDrums, inOutFilter $ pure tetrisLead]
