@@ -112,7 +112,7 @@ houseSn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ 
 houseSn2 = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ O O" Hm.sn2
 houseChh = DrumTab ". _ . _|. _ . _|. _ . _|. _ . _" Hm.chh
 houseOhh = DrumTab "_ o _ o|_ . _ .|_ O _ o|_ . _ ." Hm.ohh
-houseClp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ _ _" Hm.clap
+houseClp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ o _" Hm.clap
 houseTabs = [houseBd2, houseSn1, houseSn2, houseChh, houseOhh, houseClp]
 allHouseDrums = compileTabs houseBpm houseTabs
 
@@ -125,16 +125,62 @@ sequences2 = drop 2 $ increasingSequences houseTabs
 -- Then don't drop down much at all
 sequences3 = drop 3 $ increasingSequences houseTabs
 
-houseDrums = compileTabSequenceWithLoop houseBpm 128 sequences1 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
+houseDrums = compileTabSequenceWithLoop houseBpm 128 sequences2 --sequences1 ++ sequences2 ++ sequences3 ++ sequences2
 
 housePad = compileMelody houseBpm dreamPad notes
   where
-    chord = toChord ((\n -> Pch n 6 1.0 8) <$> [C, Eb, G])
-    notes = loopBy 128 $ mel [chord, toMel [Silent 8]]
+    chord1 = toChord ((\n -> Pch n 6 1.0 8) <$> [C, Eb, G])
+    chord2 = toChord ((\n -> Pch n 6 1.0 8) <$> [F, Ab, C])
+    silence = toMel [Silent 8]
+    notes = loopBy 128 $ mel [chord1, silence, chord2, silence]
 
-houseLead = compileMelody houseBpm overtoneLead $ mel [silence, notes]
+houseTinkle = compileMelody houseBpm overtoneLead $ mel [silence, melody]
   where
-    silence = toMel [Silent 64]
-    notes = loopBy 128 $ toMel $ Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [1.0] <*> [1]
+    --silence = toMel [Silent 64]
+    silence = toMel [Silent 0]
+    notes = Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [1.0] <*> [1]
+    melody = loopBy 128 . mel $ [toMel notes, toMel [Silent 32]]
 
-houseSong = sum [houseDrums, pure housePad, pure houseLead]
+houseArp = compileMelody houseBpm banyan $ mel [silence, melody]
+  where
+    --silence = toMel [Silent 128]
+    silence = toMel [Silent 0]
+    notes = Pch <$> reverse [C, Bb, Eb, F, G, Ab, D, C] <*> [7, 8] <*> [0.7] <*> [1/2]
+    melody = loopBy 128 $ toMel notes
+
+debugHouseSong = sum [allHouseDrums, pure housePad, pure houseTinkle, pure houseArp]
+houseSong = sum [houseDrums, pure housePad, pure houseTinkle, pure houseArp]
+
+
+
+
+tetrisNotes1 :: [Pch]
+tetrisNotes1 =
+  getZipList $
+  Pch <$>
+  ZipList [E, B, C, D, C, B, A, C, E, D, C, B, B, C, D, E, C, A, A] <*>
+  ZipList [8, 7, 8, 8, 8, 7, 7, 8, 8, 8, 8, 7, 7, 8, 8, 8, 8, 7, 7] <*>
+  ZipList (repeat 1.0) <*>
+  ZipList ([2, 1, 1, 2, 1, 1, 3, 1, 2, 1, 1, 2, 1, 1, 2, 2, 2, 2, 5] <**> pure (*0.25))
+
+tetrisNotes2 :: [Pch]
+tetrisNotes2 =
+  getZipList $
+  Pch <$>
+  ZipList [D, F, A, G, F, E, C, E, D, C, B, B, C, D, E, C, A, A]  <*>
+  ZipList [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 8, 8, 8, 8, 7, 7] <*>
+  ZipList (repeat 1.0) <*>
+  ZipList ([2, 1, 2, 1, 1, 3, 1, 2, 1, 1, 2, 1, 1, 2, 2, 2, 2, 4] <**> pure (*0.25))
+
+tetrisNotes3 :: [Pch]
+tetrisNotes3 =
+  getZipList $
+  Pch <$>
+  ZipList [E, C, D, B, C, A, Ab, E, C, D, B, C, E, A, A, Ab]  <*>
+  ZipList [8, 8, 8, 7, 8, 7, 7, 8, 8, 8, 7, 8, 8, 8, 8, 8] <*>
+  ZipList (repeat 1.0) <*>
+  ZipList ([4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 2, 2, 2, 2, 8] <**> pure (*0.25))
+
+tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
+tetrisLead = compileMelody houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
+tetrisHouseSong = sum [houseDrums, pure tetrisLead]
