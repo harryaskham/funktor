@@ -48,4 +48,6 @@ mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)
 inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (1000 + 4000 * uosc (takt 4)) 0.55)
 
-
+-- Loop the given list of things n times
+dup :: Integer -> [a] -> [a]
+dup = (>>) . enumFromTo 1

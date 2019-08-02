@@ -6,6 +6,7 @@ import Csound.Sam
 import Tools
 import Note
 
+-- Definition of a song segment including BPM and instrument information.
 data Segment a = Segment Bpm Patch2 a
 type TrackSegment = Segment (Track Sig (D, D))
 
@@ -13,9 +14,13 @@ type TrackSegment = Segment (Track Sig (D, D))
 instance Functor Segment where
   fmap f (Segment bpm patch a) = Segment bpm patch (f a)
 
--- Compiles the given track using the given patch.
-compileMelody :: TrackSegment -> Sig2
-compileMelody (Segment bpm patch track) = mix . atSco patch . fmap cpspch2 . str (spb bpm) $ track
+-- Compile the given segment as a Seg
+compileToSeg :: TrackSegment -> Seg Sig2
+compileToSeg = toSeg . compileSegment
+
+-- Compiles the given segment to a signal
+compileSegment :: TrackSegment -> Sig2
+compileSegment (Segment bpm patch track) = mix . atSco patch . fmap cpspch2 . str (spb bpm) $ track
 
 -- Introduces silence at the start of the segment
 withDelay :: Sig -> TrackSegment -> TrackSegment

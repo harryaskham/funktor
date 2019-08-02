@@ -56,20 +56,20 @@ increasingMinDrums :: SE Sig2
 increasingMinDrums = compileTabSequence bpm 64 $ increasingSequences minTabs
 
 minMel :: Sig2
-minMel = compileMelody $ Segment bpm guitar combined
+minMel = compileSegment $ Segment bpm guitar combined
   where
     loop1 = toMel (Pch <$> [C, F, Fs, G] <*> [7, 8] <*> [0.5] <*> [1/2, 1/2])
     loop2 = toMel (Pch <$> [C, E, G, Bb] <*> [7, 8] <*> [0.5] <*> [1/4, 1/4, 1/4, 1/4])
     combined = loopBy 32 $ mel [loop1, loop2]
 
 minMel2 :: Sig2
-minMel2 = compileMelody $ Segment bpm guitar combined
+minMel2 = compileSegment $ Segment bpm guitar combined
   where
     loop1 = toMel $ (\o -> Pch <$> [B, Fs, E, Ab, C, Db] <*> [o] <*> [0.5] <*> [1 / 2]) =<< [8, 9, 6, 7]
     combined = loopBy 32 $ mel [loop1]
 
 minBass :: Sig2
-minBass = compileMelody $ Segment bpm simpleBass . loopBy 400 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
+minBass = compileSegment $ Segment bpm simpleBass . loopBy 400 . toMel $ Pch <$> [C, E, C, G] <*> [5] <*> [0.8] <*> [1]
 
 minSong :: SE Sig2
 minSong = sum [pure minMel2, pure minBass, increasingMinDrums]
@@ -80,6 +80,7 @@ minSong = sum [pure minMel2, pure minBass, increasingMinDrums]
 -- Figure out a vocal sample
 -- Notion of 'verse' / 'chorus' / 'verse' structure to compose
 -- Explore way more instrument types, and experiment with adding effects to get new ones
+-- A choppy kind of "on-off" filter like end of mt st michael
 houseBpm = 128
 houseBd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2
 houseSn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1
@@ -99,6 +100,8 @@ houseTabSeqs = [
   drop 3 $ increasingSequences houseTabs]
 
 houseDrums = compileTabSequenceWithLoop houseBpm 128 <$> houseTabSeqs
+
+-- TODO: Segment and Seg need to interop better (toSeg could work?)
 
 -- Chords that persist in the background.
 housePad = Segment houseBpm dreamPad notes
@@ -123,10 +126,10 @@ houseArp = Segment houseBpm banyan melody
 
 -- TODO: Need a "song interface" where we chop it into bits and can sequence the song together
 -- and ideally jump to parts of it easily.
--- Like a Song literal.
+-- Like a Song literal. But probably we should just use Seg here
 
 houseSong :: SE Sig2
-houseSong = head houseDrums + sum (pure . compileMelody <$> melodies)
+houseSong = head houseDrums + sum (pure . compileSegment <$> melodies)
   where
     melodies = [housePad, withDelay 64 houseTinkle, withDelay 128 houseArp]
 
@@ -161,24 +164,24 @@ tetrisNotes3 =
   ZipList ([4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 2, 2, 2, 2, 8] <**> pure (*0.25))
 
 tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
-tetrisLead = compileMelody $ Segment houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
+tetrisLead = compileSegment $ Segment houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
 
 -- TODO: Unfinished - only have the first bar.
 tetrisBassNotes :: [Pch]
 tetrisBassNotes = allNotes
   where
-    notes1 = concat . replicate 4 $ [Pch C 7 1.0 (1/4), Pch E 7 1.0 (1/4)]
-    notes2 = concat . replicate 4 $ [Pch A 6 1.0 (1/4), Pch C 7 1.0 (1/4)]
-    notes3 = concat . replicate 4 $ [Pch Ab 6 1.0 (1/4), Pch B 6 1.0 (1/4)] 
-    notes4 = concat . replicate 4 $ [Pch A 6 1.0 (1/4), Pch C 7 1.0 (1/4)]
+    notes1 = dup 4 [Pch C 7 1.0 (1/4), Pch E 7 1.0 (1/4)]
+    notes2 = dup 4 [Pch A 6 1.0 (1/4), Pch C 7 1.0 (1/4)]
+    notes3 = dup 4 [Pch Ab 6 1.0 (1/4), Pch B 6 1.0 (1/4)] 
+    notes4 = dup 4 [Pch A 6 1.0 (1/4), Pch C 7 1.0 (1/4)]
     allNotes = concat [notes1, notes2, notes3, notes4]
 
 -- TODO: Compile with different instrument
-tetrisBass = compileMelody $ Segment houseBpm overtoneLead $ loopBy 128 $ toMel tetrisBassNotes
+tetrisBass = compileSegment $ Segment houseBpm overtoneLead $ toMel tetrisBassNotes
 
 tetrisHouseSong = sum [head houseDrums, inOutFilter $ pure tetrisLead, pure tetrisBass]
 tetrisDnbSong = sum [
     dnbDrums
-  , pure $ compileMelody $ Segment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes
-  , pure $ compileMelody $ Segment (bpm/2) overtoneLead $ loopBy 8 $ toMel tetrisBassNotes
+  , pure $ compileSegment $ Segment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes
+  , pure $ compileSegment $ Segment (bpm/2) overtoneLead $ loopBy 8 $ toMel tetrisBassNotes
                     ]
