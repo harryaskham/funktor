@@ -31,15 +31,8 @@ dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
 increasingDnbDrums = compileTabSequenceWithLoop bpm 64 $ increasingSequences dnbTabs
 dnbSong = sum [pure minBass, pure minMel2, increasingDnbDrums]
-dnbTetrisSong = sum [pure minBass, pure minMel2, increasingDnbDrums]
 
--- sequences = bass >> snares / hat >> full song >> fade out
--- TODO: DNB sequencer that brings in one at a time, then sustains, then drops em out one
---       at a time. Like x bars incoming, many bars sustained, few bars dropoff
--- TODO: Use >>= binding to generate all combinations of drums and play through on loop
 -- TODO: Tab generation (all possible tabs) for randomized beats.
--- TODO: Experiment with pads
--- TODO: Get the intermediary compiled-tab form of Drums and use these with any kind of generation function
 -- TODO: "Humanizer" that combines up small variants on velocity in order to naturalize a sound.
 
 -- Minimal song
