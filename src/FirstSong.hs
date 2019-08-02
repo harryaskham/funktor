@@ -22,10 +22,10 @@ run = runB bpm
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
 
 -- DnB riddim
-dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" Tr808.bd
-dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." Tr808.sn
-dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" Tr808.chh
-dnbOhats = DrumTab "_ . _ _|_ _ _ _|_ _ _ _|_ _ _ _" Tr808.ohh
+dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" Hm.bd2
+dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." Hm.sn1
+dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" Hm.chh
+dnbOhats = DrumTab "_ . _ .|_ . _ .|_ . _ .|_ . _ ." Hm.ohh
 
 dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs
@@ -137,7 +137,8 @@ houseSong = head houseDrums + sum (pure . compileMelody <$> melodies)
   where
     melodies = [housePad, withDelay 64 houseTinkle, withDelay 128 houseArp]
 
---
+-- TODO: Some chords for Tetris to make things sounds a lil nicer.
+-- Plus compression effects for an 8-bit sound.
 
 tetrisNotes1 :: [Pch]
 tetrisNotes1 =
@@ -169,4 +170,4 @@ tetrisNotes3 =
 tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
 tetrisLead = compileMelody $ Segment houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
 tetrisHouseSong = sum [head houseDrums, inOutFilter $ pure tetrisLead]
-tetrisDnbSong = sum [increasingDnbDrums, pure $ compileMelody $ Segment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes]
+tetrisDnbSong = sum [dnbDrums, pure $ compileMelody $ Segment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes]
