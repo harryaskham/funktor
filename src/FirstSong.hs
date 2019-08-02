@@ -162,5 +162,23 @@ tetrisNotes3 =
 
 tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
 tetrisLead = compileMelody $ Segment houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
-tetrisHouseSong = sum [head houseDrums, inOutFilter $ pure tetrisLead]
-tetrisDnbSong = sum [dnbDrums, pure $ compileMelody $ Segment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes]
+
+-- TODO: Unfinished - only have the first bar.
+tetrisBassNotes :: [Pch]
+tetrisBassNotes = allNotes
+  where
+    notes1 = concat . replicate 4 $ [Pch C 7 1.0 (1/4), Pch E 7 1.0 (1/4)]
+    notes2 = concat . replicate 4 $ [Pch A 6 1.0 (1/4), Pch C 7 1.0 (1/4)]
+    notes3 = concat . replicate 4 $ [Pch Ab 6 1.0 (1/4), Pch B 6 1.0 (1/4)] 
+    notes4 = concat . replicate 4 $ [Pch A 6 1.0 (1/4), Pch C 7 1.0 (1/4)]
+    allNotes = concat [notes1, notes2, notes3, notes4]
+
+-- TODO: Compile with different instrument
+tetrisBass = compileMelody $ Segment houseBpm overtoneLead $ loopBy 128 $ toMel tetrisBassNotes
+
+tetrisHouseSong = sum [head houseDrums, inOutFilter $ pure tetrisLead, pure tetrisBass]
+tetrisDnbSong = sum [
+    dnbDrums
+  , pure $ compileMelody $ Segment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes
+  , pure $ compileMelody $ Segment (bpm/2) overtoneLead $ loopBy 8 $ toMel tetrisBassNotes
+                    ]
