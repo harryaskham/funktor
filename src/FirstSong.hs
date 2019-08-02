@@ -86,6 +86,7 @@ minSong = sum [pure minMel2, pure minBass, increasingMinDrums]
 -- Inject bits of silence into the drums
 -- Figure out a vocal sample
 -- Notion of 'verse' / 'chorus' / 'verse' structure to compose
+-- Explore way more instrument types, and experiment with adding effects to get new ones
 houseBpm = 128
 houseBd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2
 houseSn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1
@@ -111,20 +112,25 @@ housePad = Segment houseBpm dreamPad notes
   where
     chord1 = toChord $ Pch <$> [C, Eb, G] <*> [6] <*> [0.5] <*> [8]
     --chord2 = toChord $ Pch <$> [F, Ab, C] <*> [6] <*> [0.5] <*> [8]
-    silence = toMel [Silent 8]
+    silence = toMel [Silent 24]
     notes = loopBy 128 $ mel [chord1, silence]
 
 -- A less frequent bar of notes to kick in kind of soon.
 houseTinkle = Segment houseBpm overtoneLead melody
   where
-    notes = Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [1.0] <*> [1]
+    notes = Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [0.9] <*> [1]
     melody = loopBy 32 . mel $ [toMel notes, toMel [Silent 32]]
 
 -- An arpeggio that kicks in and persists
 houseArp = Segment houseBpm banyan melody
   where
-    notes = Pch <$> reverse [C, Bb, Eb, F, G, Ab, D, C] <*> [7, 8] <*> [0.7] <*> [1/2]
-    melody = loopBy 32 $ toMel notes
+    notes = toMel $ Pch <$> reverse [C, Bb, Eb, F, G, Ab, D, C] <*> [7, 8] <*> [0.7] <*> [1/2]
+    silence = toMel [Silent 8]
+    melody = loopBy 32 $ mel [notes, notes, silence]
+
+-- TODO: Need a "song interface" where we chop it into bits and can sequence the song together
+-- and ideally jump to parts of it easily.
+-- Like a Song literal.
 
 houseSong :: SE Sig2
 houseSong = head houseDrums + sum (pure . compileMelody <$> melodies)
