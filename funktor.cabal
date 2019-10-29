@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5ae44087e12b1e485c1f7f50ebcda0427d71bd75787068980f6a0819fc620935
+-- hash: df88e9cb94fc6b9bd1dc28fe6f4adbc80575d9f866e561a7b18bc1c30945168f
 
 name:           funktor
 version:        0.1.0.0
@@ -31,6 +31,7 @@ library
       Melody
       Note
       Tabs
+      Tetris
       Tools
   other-modules:
       Paths_funktor

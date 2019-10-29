@@ -8,6 +8,7 @@ import Tabs
 import Note
 import Melody
 import FirstSong
+import Tetris
 import Tools
 
 main :: IO ()
