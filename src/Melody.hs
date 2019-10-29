@@ -16,19 +16,6 @@ instance Functor Segment where
 -- The type of segment we're using here.
 type TrackSegment = Segment (Track Sig (D, D))
 
--- A song represented as the parallel segments to play for the given duration
-data DelayedSegment = DelayedSegment TrackSegment Sig
-
--- Compiles the given delayed segment to a track segment with its delay
-compileDelayedSegment :: DelayedSegment -> TrackSegment
-compileDelayedSegment (DelayedSegment t d) = withDelay d t
-
--- Removes the delays so that segments can be previewed all at once.
-removeDelays :: [DelayedSegment] -> [DelayedSegment]
-removeDelays = fmap withNoDelay
-  where
-    withNoDelay (DelayedSegment t _) = DelayedSegment t 0
-
 -- Compile the given segment as a Seg
 compileToSeg :: TrackSegment -> Seg Sig2
 compileToSeg = toSeg . compileSegment
@@ -40,3 +27,34 @@ compileSegment (Segment bpm patch track) = mix . atSco patch . fmap cpspch2 . st
 -- Introduces silence at the start of the segment
 withDelay :: Sig -> TrackSegment -> TrackSegment
 withDelay delay = fmap (mel . (toMel [Silent delay]:) . pure)
+
+-- A song represented as the parallel segments to play for the given duration
+data DelayedSegment = DelayedSegment TrackSegment Sig
+
+-- Compiles the given delayed segment to a track segment with its delay
+compileDelayedSegment :: DelayedSegment -> TrackSegment
+compileDelayedSegment (DelayedSegment t d) = withDelay d t
+
+-- Compile the given delayed segments into their corresponding signal.
+compileDelayedSegments :: [DelayedSegment] -> Sig2
+compileDelayedSegments = sum . fmap (compileSegment . compileDelayedSegment)
+
+-- Removes the delays so that segments can be previewed all at once.
+removeDelays :: [DelayedSegment] -> [DelayedSegment]
+removeDelays = fmap withNoDelay
+  where
+    withNoDelay (DelayedSegment t _) = DelayedSegment t 0
+
+-- A combination of delayed segments and drum information.
+-- TODO: Make the drum representation richer.
+data Song = Song [DelayedSegment] (SE Sig2)
+
+-- Compiles a song down to its signal
+compileSong :: Song -> SE Sig2
+compileSong (Song delayedSegments drums) = drums + tune
+  where
+    tune = pure $ compileDelayedSegments delayedSegments
+
+-- Previews a song by removing all delays.
+previewSong :: Song -> SE Sig2
+previewSong (Song delayedSegments drums) = compileSong $ Song (removeDelays delayedSegments) drums

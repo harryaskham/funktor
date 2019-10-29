@@ -11,10 +11,21 @@ import Tabs
 import Tools
 import Note
 import Melody
-import FirstSong
+
+bpm = 174
 
 -- TODO: Some chords for Tetris to make things sounds a lil nicer.
 -- Plus compression effects for an 8-bit sound.
+
+-- DnB riddim
+dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" Hm.bd2
+dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." Hm.sn1
+dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" Hm.chh
+dnbOhats = DrumTab "_ . _ .|_ . _ .|_ . _ .|_ . _ ." Hm.ohh
+
+dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
+dnbDrums = compileTabs bpm dnbTabs
+increasingDnbDrums = compileTabSequenceWithLoop bpm 64 $ increasingSequences dnbTabs
 
 tetrisNotes1 :: [Pch]
 tetrisNotes1 =
@@ -44,7 +55,7 @@ tetrisNotes3 =
   ZipList ([4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 2, 2, 2, 2, 8] <**> pure (*0.25))
 
 tetrisNotes = concat [tetrisNotes1, tetrisNotes2, tetrisNotes1, tetrisNotes2, tetrisNotes3]
-tetrisLead = compileSegment $ Segment houseBpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
+tetrisLead = compileSegment $ Segment bpm overtoneLead $ loopBy 32 $ toMel tetrisNotes
 
 -- TODO: Unfinished - only have the first bar.
 tetrisBassNotes :: [Pch]
@@ -57,9 +68,8 @@ tetrisBassNotes = allNotes
     allNotes = concat [notes1, notes2, notes3, notes4]
 
 -- TODO: Compile with different instrument
-tetrisBass = compileSegment $ Segment houseBpm overtoneLead $ toMel tetrisBassNotes
+tetrisBass = compileSegment $ Segment bpm overtoneLead $ toMel tetrisBassNotes
 
-tetrisHouseSong = sum [head houseDrums, inOutFilter $ pure tetrisLead, pure tetrisBass]
 tetrisDnbSong = sum [
     dnbDrums
   , pure $ compileSegment $ Segment (bpm/2) razorLead $ loopBy 8 $ toMel tetrisNotes

@@ -7,7 +7,7 @@ import Csound.Sam.Core
 import Tabs
 import Note
 import Melody
-import FirstSong
+import HouseSong
 import Tetris
 import Tools
 

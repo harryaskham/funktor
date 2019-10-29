@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: df88e9cb94fc6b9bd1dc28fe6f4adbc80575d9f866e561a7b18bc1c30945168f
+-- hash: 0987ddc5c242a83ac11e50a3b5402e32eb190cff067c9a12ec94d58c0813c3eb
 
 name:           funktor
 version:        0.1.0.0
@@ -27,7 +27,7 @@ source-repository head
 
 library
   exposed-modules:
-      FirstSong
+      HouseSong
       Melody
       Note
       Tabs
