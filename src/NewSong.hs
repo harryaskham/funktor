@@ -16,10 +16,10 @@ newBpm = 110
 newBd2 = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
 newSn2 = DrumTab "O _ _ _|_ _ _ _|" Hm.sn2
 newChh = DrumTab "o . . .|" Hm.chh
-newTabs = [newBd2, newSn2]
+newTabs = [newBd2, newSn2, newChh]
 newDrums = compileTabs newBpm newTabs
 
--- Chords that persist in the background.
+
 newPad = Segment newBpm dreamPad notes
   where
     chord1 = toChord $ Pch <$> [C, Eb, G] <*> [6] <*> [0.5] <*> [8]
