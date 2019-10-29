@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0987ddc5c242a83ac11e50a3b5402e32eb190cff067c9a12ec94d58c0813c3eb
+-- hash: 2002caa061080660dfb248a45270534a971b069ffeb36ad47ca549ce390682fe
 
 name:           funktor
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       HouseSong
       Melody
+      NewSong
       Note
       Tabs
       Tetris

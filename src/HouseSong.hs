@@ -65,11 +65,13 @@ houseArp = Segment houseBpm banyan melody
     silence = toMel [Silent 8]
     melody = loopBy 32 $ mel [notes, notes, silence]
 
-houseSong' :: Song
-houseSong' = Song segments $ head houseDrums
-  where
-    segments = [ DelayedSegment housePad 0
-               , DelayedSegment houseTinkle 64
-               , DelayedSegment houseArp 128 ]
+houseSegments :: [DelayedSegment]
+houseSegments = [ DelayedSegment housePad 0
+                , DelayedSegment houseTinkle 64
+                , DelayedSegment houseArp 128 ]
 
+houseSong' :: Song
+houseSong' = Song houseSegments $ head houseDrums
+
+houseSong :: SE Sig2
 houseSong = compileSong houseSong'
