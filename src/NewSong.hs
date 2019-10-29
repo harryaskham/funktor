@@ -17,18 +17,16 @@ newBd2 = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
 newSn2 = DrumTab "O _ _ _|_ _ _ _|" Hm.sn2
 newChh = DrumTab "o . . .|" Hm.chh
 newTabs = [newBd2, newSn2, newChh]
-newDrums = compileTabs newBpm newTabs
+newDrumsFx = fmap largeHall2
+newDrums = newDrumsFx $ compileTabs newBpm newTabs
 
-
-newPad = Segment newBpm dreamPad notes
+newPiano = Segment newBpm fmPiano looped
   where
-    chord1 = toChord $ Pch <$> [C, Eb, G] <*> [6] <*> [0.5] <*> [8]
-    --chord2 = toChord $ Pch <$> [F, Ab, C] <*> [6] <*> [0.5] <*> [8]
-    silence = toMel [Silent 24]
-    notes = loopBy 128 $ mel [chord1, silence]
+    notes = [Pch C 7, Pch Bb 8, Pch B 6] <*> pure 0.5 <*> pure 0.5
+    looped = loopBy 256 . toMel $ notes
 
 newSegments :: [DelayedSegment]
-newSegments = []
+newSegments = [DelayedSegment newPiano 0]
 
 newSong' :: Song
 newSong' = Song newSegments newDrums
