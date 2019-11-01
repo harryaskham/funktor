@@ -16,12 +16,17 @@ newBpm = 110
 
 newBd2 = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
 newSn2 = DrumTab "_ _ o _|_ _ _ _|" Hm.sn2
-newChh = DrumTab "o . . .|" Hm.chh
-newTabSeqs = [ [newBd2]
-             , [newBd2, newSn2]
-             , [newBd2, newSn2, newChh] ]
-newDrumsFx = fmap smallHall2
-newDrums = newDrumsFx $ compileTabSequenceWithLoop newBpm 32 newTabSeqs
+newChh = DrumTab ". . _ _|" Hm.chh
+newOhh = DrumTab "_ _ O _|" Hm.ohh
+newTabs = [ [newChh, newOhh]
+          , [newBd2]
+          , [newSn2] ]
+newDrumsFx = fmap largeHall2
+newCompiledDrums = ZipList $ newDrumsFx . compileTabs newBpm <$> newTabs
+newDrumDelays = ZipList [0, 4, 8]
+newDrums = getZipList $ DelayedDrums <$> newCompiledDrums <*> newDrumDelays
+
+newLead = Segment newBpm 
 
 newPiano = Segment newBpm razorLead looped
   where
@@ -30,8 +35,7 @@ newPiano = Segment newBpm razorLead looped
     looped = loopBy 128 . toMel $ notes1 ++ [Silent 3] ++ notes2 ++ [Silent 3]
 
 newSong' :: Song
-newSong' = Song [ DelayedDrums newDrums 16
-                , DelayedSegment newPiano 0 ]
+newSong' = Song $ newDrums ++ [ DelayedSegment newPiano 8 ]
 
 newSong :: SE Sig2
 newSong = compileSong newSong'
