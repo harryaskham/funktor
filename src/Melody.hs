@@ -29,7 +29,6 @@ data DelayedSegment = DelayedSegment TrackSegment Sig
                     | DelayedDrums Drums Sig
 
 -- A combination of delayed segments and drum information.
--- TODO: Make the drum representation richer.
 newtype Song = Song [DelayedSegment]
 
 -- Compile the given segment as a Seg

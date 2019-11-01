@@ -30,8 +30,8 @@ newPiano = Segment newBpm razorLead looped
     looped = loopBy 128 . toMel $ notes1 ++ [Silent 3] ++ notes2 ++ [Silent 3]
 
 newSong' :: Song
-newSong' = Song [ DelayedDrums newDrums 1
-                , DelayedSegment newPiano 1 ]
+newSong' = Song [ DelayedDrums newDrums 16
+                , DelayedSegment newPiano 0 ]
 
 newSong :: SE Sig2
 newSong = compileSong newSong'
