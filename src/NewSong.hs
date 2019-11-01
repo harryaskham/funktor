@@ -13,23 +13,25 @@ import Note
 import Melody
 
 newBpm = 110
+
 newBd2 = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
-newSn2 = DrumTab "O _ _ _|_ _ _ _|" Hm.sn2
+newSn2 = DrumTab "_ _ o _|_ _ _ _|" Hm.sn2
 newChh = DrumTab "o . . .|" Hm.chh
-newTabs = [newBd2, newSn2, newChh]
-newDrumsFx = fmap largeHall2
-newDrums = newDrumsFx $ compileTabs newBpm newTabs
+newTabSeqs = [ [newBd2]
+             , [newBd2, newSn2]
+             , [newBd2, newSn2, newChh] ]
+newDrumsFx = fmap smallHall2
+newDrums = newDrumsFx $ compileTabSequenceWithLoop newBpm 32 newTabSeqs
 
-newPiano = Segment newBpm fmPiano looped
+newPiano = Segment newBpm razorLead looped
   where
-    notes = [Pch C 7, Pch Bb 8, Pch B 6] <*> pure 0.5 <*> pure 0.5
-    looped = loopBy 256 . toMel $ notes
-
-newSegments :: [DelayedSegment]
-newSegments = [DelayedSegment newPiano 0]
+    notes1 = Pch <$> [C, Eb, G, Eb] <*> pure 7 <*> pure 0.5 <*> pure 0.25
+    notes2 = Pch <$> [F, F, G, Bb] <*> pure 7 <*> pure 0.5 <*> pure 0.25
+    looped = loopBy 128 . toMel $ notes1 ++ [Silent 3] ++ notes2 ++ [Silent 3]
 
 newSong' :: Song
-newSong' = Song newSegments newDrums
+newSong' = Song [ DelayedDrums newDrums 1
+                , DelayedSegment newPiano 1 ]
 
 newSong :: SE Sig2
 newSong = compileSong newSong'

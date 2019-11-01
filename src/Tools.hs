@@ -28,7 +28,7 @@ increasingSequences = tail . inits
 
 -- Get the spb from the bpm
 spb :: Bpm -> Spb
-spb bpm = 60 / bpm 
+spb bpm = 60.0 / bpm 
 
 -- Allows us to loop a signal, not just a segment
 loopSig :: Sig2 -> Sig2
