@@ -12,32 +12,41 @@ import Tools
 import Note
 import Melody
 
-newBpm = 110
+bpm = 120
 
-newBd2 = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
-newSn2 = DrumTab "_ _ o _|_ _ _ _|" Hm.sn2
-newChh = DrumTab ". . _ _|" Hm.chh
-newOhh = DrumTab "_ _ O _|" Hm.ohh
-newTabs = [ [newChh, newOhh]
-          , [newBd2]
-          , [newSn2] ]
-newDrumsFx = fmap largeHall2
-newCompiledDrums = ZipList $ newDrumsFx . compileTabs newBpm <$> newTabs
-newDrumDelays = ZipList [0, 4, 8]
-newDrums = getZipList $ DelayedDrums <$> newCompiledDrums <*> newDrumDelays
+-- TODO: segment should have a duration in beats
 
-newLead = Segment newBpm 
+bd2 = DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
+sn2 = DrumTab "_ _ _ o|_ . _ _|" Hm.sn2
+chh = DrumTab ". . _ _|" Hm.chh
+ohh = DrumTab "_ _ O _|" Hm.ohh
+tabs = [ [bd2]
+       , [chh]
+       , [ohh]
+       , [sn2] ]
+drumsFx = fmap smallRoom2
+compiledDrums = ZipList $ drumsFx . compileTabs bpm <$> tabs
+drumDelays = ZipList [bars 4, bars 8, bars 12, bars 16]
+drums = getZipList $ DelayedDrums <$> compiledDrums <*> drumDelays
 
-newPiano = Segment newBpm razorLead looped
+chords = Segment bpm overtoneLead looped
   where
-    notes1 = Pch <$> [C, Eb, G, Eb] <*> pure 7 <*> pure 0.5 <*> pure 0.25
-    notes2 = Pch <$> [F, F, G, Bb] <*> pure 7 <*> pure 0.5 <*> pure 0.25
-    looped = loopBy 128 . toMel $ notes1 ++ [Silent 3] ++ notes2 ++ [Silent 3]
+    chord1 = toChord $ Pch <$> [C, Eb, G] <*> pure 8 <*> pure 1.0 <*> pure 4
+    chord2 = toChord $ Pch <$> [F, Ab, B] <*> pure 8 <*> pure 1.0 <*> pure 4
+    gap = toMel [ Silent 4 ]
+    looped = loopBy 32 . mel $ [chord1, gap, chord2, gap]
 
-newSong' :: Song
-newSong' = Song $ newDrums ++ [ DelayedSegment newPiano 8 ]
+piano = Segment bpm razorLead looped
+  where
+    notes' = ZipList $ Pch <$> [G, Bb, Ab, G, C, Eb, C] <*> pure 7 <*> pure 0.8
+    notes = getZipList $ notes' <*> ZipList [1/4, 1/4, 1/2, 1/3, 1/3, 1/3]
+    looped = loopBy 32 . toMel $ notes ++ [Silent 6]
 
-newSong :: SE Sig2
-newSong = compileSong newSong'
+song' :: Song
+song' = Song bpm $ drums ++ [ DelayedSegment chords 0
+                            , DelayedSegment piano $ bars 16 ]
 
-runNewSong = runB newBpm newSong
+song :: SE Sig2
+song = compileSong song'
+
+rs = runSong song'

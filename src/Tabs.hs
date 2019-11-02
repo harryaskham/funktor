@@ -21,6 +21,7 @@ type BeatLength = D
 type BeatVelocity = D
 type Beat = (BeatLength, BeatVelocity)
 
+-- Debug runner to test out a tab at 140 bpm.
 runTab :: DrumTab -> IO ()
 runTab = runB 140 . compileTabs 140 . pure
 

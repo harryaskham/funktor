@@ -28,7 +28,11 @@ increasingSequences = tail . inits
 
 -- Get the spb from the bpm
 spb :: Bpm -> Spb
-spb bpm = 60.0 / bpm 
+spb bpm = 60.0 / bpm
+
+-- Gets the number of seconds corresponding to the given number of beats.
+beatsToSecs :: Bpm -> Sig -> Sig
+beatsToSecs bpm beats = spb bpm * beats
 
 -- Allows us to loop a signal, not just a segment
 loopSig :: Sig2 -> Sig2
@@ -51,3 +55,10 @@ inOutFilter = at (mlp (1000 + 4000 * uosc (takt 4)) 0.55)
 -- Loop the given list of things n times
 dup :: Integer -> [a] -> [a]
 dup = (>>) . enumFromTo 1
+
+-- Convenience functions for encoding delays and durations
+beats :: Sig -> Sig
+beats = id
+
+bars :: Sig -> Sig
+bars = (*4)

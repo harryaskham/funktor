@@ -13,4 +13,4 @@ import Tetris
 import Tools
 
 main :: IO ()
-main = runToDisk houseSong
+main = runToDisk NewSong.song

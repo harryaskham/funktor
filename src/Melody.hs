@@ -29,7 +29,7 @@ data DelayedSegment = DelayedSegment TrackSegment Sig
                     | DelayedDrums Drums Sig
 
 -- A combination of delayed segments and drum information.
-newtype Song = Song [DelayedSegment]
+data Song = Song Bpm [DelayedSegment]
 
 -- Compile the given segment as a Seg
 compileToSeg :: TrackSegment -> Seg Sig2
@@ -44,13 +44,13 @@ withDelay :: Sig -> TrackSegment -> TrackSegment
 withDelay delay = fmap (mel . (toMel [Silent delay]:) . pure)
 
 -- Compiles the given delayed segment to a track segment with its delay
-compileDelayedSegment :: DelayedSegment -> SE Sig2
-compileDelayedSegment (DelayedSegment t d) = pure . compileSegment $ withDelay d t
-compileDelayedSegment (DelayedDrums drums d) = delaySnd (syn d) <$> drums
+compileDelayedSegment :: Bpm -> DelayedSegment -> SE Sig2
+compileDelayedSegment _ (DelayedSegment t d) = pure . compileSegment $ withDelay d t
+compileDelayedSegment bpm (DelayedDrums drums d) = delaySnd (beatsToSecs bpm d) <$> drums
 
 -- Compile the given delayed segments into their corresponding signal.
-compileDelayedSegments :: [DelayedSegment] -> SE Sig2
-compileDelayedSegments = sum . fmap compileDelayedSegment
+compileDelayedSegments :: Bpm -> [DelayedSegment] -> SE Sig2
+compileDelayedSegments bpm = sum . fmap (compileDelayedSegment bpm)
 
 -- Removes the delays so that segments can be previewed all at once.
 removeDelays :: [DelayedSegment] -> [DelayedSegment]
@@ -61,8 +61,12 @@ removeDelays = fmap withNoDelay
 
 -- Compiles a song down to its signal
 compileSong :: Song -> SE Sig2
-compileSong (Song delayedSegments) = compileDelayedSegments delayedSegments
+compileSong (Song bpm delayedSegments) = compileDelayedSegments bpm delayedSegments
+
+-- Runs a song.
+runSong :: Song -> IO ()
+runSong song@(Song bpm delayedSegments) = runB bpm $ compileSong song
 
 -- Previews a song by removing all delays.
-previewSong :: Song -> SE Sig2
-previewSong (Song delayedSegments) = compileSong $ Song (removeDelays delayedSegments)
+previewSong :: Song -> IO ()
+previewSong (Song bpm delayedSegments) = runB bpm . compileSong $ Song bpm (removeDelays delayedSegments)
