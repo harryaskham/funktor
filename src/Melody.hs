@@ -24,7 +24,10 @@ runSegment seg@(Segment bpm patch notes) = runB bpm $ pure $ compileSegment seg
 -- The type of segment we're using here.
 type TrackSegment = Segment (Track Sig (D, D))
 
+-- The delay of a segment in beats.
 newtype SegDelay = SegDelay Sig
+
+-- The duration of a segment in beats.
 newtype SegDuration = SegDuration Sig
 
 -- A song represented as the parallel segments to play for the given duration

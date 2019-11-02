@@ -65,3 +65,6 @@ beats = id
 
 bars :: Sig -> Sig
 bars = (*4)
+
+toSig :: Int -> Sig
+toSig = sig . int
