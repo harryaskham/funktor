@@ -24,9 +24,12 @@ runSegment seg@(Segment bpm patch notes) = runB bpm $ pure $ compileSegment seg
 -- The type of segment we're using here.
 type TrackSegment = Segment (Track Sig (D, D))
 
+newtype SegDelay = SegDelay Sig
+newtype SegDuration = SegDuration Sig
+
 -- A song represented as the parallel segments to play for the given duration
-data DelayedSegment = DelayedSegment TrackSegment Sig
-                    | DelayedDrums Drums Sig
+data DelayedSegment = DelayedSegment TrackSegment SegDelay SegDuration
+                    | DelayedDrums Drums SegDelay SegDuration
 
 -- A combination of delayed segments and drum information.
 data Song = Song Bpm [DelayedSegment]
@@ -45,8 +48,15 @@ withDelay delay = fmap (mel . (toMel [Silent delay]:) . pure)
 
 -- Compiles the given delayed segment to a track segment with its delay
 compileDelayedSegment :: Bpm -> DelayedSegment -> SE Sig2
-compileDelayedSegment _ (DelayedSegment t d) = pure . compileSegment $ withDelay d t
-compileDelayedSegment bpm (DelayedDrums drums d) = delaySnd (beatsToSecs bpm d) <$> drums
+compileDelayedSegment bpm (DelayedSegment t (SegDelay del) (SegDuration dur)) = pure limited
+  where
+    delayed = withDelay del t
+    compiled = compileSegment delayed
+    limited = limSig (Beats bpm (del + dur)) compiled
+compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) = delayed
+  where
+    limited = limSig (Beats bpm dur) <$> drums
+    delayed = delaySnd (beatsToSecs (Beats bpm del)) <$> limited
 
 -- Compile the given delayed segments into their corresponding signal.
 compileDelayedSegments :: Bpm -> [DelayedSegment] -> SE Sig2
@@ -56,8 +66,8 @@ compileDelayedSegments bpm = sum . fmap (compileDelayedSegment bpm)
 removeDelays :: [DelayedSegment] -> [DelayedSegment]
 removeDelays = fmap withNoDelay
   where
-    withNoDelay (DelayedSegment t _) = DelayedSegment t 0
-    withNoDelay (DelayedDrums d _) = DelayedDrums d 0
+    withNoDelay (DelayedSegment track _ dur) = DelayedSegment track (SegDelay 0) dur
+    withNoDelay (DelayedDrums drums _ dur) = DelayedDrums drums (SegDelay 0) dur
 
 -- Compiles a song down to its signal
 compileSong :: Song -> SE Sig2

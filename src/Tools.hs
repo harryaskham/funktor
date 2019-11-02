@@ -31,16 +31,19 @@ spb :: Bpm -> Spb
 spb bpm = 60.0 / bpm
 
 -- Gets the number of seconds corresponding to the given number of beats.
-beatsToSecs :: Bpm -> Sig -> Sig
-beatsToSecs bpm beats = spb bpm * beats
+beatsToSecs :: Beats -> Sig
+beatsToSecs (Beats bpm beats) = spb bpm * beats
 
 -- Allows us to loop a signal, not just a segment
 loopSig :: Sig2 -> Sig2
 loopSig = runSeg . loop . toSeg
 
+-- A number of beats at a given BPM.
+data Beats = Beats Bpm Sig
+
 -- ALlows us to limit a signal, not just a segment
-limSig :: Sig -> Sig2 -> Sig2
-limSig bars = runSeg . constLim (takt bars) . toSeg
+limSig :: Beats -> Sig2 -> Sig2
+limSig beats = runSeg . constLim (beatsToSecs beats) . toSeg
 
 -- Maps the given function to all but the last member of a list.
 mapToAllButLast :: (a -> a) -> [a] -> [a]

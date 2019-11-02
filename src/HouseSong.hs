@@ -65,10 +65,10 @@ arp = Segment bpm banyan melody
     melody = loopBy 32 $ mel [notes, notes, silence]
 
 segments :: [DelayedSegment]
-segments = [ DelayedDrums (head drums) 0
-                , DelayedSegment pad 0
-                , DelayedSegment tinkle 64
-                , DelayedSegment arp 128 ]
+segments = [ DelayedDrums (head drums) (SegDelay 0) (SegDuration 256)
+           , DelayedSegment pad (SegDelay 0) (SegDuration 256)
+           , DelayedSegment tinkle (SegDelay 64) (SegDuration 256)
+           , DelayedSegment arp (SegDelay 128) (SegDuration 128) ]
 
 song' :: Song
 song' = Song bpm segments
