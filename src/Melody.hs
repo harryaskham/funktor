@@ -65,6 +65,13 @@ compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) 
 compileDelayedSegments :: Bpm -> [DelayedSegment] -> SE Sig2
 compileDelayedSegments bpm = sum . fmap (compileDelayedSegment bpm)
 
+-- Sets the delay of a segment
+setDelay :: Sig -> DelayedSegment -> DelayedSegment
+setDelay del (DelayedSegment t (SegDelay _) (SegDuration dur)) =
+  DelayedSegment t (SegDelay del) (SegDuration dur)
+setDelay del (DelayedDrums d (SegDelay _) (SegDuration dur)) =
+  DelayedDrums d (SegDelay del) (SegDuration dur)
+
 -- Removes the delays so that segments can be previewed all at once.
 removeDelays :: [DelayedSegment] -> [DelayedSegment]
 removeDelays = fmap withNoDelay
