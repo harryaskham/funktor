@@ -31,7 +31,7 @@ chord = Segment bpm nightPad looped
   where
     chord1 = toChord $ Pch <$> [D, F, A] <*> pure 6 <*> pure 1.0 <*> pure (bars 2)
     gap = toMel [ Silent (bars 2) ]
-    looped = loop . mel $ [chord1, gap]
+    looped = loopBy numBeats . mel $ [chord1, gap]
 
 -- Play x drum every y beats for z beats duration
 xEveryYBeatsForZBeats :: SE Sig2 -> Int -> Sig -> [DelayedSegment]
