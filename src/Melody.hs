@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Melody where
 
 import Csound.Base
@@ -30,12 +32,29 @@ newtype SegDelay = SegDelay Sig
 -- The duration of a segment in beats.
 newtype SegDuration = SegDuration Sig
 
+-- TODO: Delayable could be used here to reconcile the delayed segment
+-- piece with class constraint on first data element?
+
 -- A song represented as the parallel segments to play for the given duration
 data DelayedSegment = DelayedSegment TrackSegment SegDelay SegDuration
                     | DelayedDrums Drums SegDelay SegDuration
 
 -- A combination of delayed segments and drum information.
 data Song = Song Bpm [DelayedSegment]
+
+class Delayable a where
+  -- Make a DelayedSegment from the given contents.
+  make :: a -> Int -> Int -> DelayedSegment
+
+instance Delayable (SE Sig2) where
+  make d del dur = DelayedDrums d (SegDelay $ toSig del) (SegDuration $ toSig dur)
+
+instance Delayable TrackSegment where
+  make t del dur = DelayedSegment t (SegDelay $ toSig del) (SegDuration $ toSig dur)
+
+-- Play x drum every y beats for z beats duration
+xEveryYBeatsForZBeats :: Delayable a => Int -> a -> Int -> Int -> [DelayedSegment]
+xEveryYBeatsForZBeats numBeats x y z = (\del -> make x del z) <$> [y, y*2 .. numBeats]
 
 -- Compile the given segment as a Seg
 compileToSeg :: TrackSegment -> Seg Sig2

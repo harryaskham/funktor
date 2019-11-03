@@ -1,6 +1,6 @@
 module Croatia where
 
-import Csound.Base hiding (Tab, clp)
+import Csound.Base hiding (Tab, clp, trigger)
 import qualified Csound.Catalog.Drum.Tr808 as Tr808
 import qualified Csound.Catalog.Drum.Hm as Hm
 import Csound.Patch
@@ -16,7 +16,7 @@ import Data.Functor ((<&>))
 bpm = 120
 
 numBeats :: Int
-numBeats = 256
+numBeats = 512
 
 compile = compileTabs bpm . pure
 
@@ -38,29 +38,19 @@ cello = Segment bpm celloSynt notes
                   , Pch A 7 0.8 (bars 1)
                   , Pch D 8 0.8 (bars 1) ]
 
--- Play x drum every y beats for z beats duration
-xEveryYBeatsForZBeats :: SE Sig2 -> Int -> Int -> [DelayedSegment]
-xEveryYBeatsForZBeats x y z = makeDrum <$> delays
-  where
-    makeDrum d = DelayedDrums x (SegDelay d) (SegDuration $ toSig z)
-    delays = toSig <$> [y, y*2 .. numBeats]
+-- TODO: Use this to figure out ReaderT
+trigger :: Delayable a => a -> Int -> Int -> [DelayedSegment]
+trigger = xEveryYBeatsForZBeats numBeats
 
--- TODO: Use typeclasses to make this better.
-xSegmentEveryYBeatsForZBeats :: TrackSegment -> Int -> Int -> [DelayedSegment]
-xSegmentEveryYBeatsForZBeats x y z = makeDelayedSegment <$> delays
-  where
-    makeDelayedSegment d = DelayedSegment x (SegDelay d) (SegDuration $ toSig z)
-    delays = toSig <$> [y, y*2 .. numBeats]
+bassdrum = trigger bd2 32 28
+hats = trigger chh 24 16
+snares = trigger sn2 24 8
+ohats = trigger ohh 32 4
+claps = trigger clp 64 4
 
-bassdrum = xEveryYBeatsForZBeats bd2 32 28
-hats = xEveryYBeatsForZBeats chh 24 16
-snares = xEveryYBeatsForZBeats sn2 24 8
-ohats = xEveryYBeatsForZBeats ohh 32 4
-claps = xEveryYBeatsForZBeats clp 64 4
-
-chords = xSegmentEveryYBeatsForZBeats chord 16 8
-cellos = xSegmentEveryYBeatsForZBeats cello 96 16
-bells = xSegmentEveryYBeatsForZBeats bell 24 8
+chords = trigger chord 16 8
+cellos = trigger cello 96 16
+bells = trigger bell 24 8
 
 song' :: Song
 song' = Song bpm segments
