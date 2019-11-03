@@ -26,9 +26,9 @@ chh = compile $ DrumTab "o . . .|" Hm.chh
 ohh = compile $ DrumTab "_ . o O|" Hm.ohh
 clp = compile $ DrumTab "o o o o|" Hm.clap
 
-chord = Segment bpm nightPad chord
-  where
-    chord = toChord $ Pch <$> [D, F, A] <*> pure 6 <*> pure 1.0 <*> pure (bars 2)
+chord = Segment bpm nightPad
+  $ toChord
+  $ Pch <$> [D, F, A] <*> pure 6 <*> pure 1.0 <*> pure (bars 2)
 
 bell = Segment bpm tubularBell $ toMel $ replicate 8 $ Pch D 7 1.0 1
 
