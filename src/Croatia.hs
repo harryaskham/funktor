@@ -1,4 +1,4 @@
-module NewSong where
+module Croatia where
 
 import Csound.Base hiding (Tab, clp)
 import qualified Csound.Catalog.Drum.Tr808 as Tr808
@@ -16,12 +16,9 @@ import Data.Functor ((<&>))
 bpm = 120
 
 numBeats :: Int
-numBeats = 2048
-numBeatsSig = toSig numBeats
+numBeats = 256
 
--- drumsFx = fmap smallHall2
-drumsFx = id
-compile = drumsFx . compileTabs bpm . pure
+compile = compileTabs bpm . pure
 
 bd2 = compile $ DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
 sn2 = compile $ DrumTab "_ _ _ o|_ _ o _|" Hm.sn2
@@ -33,12 +30,7 @@ chord = Segment bpm nightPad chord
   where
     chord = toChord $ Pch <$> [D, F, A] <*> pure 6 <*> pure 1.0 <*> pure (bars 2)
 
-bell = Segment bpm tubularBell $ loopBy 2 $ toMel notes
-  where
-    notes = [ Pch F 6
-            , Pch D 6
-            , Pch A 6
-            , Pch F 6 ] <*> pure 1.0 <*> pure 0.5
+bell = Segment bpm tubularBell $ toMel $ replicate 8 $ Pch D 7 1.0 1
 
 cello = Segment bpm celloSynt notes
   where
@@ -47,17 +39,17 @@ cello = Segment bpm celloSynt notes
                   , Pch D 8 0.8 (bars 1) ]
 
 -- Play x drum every y beats for z beats duration
-xEveryYBeatsForZBeats :: SE Sig2 -> Int -> Sig -> [DelayedSegment]
+xEveryYBeatsForZBeats :: SE Sig2 -> Int -> Int -> [DelayedSegment]
 xEveryYBeatsForZBeats x y z = makeDrum <$> delays
   where
-    makeDrum d = DelayedDrums x (SegDelay d) (SegDuration z)
+    makeDrum d = DelayedDrums x (SegDelay d) (SegDuration $ toSig z)
     delays = toSig <$> [y, y*2 .. numBeats]
 
 -- TODO: Use typeclasses to make this better.
-xSegmentEveryYBeatsForZBeats :: TrackSegment -> Int -> Sig -> [DelayedSegment]
+xSegmentEveryYBeatsForZBeats :: TrackSegment -> Int -> Int -> [DelayedSegment]
 xSegmentEveryYBeatsForZBeats x y z = makeDelayedSegment <$> delays
   where
-    makeDelayedSegment d = DelayedSegment x (SegDelay d) (SegDuration z)
+    makeDelayedSegment d = DelayedSegment x (SegDelay d) (SegDuration $ toSig z)
     delays = toSig <$> [y, y*2 .. numBeats]
 
 bassdrum = xEveryYBeatsForZBeats bd2 32 28
