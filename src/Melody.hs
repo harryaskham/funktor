@@ -106,6 +106,10 @@ compileSong (Song bpm delayedSegments) = compileDelayedSegments bpm delayedSegme
 runSong :: Song -> IO ()
 runSong song@(Song bpm delayedSegments) = runB bpm $ compileSong song
 
+-- Hack while only one earphone works.
+runSongMono :: Song -> IO ()
+runSongMono song@(Song bpm delayedSegments) = runB bpm $ fromMono . toMono <$> compileSong song
+
 -- Previews a song by removing all delays.
 previewSong :: Song -> IO ()
 previewSong (Song bpm delayedSegments) = runB bpm . compileSong $ Song bpm (removeDelays delayedSegments)

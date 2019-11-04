@@ -1,6 +1,8 @@
 module Note where
 
 import Csound.Base hiding (Duration)
+import System.Random
+import Data.List
 
 data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As | Bb | B
 type Octave = Int
@@ -60,3 +62,9 @@ toChord = har . toTemps
 -- Utility for easy conversion of notes to a standard velocity / duration
 simpleNotes :: [Note] -> Octave -> Velocity -> Duration -> [Pch]
 simpleNotes notes o v d = Pch <$> notes <*> pure o <*> pure v <*> pure d
+
+-- Get n random notes from notes.
+rndNotes :: RandomGen g => g -> Int -> [Pch] -> [Pch]
+rndNotes g n notes = genericIndex notes <$> indices
+  where
+    indices = take n $ randomRs (0, length notes - 1) g
