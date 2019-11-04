@@ -60,9 +60,19 @@ compileTabSequenceWithLimiter mapper bpm limit tabLists = compileSample bpm limi
     compiledSams = sum <$> compileTab <$$> tabLists
     limitedSams = flow $ mapper (lim limit) compiledSams
 
+-- | Ensures the given bar lengths are appropriate for the number of beats in the bar.
+-- | Uses 4/4 as a baseline before manipulating lengths.
+-- | e.g. o o o o would be a modifier of 1.0
+-- | and o o o o o o o o would be a modifier of 0.5
+normalizeBar :: [Beat] -> [Beat]
+normalizeBar bar = normalizeBeat <$> bar
+  where
+    modifier = 4.0 / fromIntegral (length bar)
+    normalizeBeat (len, vel) = (len * modifier, vel)
+
 -- | Compiles the given bar segment into its constituent beats.
 compileBar :: String -> [Beat]
-compileBar bar = compileBeat <$> splitBar bar
+compileBar = normalizeBar . fmap compileBeat . splitBar
 
 -- | Compiles a single beat string
 compileBeat :: String -> Beat
