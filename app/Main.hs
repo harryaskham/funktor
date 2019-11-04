@@ -11,6 +11,7 @@ import Melody
 import HouseSong
 import Tetris
 import Tools
+import PlaneToSJC
 
 main :: IO ()
-main = runToDisk Croatia.song
+main = runToDisk PlaneToSJC.song
