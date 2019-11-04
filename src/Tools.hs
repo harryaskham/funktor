@@ -74,15 +74,15 @@ toSig = sig . int
 -- A dropout type.
 data DropOut = DropIn | DropOut deriving (Bounded, Enum, Show)
 
+-- We don't actually use the below, can remove
 instance Random DropOut where
-  random g = case randomR (fromEnum (minBound :: DropOut), fromEnum (maxBound :: DropOut)) g of (r, g') -> (toEnum r, g')
-  randomR (a,b) g = case randomR (fromEnum a, fromEnum b) g of (r, g') -> (toEnum r, g')
+  random g = (toEnum r, g')
+    where
+      (r, g') = randomR (fromEnum (minBound :: DropOut), fromEnum (maxBound :: DropOut)) g 
 
--- Infinite random dropout.
-randomDropout :: RandomGen g => g -> [DropOut]
-randomDropout g = d : randomDropout g'
-  where
-    (d, g') = random g
+  randomR (a, b) g = (toEnum r, g')
+    where
+      (r, g') = randomR (fromEnum a, fromEnum b) g
 
 -- Dropout with a given probability.
 dropOut :: RandomGen g => g -> Double -> [DropOut]
