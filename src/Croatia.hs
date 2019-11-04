@@ -38,7 +38,6 @@ cello = Segment bpm celloSynt notes
                   , Pch A 7 0.8 (bars 1)
                   , Pch D 8 0.8 (bars 1) ]
 
--- TODO: Use this to figure out ReaderT
 trigger :: Delayable a => a -> Int -> Int -> [DelayedSegment]
 trigger = xEveryYBeatsForZBeats numBeats
 
