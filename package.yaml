@@ -27,6 +27,7 @@ dependencies:
 - split
 - extra
 - mtl
+- random
 
 library:
   source-dirs: src

@@ -5,6 +5,7 @@ import Csound.Patch
 import Csound.Sam
 import Csound.Sam.Core
 import Data.List.Split
+import Data.Bifunctor
 import Tools
 
 -- A pairing of intensity tab and sample to play.
@@ -33,16 +34,35 @@ compileSample bpm = runSam (bpm * 4)
 compileSamples :: Bpm -> [Sam] -> SE Sig2
 compileSamples bpm = compileSample bpm . sum
 
+-- Compiles a tab to its list of beats.
+compileTabToBeats :: DrumTab -> [Beat]
+compileTabToBeats (DrumTab t s) = concat $ compileBar <$> splitOn "|" t
+
 -- | Compiles a tab intno a polyphonic signal.
-compileTab :: DrumTab -> Sam
-compileTab (DrumTab t s) = pat' velocities (sig <$> lengths) s
+-- | Can be used to introduce dropout.
+compileTab :: [DropOut] -> DrumTab -> Sam
+compileTab dropOut dt@(DrumTab t s) = pat' velocities (sig <$> lengths) s
   where
-    beats = concat $ compileBar <$> splitOn "|" t
-    (lengths, velocities) = unzip beats
+    beats = compileTabToBeats dt
+    dropOutBeats = applyDropout dropOut beats
+    (lengths, velocities) = unzip dropOutBeats
+
+-- | Takes the list of dropouts and uses them to set beat velocities to zero.
+applyDropout :: [DropOut] -> [Beat] -> [Beat]
+applyDropout ds bs = uncurry newBeat <$> zip ds bs
+  where
+    newBeat :: DropOut -> Beat -> Beat
+    newBeat d b = case d of
+                    DropOut -> second (const 0.0) b
+                    DropIn -> b
 
 -- | Compiles a list of tabs into a beat.
 compileTabs :: Bpm -> [DrumTab] -> SE Sig2
-compileTabs bpm = compileSamples bpm . fmap compileTab
+compileTabs bpm = compileSamples bpm . fmap (compileTab $ repeat DropIn)
+
+-- | Compiles a list of tabs into a beat.
+compileTabsDropOut :: Bpm -> [DropOut] -> [DrumTab] -> SE Sig2
+compileTabsDropOut bpm dropOut  = compileSamples bpm . fmap (compileTab dropOut)
 
 -- | Compiles a sequence of tabs one after the other, with the given limit.
 -- | Ends up looping the final beat forever.
@@ -57,7 +77,7 @@ compileTabSequence = compileTabSequenceWithLimiter map
 compileTabSequenceWithLimiter :: ((Sam -> Sam) -> [Sam] -> [Sam]) -> Bpm -> Sig -> [[DrumTab]] -> SE Sig2
 compileTabSequenceWithLimiter mapper bpm limit tabLists = compileSample bpm limitedSams
   where
-    compiledSams = sum <$> compileTab <$$> tabLists
+    compiledSams = sum <$> compileTab (repeat DropIn) <$$> tabLists
     limitedSams = flow $ mapper (lim limit) compiledSams
 
 -- | Ensures the given bar lengths are appropriate for the number of beats in the bar.
@@ -67,12 +87,16 @@ compileTabSequenceWithLimiter mapper bpm limit tabLists = compileSample bpm limi
 normalizeBar :: [Beat] -> [Beat]
 normalizeBar bar = normalizeBeat <$> bar
   where
-    modifier = 4.0 / fromIntegral (length bar)
-    normalizeBeat (len, vel) = (len * modifier, vel)
+    modifier = 4.0 / barLength bar
+    normalizeBeat = first (*modifier)
 
 -- | Compiles the given bar segment into its constituent beats.
 compileBar :: String -> [Beat]
 compileBar = normalizeBar . fmap compileBeat . splitBar
+
+-- | Get the length of the bar,
+barLength :: [Beat] -> D
+barLength = fromIntegral . length
 
 -- | Compiles a single beat string
 compileBeat :: String -> Beat

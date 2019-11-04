@@ -1,8 +1,9 @@
 module Tools where
 
 import Data.List
-import Csound.Base
+import Csound.Base hiding (random)
 import Csound.Sam
+import System.Random
 
 type Spb = Sig
 
@@ -68,3 +69,16 @@ bars = (*4)
 
 toSig :: Int -> Sig
 toSig = sig . int
+
+-- A dropout type.
+data DropOut = DropIn | DropOut deriving (Bounded, Enum, Show)
+
+instance Random DropOut where
+  random g = case randomR (fromEnum (minBound :: DropOut), fromEnum (maxBound :: DropOut)) g of (r, g') -> (toEnum r, g')
+  randomR (a,b) g = case randomR (fromEnum a, fromEnum b) g of (r, g') -> (toEnum r, g')
+
+-- Infinite random dropout.
+randomDropout :: RandomGen g => g -> [DropOut]
+randomDropout g = d : randomDropout g'
+  where
+    (d, g') = random g

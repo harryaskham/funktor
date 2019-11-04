@@ -65,4 +65,4 @@ song' = Song bpm segments
 song :: SE Sig2
 song = compileSong song'
 
-rs = runSong song'
+-- rs = runSong song'

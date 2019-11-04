@@ -14,4 +14,4 @@ import Tools
 import PlaneToSJC
 
 main :: IO ()
-main = runToDisk PlaneToSJC.song
+main = undefined
