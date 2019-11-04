@@ -26,6 +26,7 @@ dependencies:
 - csound-sampler
 - split
 - extra
+- mtl
 
 library:
   source-dirs: src
