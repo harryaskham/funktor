@@ -8,6 +8,9 @@ import Data.List.Split
 import Data.Bifunctor
 import Tools
 
+-- Number of beats after which to truncate the tab.
+type TabLength = Int
+
 -- A pairing of intensity tab and sample to play.
 -- Visual drum sequencer.
 -- _ = empty beat
@@ -16,7 +19,7 @@ import Tools
 -- O = heavy beat
 -- | = bar separator
 -- ' ' = beat separator
-data DrumTab = DrumTab String Sam
+data DrumTab = DrumTab String Sam TabLength
 
 type BeatLength = D
 type BeatVelocity = D
@@ -34,14 +37,14 @@ compileSample bpm = runSam (bpm * 4)
 compileSamples :: Bpm -> [Sam] -> SE Sig2
 compileSamples bpm = compileSample bpm . sum
 
--- Compiles a tab to its list of beats.
+-- Compiles a tab to its list of beats, and replicate until we took enough beats.
 compileTabToBeats :: DrumTab -> [Beat]
-compileTabToBeats (DrumTab t s) = concat $ compileBar <$> splitOn "|" t
+compileTabToBeats (DrumTab t s l) = take l . cycle . concat $ compileBar <$> splitOn "|" t
 
 -- | Compiles a tab intno a polyphonic signal.
 -- | Can be used to introduce dropout.
 compileTab :: [DropOut] -> DrumTab -> Sam
-compileTab dropOut dt@(DrumTab t s) = pat' velocities (sig <$> lengths) s
+compileTab dropOut dt@(DrumTab t s l) = pat' velocities (sig <$> lengths) s
   where
     beats = compileTabToBeats dt
     dropOutBeats = applyDropout dropOut beats

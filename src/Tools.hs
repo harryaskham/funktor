@@ -53,6 +53,7 @@ mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)
    rev = reverse xs
 
 -- Phases in and out over two bars
+-- TODO: Almost certainly needs regenerating
 inOutFilter :: SigSpace a => a -> a
 inOutFilter = at (mlp (1000 + 4000 * uosc (takt 4)) 0.55)
 
@@ -82,3 +83,9 @@ randomDropout :: RandomGen g => g -> [DropOut]
 randomDropout g = d : randomDropout g'
   where
     (d, g') = random g
+
+-- Dropout with a given probability.
+dropOut :: RandomGen g => g -> Double -> [DropOut]
+dropOut g p = (if x < p then DropOut else DropIn) : dropOut g' p
+  where
+    (x, g') = random g

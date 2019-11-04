@@ -18,10 +18,10 @@ bpm = 174
 -- Plus compression effects for an 8-bit sound.
 
 -- DnB riddim
-dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" Hm.bd2
-dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." Hm.sn1
-dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" Hm.chh
-dnbOhats = DrumTab "_ . _ .|_ . _ .|_ . _ .|_ . _ ." Hm.ohh
+dnbKicks = DrumTab "O _ o _|O _ _ _|O _ o _|O _ _ _" Hm.bd2 128
+dnbSnare = DrumTab "_ _ _ _|O _ _ .|_ . _ _|o _ _ ." Hm.sn1 128
+dnbChats = DrumTab ". _ . _|. _ O _|O _ . _|. _ . _" Hm.chh 128
+dnbOhats = DrumTab "_ . _ .|_ . _ .|_ . _ .|_ . _ ." Hm.ohh 128
 
 dnbTabs = [dnbChats, dnbKicks, dnbSnare, dnbOhats]
 dnbDrums = compileTabs bpm dnbTabs

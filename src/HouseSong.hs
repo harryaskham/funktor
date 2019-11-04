@@ -12,6 +12,8 @@ import Tools
 import Note
 import Melody
 
+numBeats = 512
+
 -- AVAILABLE TR808 DRUMS
 -- bd bd2 sn ohh chh htom mtom ltom cym cl rim mar hcon lcon
 
@@ -24,12 +26,12 @@ import Melody
 -- Explore way more instrument types, and experiment with adding effects to get new ones
 -- A choppy kind of "on-off" filter like end of mt st michael
 bpm = 128
-bd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2
-sn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1
-sn2 = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ O O" Hm.sn2
-chh = DrumTab ". _ . _|. _ . _|. _ . _|. _ . _" Hm.chh
-ohh = DrumTab "_ o _ o|_ . _ .|_ O _ o|_ . _ ." Hm.ohh
-clp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ o _" Hm.clap
+bd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2 numBeats
+sn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1 numBeats
+sn2 = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ O O" Hm.sn2 numBeats
+chh = DrumTab ". _ . _|. _ . _|. _ . _|. _ . _" Hm.chh numBeats
+ohh = DrumTab "_ o _ o|_ . _ .|_ O _ o|_ . _ ." Hm.ohh numBeats
+clp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ o _" Hm.clap numBeats
 tabs = [bd2, sn1, sn2, chh, ohh, clp]
 alldrums = compileTabs bpm tabs
 
