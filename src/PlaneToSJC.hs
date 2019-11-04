@@ -82,13 +82,13 @@ song' = do
   lead' <- lead
   bass' <- bass
   return $ Song bpm [ DelayedDrums bd2' (SegDelay 0) (SegDuration $ toSig numBeats)
-                    , DelayedDrums sn2' (SegDelay 0) (SegDuration $ toSig numBeats)
-                    , DelayedDrums chh' (SegDelay 0) (SegDuration $ toSig numBeats)
-                    , DelayedDrums ohh' (SegDelay 0) (SegDuration $ toSig numBeats)
-                    , DelayedDrums clp' (SegDelay 0) (SegDuration $ toSig numBeats)
-                    , DelayedSegment lead' (SegDelay 0) (SegDuration $ toSig numBeats)
+                    , DelayedDrums sn2' (SegDelay 4) (SegDuration $ toSig numBeats)
+                    , DelayedDrums chh' (SegDelay 8) (SegDuration $ toSig numBeats)
+                    , DelayedDrums ohh' (SegDelay 12) (SegDuration $ toSig numBeats)
+                    , DelayedDrums clp' (SegDelay 16) (SegDuration $ toSig numBeats)
+                    , DelayedSegment lead' (SegDelay 16) (SegDuration $ toSig numBeats)
                     , DelayedSegment bass' (SegDelay 0) (SegDuration $ toSig numBeats)
-                    , DelayedSegment bells' (SegDelay 0) (SegDuration $ toSig numBeats)
+                    , DelayedSegment bells' (SegDelay 8) (SegDuration $ toSig numBeats)
                     , DelayedSegment chords (SegDelay 0) (SegDuration $ toSig numBeats)
                     ]
 
