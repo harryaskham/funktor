@@ -18,7 +18,7 @@ import Control.Monad
 bpm = 120
 
 numBeats :: Int
-numBeats = 120
+numBeats = 1024
 
 -- Compile with random dropout
 compile :: DrumTab -> IO (SE Sig2)
