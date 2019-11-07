@@ -68,3 +68,7 @@ rndNotes :: RandomGen g => g -> Int -> [Pch] -> [Pch]
 rndNotes g n notes = genericIndex notes <$> indices
   where
     indices = take n $ randomRs (0, length notes - 1) g
+
+-- Takes a list of note weightings and converts to a list of notes ready to be randomized. 
+weightsToPchs :: [(Note, Int)] -> [Octave -> Velocity -> Duration -> Pch]
+weightsToPchs weights = Pch <$> concat (uncurry (flip replicate) <$> weights)

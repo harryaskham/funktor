@@ -56,8 +56,7 @@ weights = [ (C, 10)
           , (Cs, 1)
           , (Fs, 1)
           ]
-
-notes = Pch <$> concat (uncurry (flip replicate) <$> weights)
+notes = weightsToPchs weights
 
 bells = do
   g <- getStdGen
@@ -94,9 +93,3 @@ song' = do
 
 song :: IO (SE Sig2)
 song = compileSong <$> song'
-
-rs :: IO ()
-rs = runSong =<< song'
-
-rsm :: IO ()
-rsm = runSongMono =<< song'

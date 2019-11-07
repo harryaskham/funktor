@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b4b009d42c51d79ed107534eeccaf14092cf04d4302ba0d01d8cbf6e44c17bfb
+-- hash: e301f6f6000b93e6ea0cd610f6b2c5eb6eac85fa3f4c9d655810df83ba5939b6
 
 name:           funktor
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       Croatia
       HouseSong
+      LofiAttempt
       Melody
       Note
       PlaneToSJC

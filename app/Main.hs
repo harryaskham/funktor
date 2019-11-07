@@ -12,8 +12,9 @@ import HouseSong
 import Tetris
 import Tools
 import PlaneToSJC
+import LofiAttempt
 
 main :: IO ()
 main = do
-  s <- PlaneToSJC.song
+  s <- LofiAttempt.song
   runToDisk s
