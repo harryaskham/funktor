@@ -63,19 +63,19 @@ lead = do
     $ toMel $ rndNotes g 1024 
     $ notes
     <*> [7, 7, 8, 8, 8, 9, 9]
-    <*> [0.8, 0.85, 0.9]
-    <*> [1, 1, 1/8, 1/4, 1/4, 1/2, 2] ++ replicate 4 0
+    <*> [0.8, 0.85, 0.9] ++ replicate 3 0.0
+    <*> [1, 1, 1/8, 1/4, 1/4, 1/2, 2]
 
 motif = do
   g <- getStdGen
   return
     $ Segment bpm largeTibetanBowl180
     $ loopBy 32 . toMel
-    $ rndNotes g 8
+    $ rndNotes g 16
     $ notes
     <*> [7, 7, 8, 8, 8, 9, 9]
-    <*> [0.8, 0.85, 0.9]
-    <*> [1, 1, 1, 1/8, 1/4, 1/2, 2, 2, 2, 4] ++ replicate 5 0
+    <*> [0.8, 0.85, 0.9] ++ replicate 1 0.0
+    <*> [1, 1, 1, 1/2, 1/2, 2]
 
 song' :: IO Song
 song' = Song bpm <$> sequenceA segments
