@@ -13,6 +13,7 @@ import Tetris
 import Tools
 import PlaneToSJC
 import LofiAttempt
+import TwelveBar
 
 main :: IO ()
 main = do

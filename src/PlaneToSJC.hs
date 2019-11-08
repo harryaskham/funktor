@@ -60,15 +60,15 @@ notes = weightsToPchs weights
 
 bells = do
   g <- getStdGen
-  return $ Segment bpm tubularBell $ toMel $ rndNotes g 1024 $ notes <*> [7, 8, 9] <*> [0.5, 0.8, 0.9] <*> [1, 2, 4, 8, 0]
+  return $ Segment bpm tubularBell $ toMel $ rndFrom g 1024 $ notes <*> [7, 8, 9] <*> [0.5, 0.8, 0.9] <*> [1, 2, 4, 8, 0]
 
 lead = do
   g <- getStdGen
-  return $ Segment bpm razorLead $ toMel $ rndNotes g 1024 $ notes <*> [8, 9] <*> [0.5] <*> [0.5, 1, 2] ++ replicate 17 0.0
+  return $ Segment bpm razorLead $ toMel $ rndFrom g 1024 $ notes <*> [8, 9] <*> [0.5] <*> [0.5, 1, 2] ++ replicate 17 0.0
 
 bass = do
   g <- getStdGen
-  return $ Segment bpm simpleBass $ toMel $ rndNotes g 1024 $ notes <*> [7] <*> [0.6] <*> [4, 0, 0, 0]
+  return $ Segment bpm simpleBass $ toMel $ rndFrom g 1024 $ notes <*> [7] <*> [0.6] <*> [4, 0, 0, 0]
 
 song' :: IO Song
 song' = do

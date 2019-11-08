@@ -7,3 +7,4 @@
 - Where 4 is hardcoded we should be accessing State to get a time sig
 - Notion of Verse (or implement Monoid for Song - needs song length)
 - Key changes
+- Need a proper sequencer / trigger, UI / datatype for this to avoid need to line up delays and durations.

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e301f6f6000b93e6ea0cd610f6b2c5eb6eac85fa3f4c9d655810df83ba5939b6
+-- hash: 8d0ad440b3e259498dc0ea42f0d403a303b1bf9bc97fdffb6db227c8b7c6f23a
 
 name:           funktor
 version:        0.1.0.0
@@ -36,6 +36,7 @@ library
       Tabs
       Tetris
       Tools
+      TwelveBar
   other-modules:
       Paths_funktor
   hs-source-dirs:

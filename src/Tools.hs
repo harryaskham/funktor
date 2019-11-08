@@ -16,7 +16,7 @@ infixl 5 <$$>
 -- Flap function
 infixl 4 ??
 (??) :: (Functor f) => f (a -> b) -> a -> f b
-f ?? a = ($ a) <$> f
+(??) f a = ($ a) <$> f
 
 -- Lift only the first arg into the functor.
 liftFst3 :: Functor f => (a -> b -> c -> d) -> f a -> b -> c -> f d
@@ -100,3 +100,12 @@ dropOut :: RandomGen g => g -> Double -> [DropOut]
 dropOut g p = (if x < p then DropOut else DropIn) : dropOut g' p
   where
     (x, g') = random g
+
+-- A cyclical version of succ
+succC :: (Eq a, Enum a, Bounded a) => a -> a
+succC a = if a == maxBound then minBound else succ a
+
+-- A cyclical version of pred
+predC :: (Eq a, Enum a, Bounded a) => a -> a
+predC a = if a == minBound then maxBound else pred a
+

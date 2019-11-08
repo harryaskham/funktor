@@ -15,7 +15,7 @@ import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
 
-bpm = 140
+bpm = 110
 
 numBeats :: Int
 numBeats = 128
@@ -23,71 +23,51 @@ numBeats = 128
 compile :: DrumTab -> IO (SE Sig2)
 compile tab = do
   g <- getStdGen
-  return $ compileTabsDropOut bpm (dropOut g 0.0) (pure tab)
+  return $ compileTabsDropOut bpm (dropOut g 0.1) (pure tab)
 
-bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _" Hm.bd2 numBeats
+bd1 = compile $ DrumTab "O _ _ _ _ _ _ .|_ _ _ _ _ _ o _|_ _ _ _ _ _ _ _|_ _ o _ _ _ _ _" Hm.bd1 numBeats
+bd2 = compile $ DrumTab "O _ _ _ _ _ _ .|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _" Hm.bd2 numBeats
 sn1 = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.sn1 numBeats
-chh = compile $ DrumTab "o _ _ _ _ _ . _|_ _ _ _ _ _ _ _|" Hm.chh numBeats
-ohh = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|" Hm.cr numBeats
+chh = compile $ DrumTab "_ _ _ _ _ _ o _|_ _ _ _ o _ _ _|o _ _ _ o _ o _|_ _ _ _ X _ _ _" Hm.chh numBeats
 
-chords = Segment bpm nightPad $ loopBy 128 . mel $ toChord <$>
-  [ [ Pch C 7 1.0 (bars 2)
-    , Pch E 7 1.0 (bars 2)
-    , Pch G 7 1.0 (bars 2)
-    ]
-  , [ Pch F 7 1.0 (bars 2)
-    , Pch A 7 1.0 (bars 2)
-    , Pch C 8 1.0 (bars 2)
-    ]
-  , [ Pch G 8 1.0 (bars 1)
-    , Pch B 8 1.0 (bars 1)
-    , Pch D 9 1.0 (bars 1)
-    ]
-  , [ Pch F 7 1.0 (bars 1)
-    , Pch A 7 1.0 (bars 1)
-    , Pch C 8 1.0 (bars 1)
-    ]
-  , [ Pch C 7 1.0 (bars 2)
-    , Pch E 7 1.0 (bars 2)
-    , Pch G 7 1.0 (bars 2)
-    ]
-  ]
+weights = [5, 3, 3, 2, 3, 3, 2] 
+notesGb = weightsToPchs $ zip (minorScale Gb) weights 
+notesCs = weightsToPchs $ zip (minorScale Cs) weights 
 
-weights = zip [C, Eb, F, Fs, G, Bb] [5, 3, 3, 1, 3, 3] 
-notes = weightsToPchs weights 
-
-lead = do
+lead notes = do
   g <- getStdGen
   return
-    $ Segment bpm razorLead
-    $ toMel $ rndNotes g 1024 
+    $ Segment bpm epiano1
+    $ toMel $ rndFrom g 1024 
     $ notes
     <*> [7, 7, 8, 8, 8, 9, 9]
     <*> [0.8, 0.85, 0.9] ++ replicate 3 0.0
     <*> [1, 1, 1/8, 1/4, 1/4, 1/2, 2]
 
-motif = do
+motif notes = do
   g <- getStdGen
   return
-    $ Segment bpm largeTibetanBowl180
-    $ loopBy 32 . toMel
-    $ rndNotes g 16
-    $ notes
-    <*> [7, 7, 8, 8, 8, 9, 9]
-    <*> [0.8, 0.85, 0.9] ++ replicate 1 0.0
-    <*> [1, 1, 1, 1/2, 1/2, 2]
+    $ Segment bpm epiano1
+    $ toMel . getZipList
+    $ ZipList (rndFrom g 1024 noteGen)
+    <*> ZipList (cycle [4, 4, 1, 1, 1, 0.5, 12.5])
+  where
+    noteGen = notes
+      <*> [7, 7, 8, 8, 8, 9, 9]
+      <*> [0.8, 0.85, 0.9]
 
 song' :: IO Song
 song' = Song bpm <$> sequenceA segments
   where
     segments =
-      [ DelayedDrums <$> bd2 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
+      [ DelayedDrums <$> bd1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
+      , DelayedDrums <$> bd2 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedDrums <$> sn1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedDrums <$> chh ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      , DelayedDrums <$> ohh ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      , DelayedSegment <$> lead ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      , DelayedSegment <$> motif ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      , pure $ DelayedSegment chords (SegDelay 0) (SegDuration $ toSig numBeats)
+      -- , DelayedSegment <$> lead notesGb ?? SegDelay 0 ?? (SegDuration $ bars 32)
+      , DelayedSegment <$> motif notesGb ?? SegDelay 0 ?? (SegDuration $ bars 32)
+      --, DelayedSegment <$> lead notesCs ?? SegDelay (bars 8) ?? (SegDuration $ bars 8)
+      --, DelayedSegment <$> motif notesCs ?? SegDelay (bars 8) ?? (SegDuration $ bars 8)
       ]
 
 song :: IO (SE Sig2)
