@@ -8,13 +8,19 @@ import Control.Monad
 
 type Spb = Sig
 
+-- Double nested fmap
 infixl 5 <$$>
 (<$$>) :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
 (<$$>) = fmap . fmap
 
+-- Flap function
 infixl 4 ??
-(??) :: (Applicative f) => f (a -> b) -> a -> f b
-f ?? a = f <*> pure a
+(??) :: (Functor f) => f (a -> b) -> a -> f b
+f ?? a = ($ a) <$> f
+
+-- Lift only the first arg into the functor.
+liftFst3 :: Functor f => (a -> b -> c -> d) -> f a -> b -> c -> f d
+liftFst3 f a b c = f <$> a ?? b ?? c
 
 -- Run the given song respecting the global Bpm.
 runB :: Bpm -> SE Sig2 -> IO ()
