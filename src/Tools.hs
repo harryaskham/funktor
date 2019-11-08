@@ -4,12 +4,17 @@ import Data.List
 import Csound.Base hiding (random)
 import Csound.Sam
 import System.Random
+import Control.Monad
 
 type Spb = Sig
 
 infixl 5 <$$>
 (<$$>) :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
 (<$$>) = fmap . fmap
+
+infixl 4 ??
+(??) :: (Applicative f) => f (a -> b) -> a -> f b
+f ?? a = f <*> pure a
 
 -- Run the given song respecting the global Bpm.
 runB :: Bpm -> SE Sig2 -> IO ()
