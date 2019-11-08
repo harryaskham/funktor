@@ -23,7 +23,7 @@ numBeats = 128
 compile :: DrumTab -> IO (SE Sig2)
 compile tab = do
   g <- getStdGen
-  return $ smallRoom2 <$> compileTabsDropOut bpm (dropOut g 0.0) (pure tab)
+  return $ compileTabsDropOut bpm (dropOut g 0.0) (pure tab)
 
 bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _" Hm.bd2 numBeats
 sn1 = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.sn1 numBeats
