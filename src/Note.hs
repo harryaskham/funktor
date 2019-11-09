@@ -108,9 +108,17 @@ major7Chord = toScale $ ScaleDef [0, 4, 7, 9]
 minorChord = toScale $ ScaleDef [0, 3, 7]
 minor7Chord = toScale $ ScaleDef [0, 3, 7, 8]
 
+-- TODO: Missing diminished chords
 minorChords n = [ minorChord n
                 , majorChord (doN 3 succC n)
                 , minorChord (doN 5 succC n)
                 , minorChord (doN 7 succC n)
                 , majorChord (doN 8 succC n)
                 , majorChord (doN 10 succC n) ]
+
+majorChords n = [ majorChord n
+                , minorChord (doN 2 succC n)
+                , minorChord (doN 4 succC n)
+                , majorChord (doN 5 succC n)
+                , majorChord (doN 7 succC n)
+                , minorChord (doN 9 succC n) ]

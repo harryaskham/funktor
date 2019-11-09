@@ -15,7 +15,7 @@ import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
 
-bpm = 90
+bpm = 70
 
 numBeats :: Int
 numBeats = 512
@@ -23,7 +23,7 @@ numBeats = 512
 compile :: DrumTab -> IO (SE Sig2)
 compile tab = do
   g <- newStdGen
-  return $ compileTabsDropOut bpm (dropOut g 0.1) (pure tab)
+  return $ (*) <$> (fromMono <$> pink) <*> compileTabsDropOut bpm (dropOut g 0.1) (pure tab)
 
 bd1 = compile $ DrumTab "O _ _ _ _ _ _ _|_ _ _ _ _ _ o _|_ _ _ _ _ _ _ _|_ _ o _ _ _ _ _" Hm.bd1 numBeats
 sn1 = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.sn1 numBeats
@@ -78,26 +78,27 @@ makeSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
 sqrEnv :: D -> Sig -> SegEnv
 sqrEnv phase onFor = SegEnv $ usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
 
-instrSegments = join
-  $ getZipList
-  $ makeSegs [chords, lead, motif]
-  <$> ZipList [Fs, Ab]
-  <*> ZipList [sqrEnv 0 $ bars 16, sqrEnv 0.5 $ bars 16]
+-- A constantly-on envelope.
+constEnv :: SegEnv
+constEnv = SegEnv 1
 
-testSegs = sequenceA $ do
-  segs <- instrSegments
-  return $ compileDelayedSegment 90 <$> segs
+-- TODO: A wavetable version that lets us have uneven on/off
 
 song' :: IO Song
 song' = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
   where
     drumSegments =
-      [ DelayedDrums <$> bd1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      , DelayedDrums <$> sn1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      , DelayedDrums <$> chh ?? SegDelay 0 ?? (SegDuration $ toSig numBeats) ]
+      [ EnvDrums <$> bd1 ?? constEnv
+      , EnvDrums <$> sn1 ?? constEnv
+      , EnvDrums <$> chh ?? constEnv ]
+    instrSegments = join
+      $ getZipList
+      $ makeSegs [chords, lead, motif]
+      <$> ZipList [Fs, Fs]
+      <*> ZipList [sqrEnv 0 $ bars 16, sqrEnv 0.5 $ bars 16]
 
 song :: IO (SE Sig2)
 song = compileSong <$> song'
 
 rs :: IO ()
-rs = runSong =<< song'
+rs = runB bpm =<< song

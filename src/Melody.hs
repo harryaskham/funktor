@@ -42,6 +42,7 @@ newtype SegEnv = SegEnv Sig
 data DelayedSegment = DelayedSegment TrackSegment SegDelay SegDuration
                     | DelayedDrums Drums SegDelay SegDuration
                     | EnvSegment TrackSegment SegEnv
+                    | EnvDrums Drums SegEnv
 
 -- A combination of delayed segments and drum information.
 data Song = Song Bpm [DelayedSegment]
@@ -81,6 +82,7 @@ compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) 
     limited = limSig (Beats bpm dur) <$> drums
     delayed = delaySnd (beatsToSecs (Beats bpm del)) <$> limited
 compileDelayedSegment bpm (EnvSegment t (SegEnv env)) = pure $ fromMono env * compileSegment t
+compileDelayedSegment bpm (EnvDrums drums (SegEnv env)) = (fromMono env *) <$> drums
 
 -- Compile the given delayed segments into their corresponding signal.
 compileDelayedSegments :: Bpm -> [DelayedSegment] -> SE Sig2
