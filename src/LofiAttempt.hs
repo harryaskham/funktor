@@ -15,11 +15,13 @@ import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
 
+-- Nice slo lofi bpm
 bpm = 70
 
 numBeats :: Int
-numBeats = 512
+numBeats = 256
 
+-- Remove 10% of the beats and incorporate pink noise into the samples.
 compile :: DrumTab -> IO (SE Sig2)
 compile tab = do
   g <- newStdGen
@@ -29,9 +31,10 @@ bd1 = compile $ DrumTab "O _ _ _ _ _ _ _|_ _ _ _ _ _ o _|_ _ _ _ _ _ _ _|_ _ o _
 sn1 = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.sn1 numBeats
 chh = compile $ DrumTab "_ _ _ _ _ _ o _|_ _ _ _ o _ _ _|o _ _ _ o _ o _|_ _ _ _ X _ _ _" Hm.chh numBeats
 
--- Weights for picking notes out of the scale
+-- Weights for picking notes out of the minor scale
 weights = [5, 3, 3, 2, 3, 3, 2] 
 
+-- Pick a random minor chord from the scale every bar.
 chords :: Note -> IO TrackSegment
 chords root = do
   g <- newStdGen
@@ -40,8 +43,9 @@ chords root = do
     $ mel . fmap makeChord
     $ rndFrom g numBeats (minorChords root)
   where
-    makeChord ch = toChord $ Pch <$> ch <*> [7] ?? 0.6 ?? bars 1
+    makeChord ch = toChord $ Pch <$> ch ?? 7 ?? 0.6 ?? bars 1
 
+-- Hit 50% of beats from the scale on the banyan
 lead :: Note -> IO TrackSegment
 lead root = do
   g <- newStdGen
@@ -50,12 +54,12 @@ lead root = do
     $ toMel $ rndFrom g numBeats 
     $ notes
     <*> [7, 7, 8, 8, 8, 9, 9]
-    <*> [0.8, 0.85, 0.9] ++ replicate 3 0.0
-    -- <*> [1, 1, 1/8, 1/4, 1/4, 1/2, 2]
+    <*> [0.85, 0.0]
     <*> [1]
   where
     notes = weightsToPchs $ zip (minorScale root) weights
 
+-- A 4-bar motif that will loop underneath
 motif :: Note -> IO TrackSegment
 motif root = do
   g <- newStdGen
@@ -88,22 +92,29 @@ offEnv = SegEnv 0
 
 -- TODO: A wavetable version that lets us have uneven on/off
 
-song' :: IO Song
-song' = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
+song' :: Note -> IO Song
+song' root = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
   where
     drumSegments =
       [ EnvDrums <$> bd1 ?? constEnv
       , EnvDrums <$> sn1 ?? constEnv
       , EnvDrums <$> chh ?? constEnv ]
-    instrSegments = makeSegs [chords, lead, motif] Fs constEnv
-      -- instrSegments = join
-      -- $ getZipList
-      -- $ makeSegs [chords, lead, motif]
-      -- <$> ZipList [Fs, B]
-      -- <*> ZipList [sqrEnv 0 $ bars 16, sqrEnv 0.5 $ bars 16]
+    instrSegments = makeSegs [chords, lead, motif] root constEnv
 
+-- Procedurally generated lofi
 song :: IO (SE Sig2)
-song = compileSong <$> song'
+song = compileSong <$> song' Fs
+
+-- Generator for a looping 16bar lofi, more hiphop
+-- Needs numBeats turning down to work properly
+songLoop :: IO (SE Sig2)
+songLoop = do
+  fsSong <- compileSong <$> song' Fs
+  aSong <- compileSong <$> song' A
+  return $ do
+    fsSeg <- toSeg <$> fsSong
+    aSeg <- toSeg <$> aSong
+    return $ runSeg $ loop $ mel [constLim (beatsToSecs $ Beats bpm 4) fsSeg, constLim (beatsToSecs $ Beats bpm 4) aSeg]
 
 rs :: IO ()
 rs = runB bpm =<< song
