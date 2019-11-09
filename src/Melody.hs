@@ -70,11 +70,11 @@ withDelay delay = fmap (mel . (toMel [Silent delay]:) . pure)
 
 -- Compiles the given delayed segment to a track segment with its delay
 compileDelayedSegment :: Bpm -> DelayedSegment -> SE Sig2
-compileDelayedSegment bpm (DelayedSegment t (SegDelay del) (SegDuration dur)) = pure limited
+compileDelayedSegment bpm (DelayedSegment t (SegDelay del) (SegDuration dur)) = pure delayed
   where
-    delayed = withDelay del t
-    compiled = compileSegment delayed
-    limited = limSig (Beats bpm (del + dur)) compiled
+    compiled = compileSegment t
+    limited = limSig (Beats bpm dur) compiled
+    delayed = delaySnd (beatsToSecs (Beats bpm del)) limited
 compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) = delayed
   where
     limited = limSig (Beats bpm dur) <$> drums

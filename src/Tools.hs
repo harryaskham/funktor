@@ -18,6 +18,11 @@ infixl 4 ??
 (??) :: (Functor f) => f (a -> b) -> a -> f b
 (??) f a = ($ a) <$> f
 
+-- Double nested Flap function
+infixl 4 ???
+(???) :: (Functor f, Functor g) => f (g (a -> b)) -> a -> f (g b)
+(???) f a = ($ a) <$$> f
+
 -- Lift only the first arg into the functor.
 liftFst3 :: Functor f => (a -> b -> c -> d) -> f a -> b -> c -> f d
 liftFst3 f a b c = f <$> a ?? b ?? c
@@ -109,3 +114,5 @@ succC a = if a == maxBound then minBound else succ a
 predC :: (Eq a, Enum a, Bounded a) => a -> a
 predC a = if a == minBound then maxBound else pred a
 
+-- Do N times
+doN n f = foldr (.) id (replicate n f)

@@ -107,3 +107,10 @@ majorChord = toScale $ ScaleDef [0, 4, 7]
 major7Chord = toScale $ ScaleDef [0, 4, 7, 9]
 minorChord = toScale $ ScaleDef [0, 3, 7]
 minor7Chord = toScale $ ScaleDef [0, 3, 7, 8]
+
+minorChords n = [ minorChord n
+                , majorChord (doN 3 succC n)
+                , minorChord (doN 5 succC n)
+                , minorChord (doN 7 succC n)
+                , majorChord (doN 8 succC n)
+                , majorChord (doN 10 succC n) ]
