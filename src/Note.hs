@@ -132,3 +132,13 @@ noteCycle totalN loopN root octaves vels durs = do
     where
       notes = weightsToPchs $ zip (minorScale root) (repeat 1)
       noteGen = notes <*> octaves <*> vels
+
+-- Gets n random chords from the given chord notelist
+-- TODO: Find way to avoid passing around all this info all the time.
+randomChordsFrom :: Int -> [[Note]] -> Octave -> Velocity -> Duration -> IO (Track Sig (D, D))
+randomChordsFrom n chords octave vel dur = do
+  g <- newStdGen
+  return $ mel $ makeChord <$> rndFrom g n chords
+    where 
+      makeChord chordNotes = toChord $ Pch <$> chordNotes ?? octave ?? vel ?? dur
+

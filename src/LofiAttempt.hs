@@ -1,6 +1,6 @@
 module LofiAttempt where
 
-import Csound.Base hiding (Tab, clp)
+import Csound.Base hiding (Tab, clp, Duration)
 import qualified Csound.Catalog.Drum.Tr808 as Tr808
 import qualified Csound.Catalog.Drum.Hm as Hm
 import Csound.Patch
@@ -35,13 +35,8 @@ weights = [5, 3, 3, 2, 3, 3, 2]
 -- Pick a random minor chord from the scale every bar.
 chords :: Note -> IO TrackSegment
 chords root = do
-  g <- newStdGen
-  return
-    $ Segment bpm epiano1
-    $ mel . fmap makeChord
-    $ rndFrom g numBeats (minorChords root)
-  where
-    makeChord ch = toChord $ Pch <$> ch ?? 7 ?? 0.6 ?? bars 1
+  chords <- randomChordsFrom numBeats (minorChords root) 7 0.6 (bars 1)
+  return $ Segment bpm epiano1 chords
 
 -- Hit 50% of beats from the scale on the banyan
 lead :: Note -> IO TrackSegment
@@ -97,3 +92,5 @@ songLoop = do
     fsSeg <- toSeg <$> fsSong
     aSeg <- toSeg <$> aSong
     return $ runSeg $ loop $ mel [constLim (beatsToSecs $ Beats bpm 4) fsSeg, constLim (beatsToSecs $ Beats bpm 4) aSeg]
+
+rls = runB bpm =<< song
