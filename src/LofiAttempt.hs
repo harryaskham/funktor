@@ -82,6 +82,10 @@ sqrEnv phase onFor = SegEnv $ usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
 constEnv :: SegEnv
 constEnv = SegEnv 1
 
+-- A constantly-off envelope,
+offEnv :: SegEnv
+offEnv = SegEnv 0
+
 -- TODO: A wavetable version that lets us have uneven on/off
 
 song' :: IO Song
@@ -91,11 +95,12 @@ song' = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
       [ EnvDrums <$> bd1 ?? constEnv
       , EnvDrums <$> sn1 ?? constEnv
       , EnvDrums <$> chh ?? constEnv ]
-    instrSegments = join
-      $ getZipList
-      $ makeSegs [chords, lead, motif]
-      <$> ZipList [Fs, Fs]
-      <*> ZipList [sqrEnv 0 $ bars 16, sqrEnv 0.5 $ bars 16]
+    instrSegments = makeSegs [chords, lead, motif] Fs constEnv
+      -- instrSegments = join
+      -- $ getZipList
+      -- $ makeSegs [chords, lead, motif]
+      -- <$> ZipList [Fs, B]
+      -- <*> ZipList [sqrEnv 0 $ bars 16, sqrEnv 0.5 $ bars 16]
 
 song :: IO (SE Sig2)
 song = compileSong <$> song'
