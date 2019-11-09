@@ -117,3 +117,15 @@ runSongMono song@(Song bpm delayedSegments) = runB bpm $ fromMono . toMono <$> c
 -- Previews a song by removing all delays.
 previewSong :: Song -> IO ()
 previewSong (Song bpm delayedSegments) = runB bpm . compileSong $ Song bpm (removeDelays delayedSegments)
+
+-- A square envelope that will be on and off for the given number of bars.
+sqrEnv :: Bpm -> D -> Sig -> SegEnv
+sqrEnv bpm phase onFor = SegEnv $ usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
+
+-- A constantly-on envelope.
+constEnv :: SegEnv
+constEnv = SegEnv 1
+
+-- A constantly-off envelope,
+offEnv :: SegEnv
+offEnv = SegEnv 0

@@ -78,18 +78,6 @@ motif root = do
 makeSegs :: [Note -> IO TrackSegment] -> Note -> SegEnv -> [IO DelayedSegment]
 makeSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
 
--- A square envelope that will be on and off for the given number of bars.
-sqrEnv :: D -> Sig -> SegEnv
-sqrEnv phase onFor = SegEnv $ usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
-
--- A constantly-on envelope.
-constEnv :: SegEnv
-constEnv = SegEnv 1
-
--- A constantly-off envelope,
-offEnv :: SegEnv
-offEnv = SegEnv 0
-
 -- TODO: A wavetable version that lets us have uneven on/off
 
 song' :: Note -> IO Song
