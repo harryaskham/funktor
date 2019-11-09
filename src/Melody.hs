@@ -129,3 +129,7 @@ constEnv = SegEnv 1
 -- A constantly-off envelope,
 offEnv :: SegEnv
 offEnv = SegEnv 0
+
+-- Take some instrument gens and create the corresponding verse.
+genEnvSegs :: [Note -> IO TrackSegment] -> Note -> SegEnv -> [IO DelayedSegment]
+genEnvSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env

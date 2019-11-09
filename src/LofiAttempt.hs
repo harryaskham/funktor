@@ -22,10 +22,8 @@ numBeats :: Int
 numBeats = 256
 
 -- Remove 10% of the beats and incorporate pink noise into the samples.
-compile :: DrumTab -> IO (SE Sig2)
-compile tab = do
-  g <- newStdGen
-  return $ (*) <$> (fromMono <$> pink) <*> compileTabsDropOut bpm (dropOut g 0.1) (pure tab)
+drumFx = (* pink2)
+compile t = drumFx <$> compileWithDropOut 0.1 bpm t
 
 bd1 = compile $ DrumTab "O _ _ _ _ _ _ _|_ _ _ _ _ _ o _|_ _ _ _ _ _ _ _|_ _ o _ _ _ _ _" Hm.bd1 numBeats
 sn1 = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.sn1 numBeats
@@ -74,10 +72,6 @@ motif root = do
       <*> [7, 7, 8, 8, 8, 9, 9]
       <*> [1.0]
 
--- Take some instrument gens and create the corresponding verse.
-makeSegs :: [Note -> IO TrackSegment] -> Note -> SegEnv -> [IO DelayedSegment]
-makeSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
-
 -- TODO: A wavetable version that lets us have uneven on/off
 
 song' :: Note -> IO Song
@@ -87,7 +81,7 @@ song' root = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
       [ EnvDrums <$> bd1 ?? constEnv
       , EnvDrums <$> sn1 ?? constEnv
       , EnvDrums <$> chh ?? constEnv ]
-    instrSegments = makeSegs [chords, lead, motif] root constEnv
+    instrSegments = genEnvSegs [chords, lead, motif] root constEnv
 
 -- Procedurally generated lofi
 song :: IO (SE Sig2)
@@ -103,6 +97,3 @@ songLoop = do
     fsSeg <- toSeg <$> fsSong
     aSeg <- toSeg <$> aSong
     return $ runSeg $ loop $ mel [constLim (beatsToSecs $ Beats bpm 4) fsSeg, constLim (beatsToSecs $ Beats bpm 4) aSeg]
-
-rs :: IO ()
-rs = runB bpm =<< song

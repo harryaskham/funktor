@@ -119,3 +119,6 @@ predC a = if a == minBound then maxBound else pred a
 
 -- Do N times
 doN n f = foldr (.) id (replicate n f)
+
+pink2 = fromMono <$> pink
+brown2 = fromMono <$> brown

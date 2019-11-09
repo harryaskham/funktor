@@ -7,6 +7,7 @@ import Csound.Sam.Core
 import Data.List.Split
 import Data.Bifunctor
 import Tools
+import System.Random
 
 -- Number of beats after which to truncate the tab.
 type TabLength = Int
@@ -40,6 +41,13 @@ compileSamples bpm = compileSample bpm . sum
 -- Compiles a tab to its list of beats, and replicate until we took enough beats.
 compileTabToBeats :: DrumTab -> [Beat]
 compileTabToBeats (DrumTab t s l) = take l . cycle . concat $ compileBar <$> splitOn "|" t
+
+-- Compiles a drum tab with dropout.
+-- TODO: Merge IO/SE
+compileWithDropOut :: Double -> Bpm -> DrumTab -> IO (SE Sig2)
+compileWithDropOut dot bpm tab = do
+  g <- newStdGen
+  return $ compileTabsDropOut bpm (dropOut g dot) (pure tab)
 
 -- | Compiles a tab intno a polyphonic signal.
 -- | Can be used to introduce dropout.

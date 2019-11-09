@@ -122,3 +122,13 @@ majorChords n = [ majorChord n
                 , majorChord (doN 5 succC n)
                 , majorChord (doN 7 succC n)
                 , minorChord (doN 9 succC n) ]
+
+-- Takes the root, octave weightings to choose from, velocities to choose from, and the durations of each note
+-- Returns a cycle of notes.
+noteCycle :: Int -> Int -> Note -> [Octave] -> [Velocity] -> [Duration] -> IO [Pch]
+noteCycle totalN loopN root octaves vels durs = do
+  g <- newStdGen
+  return $ getZipList $ ZipList (take totalN . cycle $ rndFrom g loopN noteGen) <*> ZipList durs
+    where
+      notes = weightsToPchs $ zip (minorScale root) (repeat 1)
+      noteGen = notes <*> octaves <*> vels
