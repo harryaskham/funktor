@@ -91,6 +91,7 @@ weightsToPchs weights = Pch <$> concat (uncurry (flip replicate) <$> weights)
 
 -- The definition of a scale in terms of semitone offsets.
 newtype ScaleDef = ScaleDef [Int]
+type ChordDef = ScaleDef
 
 -- An alias for a scale as a list of notes.
 type Scale = [Note]
@@ -101,3 +102,8 @@ toScale (ScaleDef offsets) root = toEnum <$> (offsets <&> (+fromEnum root))
 
 majorScale = toScale $ ScaleDef [0, 2, 4, 5, 7, 9, 11]
 minorScale = toScale $ ScaleDef [0, 2, 3, 5, 7, 8, 10]
+
+majorChord = toScale $ ScaleDef [0, 4, 7]
+major7Chord = toScale $ ScaleDef [0, 4, 7, 9]
+minorChord = toScale $ ScaleDef [0, 3, 7]
+minor7Chord = toScale $ ScaleDef [0, 3, 7, 8]

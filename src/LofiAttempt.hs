@@ -15,30 +15,40 @@ import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
 
-bpm = 110
+bpm = 90
 
 numBeats :: Int
-numBeats = 128
+numBeats = 1024
 
 compile :: DrumTab -> IO (SE Sig2)
 compile tab = do
   g <- newStdGen
   return $ compileTabsDropOut bpm (dropOut g 0.1) (pure tab)
 
-bd1 = compile $ DrumTab "O _ _ _ _ _ _ .|_ _ _ _ _ _ o _|_ _ _ _ _ _ _ _|_ _ o _ _ _ _ _" Hm.bd1 numBeats
-bd2 = compile $ DrumTab "O _ _ _ _ _ _ .|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _" Hm.bd2 numBeats
+bd1 = compile $ DrumTab "O _ _ _ _ _ _ _|_ _ _ _ _ _ o _|_ _ _ _ _ _ _ _|_ _ o _ _ _ _ _" Hm.bd1 numBeats
 sn1 = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.sn1 numBeats
 chh = compile $ DrumTab "_ _ _ _ _ _ o _|_ _ _ _ o _ _ _|o _ _ _ o _ o _|_ _ _ _ X _ _ _" Hm.chh numBeats
 
 weights = [5, 3, 3, 2, 3, 3, 2] 
 notesGb = weightsToPchs $ zip (minorScale Gb) weights 
-notesCs = weightsToPchs $ zip (minorScale Cs) weights 
+notesCs = weightsToPchs $ zip (minorScale Cs) weights
+
+chordsGb = [minorChord Gb, majorChord A, minorChord B, minorChord Cs, majorChord D, majorChord E]
+
+chords = do
+  g <- newStdGen
+  return
+    $ Segment bpm epiano1
+    $ mel . fmap makeChord
+    $ rndFrom g (numBeats `div` 4) chordsGb
+  where
+    makeChord ch = toChord $ Pch <$> ch <*> [7, 8] ?? 0.8 ?? bars 1
 
 lead notes = do
   g <- newStdGen
   return
     $ Segment bpm banyan
-    $ toMel $ rndFrom g 1024 
+    $ toMel $ rndFrom g numBeats 
     $ notes
     <*> [7, 7, 8, 8, 8, 9, 9]
     <*> [0.8, 0.85, 0.9] ++ replicate 3 0.0
@@ -50,7 +60,7 @@ motif notes = do
   return
     $ Segment bpm epiano1
     $ toMel . getZipList
-    $ ZipList (rndFrom g 1024 noteGen)
+    $ ZipList (rndFrom g (numBeats `div` 7) noteGen)
     <*> ZipList (cycle [4, 4, 1, 1, 1, 0.5, 12.5])
   where
     noteGen = notes
@@ -62,13 +72,11 @@ song' = Song bpm <$> sequenceA segments
   where
     segments =
       [ DelayedDrums <$> bd1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      , DelayedDrums <$> bd2 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedDrums <$> sn1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedDrums <$> chh ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedSegment <$> lead notesGb ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedSegment <$> motif notesGb ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
-      --, DelayedSegment <$> lead notesCs ?? SegDelay (bars 8) ?? (SegDuration $ bars 8)
-      --, DelayedSegment <$> motif notesCs ?? SegDelay (bars 8) ?? (SegDuration $ bars 8)
+      , DelayedSegment <$> chords ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       ]
 
 song :: IO (SE Sig2)
