@@ -32,12 +32,16 @@ newtype SegDelay = SegDelay Sig
 -- The duration of a segment in beats.
 newtype SegDuration = SegDuration Sig
 
+-- An envelope for a segment.
+newtype SegEnv = SegEnv Sig
+
 -- TODO: Delayable could be used here to reconcile the delayed segment
 -- piece with class constraint on first data element?
 
 -- A song represented as the parallel segments to play for the given duration
 data DelayedSegment = DelayedSegment TrackSegment SegDelay SegDuration
                     | DelayedDrums Drums SegDelay SegDuration
+                    | EnvSegment TrackSegment SegEnv
 
 -- A combination of delayed segments and drum information.
 data Song = Song Bpm [DelayedSegment]
@@ -64,11 +68,8 @@ compileToSeg = toSeg . compileSegment
 compileSegment :: TrackSegment -> Sig2
 compileSegment (Segment bpm patch track) = mix . atSco patch . fmap cpspch2 . str (spb bpm) $ track
 
--- Introduces silence at the start of the segment
-withDelay :: Sig -> TrackSegment -> TrackSegment
-withDelay delay = fmap (mel . (toMel [Silent delay]:) . pure)
-
 -- Compiles the given delayed segment to a track segment with its delay
+-- TODO: Migrate to only using envelopes.
 compileDelayedSegment :: Bpm -> DelayedSegment -> SE Sig2
 compileDelayedSegment bpm (DelayedSegment t (SegDelay del) (SegDuration dur)) = pure delayed
   where
@@ -79,6 +80,7 @@ compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) 
   where
     limited = limSig (Beats bpm dur) <$> drums
     delayed = delaySnd (beatsToSecs (Beats bpm del)) <$> limited
+compileDelayedSegment bpm (EnvSegment t (SegEnv env)) = pure $ fromMono env * compileSegment t
 
 -- Compile the given delayed segments into their corresponding signal.
 compileDelayedSegments :: Bpm -> [DelayedSegment] -> SE Sig2

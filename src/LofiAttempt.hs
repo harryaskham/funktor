@@ -71,14 +71,18 @@ motif root = do
       <*> [0.8, 0.85, 0.9]
 
 -- Take some instrument gens and create the corresponding verse.
-makeSegs :: [Note -> IO TrackSegment] -> Note -> Int -> Int -> [IO DelayedSegment]
-makeSegs instrs root del dur = DelayedSegment <$$> (instrs ?? root) ??? SegDelay (toSig del) ??? SegDuration (toSig dur)
+makeSegs :: [Note -> IO TrackSegment] -> Note -> SegEnv -> [IO DelayedSegment]
+makeSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
 
-instrSegments = join $ getZipList
+-- A square envelope that will be on and off for the given number of bars.
+sqrEnv :: D -> Sig -> SegEnv
+sqrEnv phase onFor = SegEnv $ usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
+
+instrSegments = join
+  $ getZipList
   $ makeSegs [chords, lead, motif]
-  <$> ZipList (cycle [Gb, C])
-  <*> ZipList [0,16..128]
-  <*> ZipList (repeat 16)
+  <$> ZipList [Fs, Ab]
+  <*> ZipList [sqrEnv 0 $ bars 16, sqrEnv 0.5 $ bars 16]
 
 testSegs = sequenceA $ do
   segs <- instrSegments
@@ -91,8 +95,6 @@ song' = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
       [ DelayedDrums <$> bd1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedDrums <$> sn1 ?? SegDelay 0 ?? (SegDuration $ toSig numBeats)
       , DelayedDrums <$> chh ?? SegDelay 0 ?? (SegDuration $ toSig numBeats) ]
-      -- TODO: Something wrong with above, isn't respecting the delay or duration properly.
-      -- As soon as we sum segments together the delays get lost.
 
 song :: IO (SE Sig2)
 song = compileSong <$> song'
