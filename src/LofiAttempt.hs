@@ -40,7 +40,7 @@ chords root = do
     $ mel . fmap makeChord
     $ rndFrom g numBeats (minorChords root)
   where
-    makeChord ch = toChord $ Pch <$> ch <*> [7] ?? 0.8 ?? bars 1
+    makeChord ch = toChord $ Pch <$> ch <*> [7] ?? 0.6 ?? bars 1
 
 lead :: Note -> IO TrackSegment
 lead root = do
@@ -62,13 +62,13 @@ motif root = do
   return
     $ Segment bpm epiano1
     $ toMel . getZipList
-    $ ZipList (rndFrom g numBeats noteGen)
-    <*> ZipList (cycle [4, 4, 1, 1, 1, 0.5, 12.5])
+    $ ZipList (take numBeats . cycle $ rndFrom g 7 noteGen)
+    <*> ZipList (cycle [4, 4, 1, 1, 1, 0.5, 4.5])
   where
     notes = weightsToPchs $ zip (minorScale root) weights
     noteGen = notes
       <*> [7, 7, 8, 8, 8, 9, 9]
-      <*> [0.8, 0.85, 0.9]
+      <*> [1.0]
 
 -- Take some instrument gens and create the corresponding verse.
 makeSegs :: [Note -> IO TrackSegment] -> Note -> SegEnv -> [IO DelayedSegment]
