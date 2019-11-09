@@ -40,9 +40,9 @@ chords = do
   return
     $ Segment bpm epiano1
     $ mel . fmap makeChord
-    $ rndFrom g (numBeats `div` 4) chordsGb
+    $ rndFrom g numBeats chordsGb
   where
-    makeChord ch = toChord $ Pch <$> ch <*> [7, 8] ?? 0.8 ?? bars 1
+    makeChord ch = toChord $ Pch <$> ch <*> [7] ?? 0.8 ?? bars 1
 
 lead notes = do
   g <- newStdGen
