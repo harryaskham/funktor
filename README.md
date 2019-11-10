@@ -10,3 +10,4 @@
 - Instrument mashups / FX to avoid stock instrument syndrome
 - Segments fading in and out instead of cutoffs
 - Do some stuff with envelope mashups for an extra layer of progressive dropout
+- Play around with Sampling from disk and triggering properly / with soft enveloping
