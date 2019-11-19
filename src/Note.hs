@@ -124,7 +124,7 @@ majorChords n = [ majorChord n
                 , minorChord (doN 9 succC n) ]
 
 -- Takes the root, octave weightings to choose from, velocities to choose from, and the durations of each note
--- Returns a cycle of notes.
+-- Returns a cycle of notes in the minor scale.
 noteCycle :: Int -> Int -> Note -> [Octave] -> [Velocity] -> [Duration] -> IO [Pch]
 noteCycle totalN loopN root octaves vels durs = do
   g <- newStdGen

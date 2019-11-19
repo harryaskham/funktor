@@ -16,7 +16,7 @@ import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
 
-bpm = 90
+bpm = 60
 
 numBeats :: Int
 numBeats = 256
@@ -30,10 +30,15 @@ bn1 = compile $ DrumTab "_ O _ _ O _ O _|" Drum.mpBon1 numBeats
 bn2 = compile $ DrumTab "O _ O _ _ O _ _|" Drum.mpBon2 numBeats
 bn3 = compile $ DrumTab "_ _ _ O _ _ _ O|" Drum.mpBon3 numBeats
 
-pad :: Note -> IO TrackSegment
-pad root = do
-  notes <- noteCycle numBeats 3 Cs [7] [0.3] (cycle [4, 4, 8])
-  return $ Segment bpm lightIsTooBrightPad $ toMel notes
+organ :: Note -> IO TrackSegment
+organ root = do
+  notes <- noteCycle numBeats 8 root [8] [0.3] (repeat 1)
+  return $ Segment bpm epiano2 $ toMel notes
+
+highs :: Note -> IO TrackSegment
+highs root = do
+  notes <- noteCycle numBeats 10 root [8] [0.9] (cycle [1, 15])
+  return $ Segment bpm epiano2 $ toMel notes
 
 song' :: Note -> IO Song
 song' root = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
@@ -47,7 +52,7 @@ song' root = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
       , EnvDrums <$> bn2 ?? sqrEnv bpm 0 (bars 4)
       , EnvDrums <$> bn3 ?? sqrEnv bpm 0 (bars 8)
       ]
-    instrSegments = genEnvSegs [pad] root constEnv
+    instrSegments = genEnvSegs [organ, highs] root constEnv
 
 -- Procedurally generated lofi
 song :: IO (SE Sig2)
