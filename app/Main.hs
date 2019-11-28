@@ -15,6 +15,7 @@ import PlaneToSJC
 import LofiAttempt
 import TwelveBar
 import AirportTechno
+import ArpAttempt
 
 main :: IO ()
 main = runToDisk =<< LofiAttempt.song
