@@ -122,6 +122,10 @@ previewSong (Song bpm delayedSegments) = runB bpm . compileSong $ Song bpm (remo
 sqrEnv :: Bpm -> D -> Sig -> SegEnv
 sqrEnv bpm phase onFor = SegEnv $ usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
 
+-- A sin env that will flow in and out per the phase needed.
+sinEnv :: Bpm -> D -> Sig -> SegEnv
+sinEnv bpm phase onFor = SegEnv $ uosc' phase (beatsToHz $ Beats bpm (onFor * 2))
+
 -- A constantly-on envelope.
 constEnv :: SegEnv
 constEnv = SegEnv 1
