@@ -54,7 +54,6 @@ song' root = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
       ]
     instrSegments = genEnvSegs [organ, highs] root constEnv
 
--- Procedurally generated lofi
 song :: IO (SE Sig2)
 song = compileSong <$> song' Fs
 
