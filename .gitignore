@@ -22,3 +22,4 @@ cabal.project.local~
 .ghc.environment.*
 tmp.csd
 tmp.wav
+tmp.mp3

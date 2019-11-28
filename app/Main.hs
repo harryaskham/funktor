@@ -17,4 +17,4 @@ import TwelveBar
 import AirportTechno
 
 main :: IO ()
-main = AirportTechno.rs
+main = runToDisk =<< LofiAttempt.song
