@@ -15,29 +15,26 @@ import Melody
 import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
+import Data.Sort
 
 bpm = 120
 
 numBeats :: Int
 numBeats = 256
 
-organ :: Note -> IO TrackSegment
-organ root = do
-  notes <- noteCycle numBeats 8 root [8] [0.3] (repeat 1)
-  return $ Segment bpm epiano2 $ toMel notes
+arpNotes :: Note -> [Pch]
+arpNotes root = take 250 . cycle . sort $ expandScale [6, 7, 8, 9] (minorChord root) ?? 0.5 ?? 0.25
 
-highs :: Note -> IO TrackSegment
-highs root = do
-  notes <- noteCycle numBeats 10 root [8] [0.9] (cycle [1, 15])
-  return $ Segment bpm epiano2 $ toMel notes
+arp1 :: Note -> TrackSegment
+arp1 root = Segment bpm epiano2 $ toMel (arpNotes root)
 
-song' :: Note -> IO Song
-song' root = Song bpm <$> sequenceA instrSegments
+song' :: Note -> Song
+song' root = Song bpm [instrSegment]
   where
-    instrSegments = genEnvSegs [organ, highs] root constEnv
+    instrSegment = EnvSegment (arp1 root) constEnv
 
-song :: IO (SE Sig2)
-song = compileSong <$> song' Fs
+song :: SE Sig2
+song = compileSong $ song' Fs
 
-rs :: IO ()
-rs = runB bpm =<< song
+ras :: IO ()
+ras = runB bpm song

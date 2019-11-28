@@ -10,7 +10,14 @@ data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As |
 type Octave = Int
 type Duration = Sig
 type Velocity = D
+type PartialNote = Velocity -> Duration -> Pch
 data Pch = Pch Note Octave Velocity Duration | Silent Duration
+
+instance Eq Pch where
+  (Pch n1 o1 _ _) == (Pch n2 o2 _ _) = (o1, n1) == (o2, n2)
+
+instance Ord Pch where
+  (Pch n1 o1 _ _) <= (Pch n2 o2 _ _) = (o1, n1) <= (o2, n2)
 
 instance Enum Note where
   fromEnum C = 0
@@ -99,6 +106,10 @@ type Scale = [Note]
 -- Compile a scale with a root note.
 toScale :: ScaleDef -> Note -> Scale
 toScale (ScaleDef offsets) root = toEnum <$> (offsets <&> (+fromEnum root))
+
+-- Converts a scale to a bunch of partial notes that span the given octaves.
+expandScale :: [Octave] -> Scale -> [PartialNote]
+expandScale os ns = Pch <$> ns <*> os
 
 majorScale = toScale $ ScaleDef [0, 2, 4, 5, 7, 9, 11]
 minorScale = toScale $ ScaleDef [0, 2, 3, 5, 7, 8, 10]

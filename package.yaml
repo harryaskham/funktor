@@ -28,6 +28,7 @@ dependencies:
 - extra
 - mtl
 - random
+- sort
 
 library:
   source-dirs: src
