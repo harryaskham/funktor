@@ -84,7 +84,7 @@ dup = (>>) . enumFromTo 1
 beats :: Sig -> Sig
 beats = id
 
-bars :: Sig -> Sig
+bars :: (Num a) => a -> a
 bars = (*4)
 
 toSig :: Int -> Sig

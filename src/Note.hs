@@ -8,8 +8,8 @@ import Tools
 
 data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As | Bb | B deriving (Eq, Ord, Bounded, Show)
 type Octave = Int
-type Duration = Sig
-type Velocity = D
+type Duration = Double
+type Velocity = Double
 type PartialNote = Velocity -> Duration -> Pch
 data Pch = Pch Note Octave Velocity Duration | Silent Duration
 
@@ -62,13 +62,13 @@ toD (Silent d) = error "wtf"
 
 -- Converts to CsdNote type with velocity
 toDD :: Pch -> (D, D)
-toDD p@(Pch _ _ v _) = (v, toD p)
+toDD p@(Pch _ _ v _) = (double v, toD p)
 toDD (Silent d) = error "wtf"
 
 -- Converts single note to temp
 toTemp :: Pch -> Track Sig (D, D)
-toTemp p@(Pch n o v d) = str d . temp . toDD $ p
-toTemp (Silent d) = rest d
+toTemp p@(Pch n o v d) = str (sig . double $ d) . temp . toDD $ p
+toTemp (Silent d) = rest . sig . double $ d
 
 -- Converts notes to temps
 toTemps :: [Pch] -> [Track Sig (D, D)]
@@ -152,4 +152,15 @@ randomChordsFrom n chords octave vel dur = do
   return $ mel $ makeChord <$> rndFrom g n chords
     where 
       makeChord chordNotes = toChord $ Pch <$> chordNotes ?? octave ?? vel ?? dur
+
+-- Takes a list of notes and repeats them until we have a certain number of beats by duration.
+-- Relies on lazy scan-zip to cycle indefinitely.
+repeatToBeats :: Duration -> [Pch] -> [Pch]
+repeatToBeats beats ns = fst <$> takeWhile (\x -> snd x <= beats) zipped
+  where
+    cumDurs :: [Duration]
+    cumDurs = scanl (\acc (Pch _ _ _ d) -> acc + d) 0 (cycle ns)
+    zipped :: [(Pch, Duration)]
+    zipped = zip (cycle ns) cumDurs
+
 
