@@ -40,7 +40,7 @@ envs = ZipList
 modEnv :: SegEnv -> SegEnv
 modEnv (SegEnv s) = SegEnv $ (s * (1.0 - balance)) + (balance * s)
   where
-    balance = 0.5
+    balance = 0.2
 
 song' :: Note -> Song
 song' root = Song bpm $ getZipList $ EnvSegment <$> segs <*> envs
