@@ -34,7 +34,7 @@ modEnv (SegEnv s) = SegEnv $ (s * (1.0 - balance)) + (balance * s)
     balance = 0.2
 
 song' :: Note -> Song
-song' root = Song bpm $ getZipList $ EnvSegment <$+> segs <*+> envs
+song' root = Song bpm $ EnvSegment <$+> segs <*++> envs
   where
     segs = Segment bpm epiano1 <$> arps root
 

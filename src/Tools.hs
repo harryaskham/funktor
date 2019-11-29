@@ -16,12 +16,12 @@ infixl 5 <$$>
 -- Flap function
 infixl 4 ??
 (??) :: (Functor f) => f (a -> b) -> a -> f b
-(??) f a = ($ a) <$> f
+f ?? a = ($ a) <$> f
 
 -- Double nested Flap function
 infixl 4 ???
 (???) :: (Functor f, Functor g) => f (g (a -> b)) -> a -> f (g b)
-(???) f a = ($ a) <$$> f
+f ??? a = ($ a) <$$> f
 
 -- fmap with ZipList coercion
 (<$+>) :: (a -> b) -> [a] -> ZipList b
@@ -30,6 +30,10 @@ f <$+> a = f <$> ZipList a
 -- ap with ZipList coercion
 (<*+>) :: ZipList (a -> b) -> [a] -> ZipList b
 f <*+> a = f <*> ZipList a
+
+-- Final-chain ap with ZipList coercion allowing f <$+> a <$++> b
+(<*++>) :: ZipList (a -> b) -> [a] -> [b]
+f <*++> a = getZipList $ f <*> ZipList a
 
 -- Lift only the first arg into the functor.
 liftFst3 :: Functor f => (a -> b -> c -> d) -> f a -> b -> c -> f d
