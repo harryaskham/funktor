@@ -13,6 +13,11 @@ infixl 5 <$$>
 (<$$>) :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
 (<$$>) = fmap . fmap
 
+-- Double nested ap
+infixl 5 <***>
+(<***>) :: (Applicative f, Applicative g) => f (g (a -> b)) -> g a -> f (g b)
+f <***> a = (<*> a) <$> f
+
 -- Flap function
 infixl 4 ??
 (??) :: (Functor f) => f (a -> b) -> a -> f b

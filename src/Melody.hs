@@ -35,6 +35,10 @@ newtype SegDuration = SegDuration Sig
 -- An envelope for a segment.
 newtype SegEnv = SegEnv Sig
 
+-- Combine envelopes with the given function.
+envCombine :: (Sig -> Sig -> Sig) -> SegEnv -> SegEnv -> SegEnv
+envCombine f (SegEnv e1) (SegEnv e2) = SegEnv (f e1 e2)
+
 -- TODO: Delayable could be used here to reconcile the delayed segment
 -- piece with class constraint on first data element?
 
