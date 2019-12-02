@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveFunctor #-}
 
 module Melody where
 
@@ -13,11 +14,7 @@ import Data.Tuple.Extra
 type Drums = SE Sig2
 
 -- Definition of a song segment including BPM and instrument information.
-data Segment a = Segment Bpm Patch2 a
-
--- Allow us to map over segments to create morphing track pieces.
-instance Functor Segment where
-  fmap f (Segment bpm patch a) = Segment bpm patch (f a)
+data Segment a = Segment Bpm Patch2 a deriving (Functor)
 
 -- Helper to run a segment by itself in isolation.
 runSegment :: TrackSegment -> IO ()
