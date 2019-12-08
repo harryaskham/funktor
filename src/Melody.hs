@@ -137,5 +137,5 @@ offEnv = SegEnv 0
 
 -- Take some instrument gens and create the corresponding verse.
 -- Useful for IO-bound track segments.
-genEnvSegs :: [Note -> IO TrackSegment] -> Note -> SegEnv -> [IO DelayedSegment]
+genEnvSegs :: Functor f => f (Note -> IO TrackSegment) -> Note -> SegEnv -> f (IO DelayedSegment)
 genEnvSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env

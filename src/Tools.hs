@@ -38,7 +38,7 @@ f <*+> a = f <*> ZipList a
 
 -- Final-chain ap with ZipList coercion allowing f <$+> a <$++> b
 (<*++>) :: ZipList (a -> b) -> [a] -> [b]
-f <*++> a = getZipList $ f <*> ZipList a
+f <*++> a = getZipList $ f <*+> a
 
 -- Lift only the first arg into the functor.
 liftFst3 :: Functor f => (a -> b -> c -> d) -> f a -> b -> c -> f d
