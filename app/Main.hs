@@ -16,6 +16,7 @@ import LofiAttempt
 import TwelveBar
 import AirportTechno
 import ArpAttempt
+import AuldLangSyne
 
 main :: IO ()
 main = runToDisk =<< LofiAttempt.song
