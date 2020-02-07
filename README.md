@@ -1,5 +1,7 @@
 # funktor
 
+Requires csound 6.14, at least on WSL2
+
 ## Things to do
 - Need to have easy way to join SE and IO (maybe just use SE everywhere)
 - Figure out ReaderT to avoid passing BPM around everywhere, or numBeats for a delayable.
@@ -11,3 +13,4 @@
 - Segments fading in and out instead of cutoffs
 - Do some stuff with envelope mashups for an extra layer of progressive dropout
 - Play around with Sampling from disk and triggering properly / with soft enveloping
+- Notion of a nestable compilable, where we can string together a tree of segments to make a song
