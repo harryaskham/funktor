@@ -30,11 +30,7 @@ newtype SegDelay = SegDelay Sig
 newtype SegDuration = SegDuration Sig
 
 -- An envelope for a segment.
-newtype SegEnv = SegEnv Sig
-
--- Combine envelopes with the given function.
-envCombine :: (Sig -> Sig -> Sig) -> SegEnv -> SegEnv -> SegEnv
-envCombine f (SegEnv e1) (SegEnv e2) = SegEnv (f e1 e2)
+type SegEnv = Sig
 
 -- TODO: Delayable could be used here to reconcile the delayed segment
 -- piece with class constraint on first data element?
@@ -62,10 +58,6 @@ instance Delayable TrackSegment where
 xEveryYBeatsForZBeats :: Delayable a => Int -> a -> Int -> Int -> [DelayedSegment]
 xEveryYBeatsForZBeats numBeats x y z = (\del -> make x del z) <$> [y, y*2 .. numBeats]
 
--- Compile the given segment as a Seg
-compileToSeg :: TrackSegment -> Seg Sig2
-compileToSeg = toSeg . compileSegment
-
 -- Compiles the given trac
 compileTrack :: Bpm -> Patch2 -> Track Sig (D, D) -> Sig2
 compileTrack bpm patch track = mix . atSco patch . fmap cpspch2 . str (spb bpm) $ track
@@ -86,8 +78,8 @@ compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) 
   where
     limited = limSig (Beats bpm dur) <$> drums
     delayed = delaySnd (beatsToSecs (Beats bpm del)) <$> limited
-compileDelayedSegment bpm (EnvSegment t (SegEnv env)) = pure $ fromMono env * compileSegment t
-compileDelayedSegment bpm (EnvDrums drums (SegEnv env)) = (fromMono env *) <$> drums
+compileDelayedSegment bpm (EnvSegment t env) = pure $ fromMono env * compileSegment t
+compileDelayedSegment bpm (EnvDrums drums env) = (fromMono env *) <$> drums
 
 -- Compile the given delayed segments into their corresponding signal.
 compileDelayedSegments :: Bpm -> [DelayedSegment] -> SE Sig2
@@ -125,19 +117,19 @@ previewSong (Song bpm delayedSegments) = runB bpm . compileSong $ Song bpm (remo
 
 -- A square envelope that will be on and off for the given number of bars.
 sqrEnv :: Bpm -> D -> Sig -> SegEnv
-sqrEnv bpm phase onFor = SegEnv $ usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
+sqrEnv bpm phase onFor = usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
 
 -- A sin env that will flow in and out per the phase needed.
 sinEnv :: Bpm -> D -> Sig -> SegEnv
-sinEnv bpm phase onFor = SegEnv $ uosc' phase (beatsToHz $ Beats bpm (onFor * 2))
+sinEnv bpm phase onFor = uosc' phase (beatsToHz $ Beats bpm (onFor * 2))
 
 -- A constantly-on envelope.
 constEnv :: SegEnv
-constEnv = SegEnv 1
+constEnv = 1
 
 -- A constantly-off envelope,
 offEnv :: SegEnv
-offEnv = SegEnv 0
+offEnv = 0
 
 -- Take some instrument gens and create the corresponding verse.
 -- Useful for IO-bound track segments.
