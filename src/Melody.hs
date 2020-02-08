@@ -66,9 +66,13 @@ xEveryYBeatsForZBeats numBeats x y z = (\del -> make x del z) <$> [y, y*2 .. num
 compileToSeg :: TrackSegment -> Seg Sig2
 compileToSeg = toSeg . compileSegment
 
+-- Compiles the given trac
+compileTrack :: Bpm -> Patch2 -> Track Sig (D, D) -> Sig2
+compileTrack bpm patch track = mix . atSco patch . fmap cpspch2 . str (spb bpm) $ track
+
 -- Compiles the given segment to a signal
 compileSegment :: TrackSegment -> Sig2
-compileSegment (Segment bpm patch track) = mix . atSco patch . fmap cpspch2 . str (spb bpm) $ track
+compileSegment (Segment bpm patch track) = compileTrack bpm patch track
 
 -- Compiles the given delayed segment to a track segment with its delay
 -- TODO: Migrate to only using envelopes.

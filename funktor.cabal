@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.1.
+-- This file has been generated from package.yaml by hpack version 0.31.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e746556010dd19230cb6803c5790b99fecc4271e5f66fee34582769536232f18
+-- hash: 8908ea83f466938f4c87bcb4f013b60d2fffa8fefe6eb4cbc790fac47b2ff95d
 
 name:           funktor
 version:        0.1.0.0
@@ -36,6 +36,7 @@ library
       Melody
       Note
       PlaneToSJC
+      Saturday
       Tabs
       Tetris
       Tools
