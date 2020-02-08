@@ -77,6 +77,9 @@ beatsToHz = (1/) <$> beatsToSecs
 loopSig :: Sig2 -> Sig2
 loopSig = runSeg . loop . toSeg
 
+concatSig :: Sig2 -> Sig2 -> Sig2
+concatSig s1 s2 = runSeg $ (toSeg s1) +:+ (toSeg s2)
+
 -- A number of beats at a given BPM.
 data Beats = Beats Bpm Sig
 

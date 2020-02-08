@@ -32,8 +32,11 @@ compileWith env notes = compileTrack (env^.bpm) (env^.patch) (toMel . repeatToBe
 
 compileD = compileTabs gBPM . pure
 
+forBeats :: Sig -> SE Sig2 -> SE Sig2
+forBeats n = fmap (limSig (Beats gBPM n))
+
 gBPM = 128
-numBeats = 512
+numBeats = 32
 
 kick = compileD $ DrumTab "X _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _" Mp.bd numBeats
 cows = compileD $ DrumTab "O _ . _ . _ . _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _" Mp.cow numBeats
@@ -49,8 +52,12 @@ qujs = compileD $ DrumTab "_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o
 padNotes = Pch <$> (take 4 . cycle $ minorChord D) ?? 5 ?? 0.3 ?? 8
 pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
 
-intro = sum [kick, cows, snar, sna2, cyms, cymt, tams, gros, mars, qujs, pure pad]
+intro1 = sum [kick, cows]
+intro2 = sum [intro1, snar, qujs]
+--intro = sum [kick, cows, snar, sna2, cyms, cymt, tams, gros, mars, qujs, pure pad]
 
-song = intro
+song = sequence [ forBeats 4 intro1
+                , forBeats 4 intro2
+                ]
 
-sat = runB gBPM song
+sat = runB gBPM (foldl1 concatSig <$> song)
