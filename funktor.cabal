@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8908ea83f466938f4c87bcb4f013b60d2fffa8fefe6eb4cbc790fac47b2ff95d
+-- hash: ed45caccf519357fb58c1de9574c70c7fb676e01ad1c300781e92aa3c2992b55
 
 name:           funktor
 version:        0.1.0.0
@@ -51,6 +51,7 @@ library
     , csound-expression
     , csound-sampler
     , extra
+    , lens
     , mtl
     , random
     , sort
@@ -71,6 +72,7 @@ executable funktor-exe
     , csound-sampler
     , extra
     , funktor
+    , lens
     , mtl
     , random
     , sort
@@ -92,6 +94,7 @@ test-suite funktor-test
     , csound-sampler
     , extra
     , funktor
+    , lens
     , mtl
     , random
     , sort

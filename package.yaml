@@ -29,6 +29,7 @@ dependencies:
 - mtl
 - random
 - sort
+- lens
 
 library:
   source-dirs: src
