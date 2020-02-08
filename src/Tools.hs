@@ -5,6 +5,7 @@ import Csound.Base hiding (random)
 import Csound.Sam
 import System.Random
 import Control.Monad
+import Control.Lens hiding (at)
 
 type Spb = Sig
 
@@ -19,9 +20,10 @@ infixl 5 <***>
 f <***> a = (<*> a) <$> f
 
 -- Flap function
-infixl 4 ??
-(??) :: (Functor f) => f (a -> b) -> a -> f b
-f ?? a = ($ a) <$> f
+-- No longer needed - defined by lens
+-- infixl 4 ??
+-- (??) :: (Functor f) => f (a -> b) -> a -> f b
+-- f ?? a = ($ a) <$> f
 
 -- Double nested Flap function
 infixl 4 ???
@@ -129,3 +131,6 @@ doN n f = foldr (.) id (replicate n f)
 
 pink2 = fromMono <$> pink
 brown2 = fromMono <$> brown
+
+stereoMap :: (a -> b) -> (a, a) -> (b, b)
+stereoMap f (a1, a2) = (f a1, f a2)

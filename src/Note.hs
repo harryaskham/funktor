@@ -5,6 +5,7 @@ import System.Random
 import Data.List
 import Data.Functor ((<&>))
 import Tools
+import Control.Lens
 
 data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As | Bb | B deriving (Eq, Ord, Bounded, Show)
 type Octave = Int

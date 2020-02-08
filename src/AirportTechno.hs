@@ -15,6 +15,7 @@ import Melody
 import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
+import Control.Lens
 
 bpm = 60
 

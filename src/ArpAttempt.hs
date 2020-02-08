@@ -8,6 +8,7 @@ import Note
 import Melody
 import Data.Sort
 import Data.Ord
+import Control.Lens
 
 bpm = 140
 numBeats = 512

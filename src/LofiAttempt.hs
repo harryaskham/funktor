@@ -14,6 +14,7 @@ import Melody
 import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
+import Control.Lens
 
 -- Nice slo lofi bpm
 bpm = 70

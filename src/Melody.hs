@@ -9,6 +9,7 @@ import Csound.Sam
 import Tools
 import Note
 import Data.Tuple.Extra
+import Control.Lens
 
 -- A convenience alias for compiled drums.
 type Drums = SE Sig2
