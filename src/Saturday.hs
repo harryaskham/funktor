@@ -32,8 +32,8 @@ compileWith env notes = compileTrack (env^.bpm) (env^.patch) (toMel . repeatToBe
 
 compileD = compileTabs gBPM . pure
 
-forBeats :: Sig -> SE Sig2 -> SE Sig2
-forBeats n = fmap (limSig (Beats gBPM n))
+forBeats :: (SigSpace a, Sigs a) => Sig -> a -> Seg a
+forBeats n = limSig (Beats gBPM n)
 
 gBPM = 128
 numBeats = 32
@@ -56,8 +56,8 @@ intro1 = sum [kick, cows]
 intro2 = sum [intro1, snar, qujs]
 --intro = sum [kick, cows, snar, sna2, cyms, cymt, tams, gros, mars, qujs, pure pad]
 
-song = sequence [ forBeats 4 intro1
-                , forBeats 4 intro2
-                ]
+song = runSeg . mel <$> sequence [ forBeats 4 <$> intro1
+                                 , forBeats 4 <$> intro2
+                                 ]
 
-sat = runB gBPM (foldl1 concatSig <$> song)
+sat = runB gBPM song

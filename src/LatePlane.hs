@@ -1,5 +1,6 @@
 module LatePlane where
 
+import Control.Lens
 import Csound.Base hiding (Tab, clp, Duration)
 import Csound.Patch
 import Tabs

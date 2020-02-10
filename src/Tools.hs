@@ -77,15 +77,18 @@ beatsToHz = (1/) <$> beatsToSecs
 loopSig :: Sig2 -> Sig2
 loopSig = runSeg . loop . toSeg
 
-concatSig :: Sig2 -> Sig2 -> Sig2
-concatSig s1 s2 = runSeg $ (toSeg s1) +:+ (toSeg s2)
+concatSig :: (Sigs a) => a -> a -> a
+concatSig s1 s2 = runSeg $ mel [toSeg s1, toSeg s2]
+
+concatSigs :: (Sigs a) => [a] -> a
+concatSigs = runSeg . loop . mel . fmap toSeg
 
 -- A number of beats at a given BPM.
 data Beats = Beats Bpm Sig
 
 -- ALlows us to limit a signal, not just a segment
-limSig :: Beats -> Sig2 -> Sig2
-limSig beats = runSeg . constLim (beatsToSecs beats) . toSeg
+limSig :: (SigSpace a, Sigs a) => Beats -> a -> Seg a
+limSig beats = constLim (beatsToSecs beats) . toSeg
 
 -- Maps the given function to all but the last member of a list.
 mapToAllButLast :: (a -> a) -> [a] -> [a]

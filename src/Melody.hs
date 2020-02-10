@@ -61,7 +61,7 @@ xEveryYBeatsForZBeats numBeats x y z = (\del -> make x del z) <$> [y, y*2 .. num
 
 -- Compiles the given trac
 compileTrack :: Bpm -> Patch2 -> Track Sig (D, D) -> Sig2
-compileTrack bpm patch track = mix . atSco patch . fmap cpspch2 . str (spb bpm) $ track
+compileTrack bpm patch = mix . atSco patch . fmap cpspch2 . str (spb bpm)
 
 -- Compiles the given segment to a signal
 compileSegment :: TrackSegment -> Sig2
@@ -73,11 +73,11 @@ compileDelayedSegment :: Bpm -> DelayedSegment -> SE Sig2
 compileDelayedSegment bpm (DelayedSegment t (SegDelay del) (SegDuration dur)) = pure delayed
   where
     compiled = compileSegment t
-    limited = limSig (Beats bpm dur) compiled
+    limited = runSeg $ limSig (Beats bpm dur) compiled
     delayed = delaySnd (beatsToSecs (Beats bpm del)) limited
 compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) = delayed
   where
-    limited = limSig (Beats bpm dur) <$> drums
+    limited = runSeg . limSig (Beats bpm dur) <$> drums
     delayed = delaySnd (beatsToSecs (Beats bpm del)) <$> limited
 compileDelayedSegment bpm (EnvSegment t env) = pure $ fromMono env * compileSegment t
 compileDelayedSegment bpm (EnvDrums drums env) = (fromMono env *) <$> drums
