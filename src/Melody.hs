@@ -73,11 +73,11 @@ compileDelayedSegment :: Bpm -> DelayedSegment -> SE Sig2
 compileDelayedSegment bpm (DelayedSegment t (SegDelay del) (SegDuration dur)) = pure delayed
   where
     compiled = compileSegment t
-    limited = runSeg $ limSig (Beats bpm dur) compiled
+    limited = runSeg $ limSig (Beats bpm dur) $ toSeg compiled
     delayed = delaySnd (beatsToSecs (Beats bpm del)) limited
 compileDelayedSegment bpm (DelayedDrums drums (SegDelay del) (SegDuration dur)) = delayed
   where
-    limited = runSeg . limSig (Beats bpm dur) <$> drums
+    limited = runSeg . limSig (Beats bpm dur) . toSeg <$> drums
     delayed = delaySnd (beatsToSecs (Beats bpm del)) <$> limited
 compileDelayedSegment bpm (EnvSegment t env) = pure $ fromMono env * compileSegment t
 compileDelayedSegment bpm (EnvDrums drums env) = (fromMono env *) <$> drums

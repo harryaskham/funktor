@@ -87,8 +87,11 @@ concatSigs = runSeg . loop . mel . fmap toSeg
 data Beats = Beats Bpm Sig
 
 -- ALlows us to limit a signal, not just a segment
-limSig :: (SigSpace a, Sigs a) => Beats -> a -> Seg a
-limSig beats = constLim (beatsToSecs beats) . toSeg
+limSig :: Beats -> Seg a -> Seg a
+limSig beats = constLim (beatsToSecs beats)
+
+delSig :: Num a => Beats -> Seg a -> Seg a
+delSig beats = constDel (beatsToSecs beats)
 
 -- Maps the given function to all but the last member of a list.
 mapToAllButLast :: (a -> a) -> [a] -> [a]
