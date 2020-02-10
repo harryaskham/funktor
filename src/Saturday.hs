@@ -35,6 +35,9 @@ compileD = compileTabs gBPM . pure
 forBeats :: (SigSpace a, Sigs a) => Sig -> a -> Seg a
 forBeats n = limSig (Beats gBPM n)
 
+catSegs :: [SE (Seg Sig2)] -> SE Sig2
+catSegs segs = runSeg . mel <$> sequence segs
+
 gBPM = 128
 numBeats = 32
 
@@ -54,10 +57,13 @@ pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
 
 intro1 = sum [kick, cows]
 intro2 = sum [intro1, snar, qujs]
---intro = sum [kick, cows, snar, sna2, cyms, cymt, tams, gros, mars, qujs, pure pad]
+intro3 = sum [kick, cows, snar, sna2, cyms, cymt, tams, gros, mars, qujs, pure pad]
 
-song = runSeg . mel <$> sequence [ forBeats 4 <$> intro1
-                                 , forBeats 4 <$> intro2
-                                 ]
+-- TODO: Implement a drop modifier
+
+song = catSegs [ forBeats 4 <$> intro1
+               , forBeats 4 <$> intro2
+               , forBeats 8 <$> intro3
+               ]
 
 sat = runB gBPM song

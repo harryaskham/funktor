@@ -71,7 +71,7 @@ beatsToSecs :: Beats -> Sig
 beatsToSecs (Beats bpm beats) = spb bpm * beats
 
 beatsToHz :: Beats -> Sig
-beatsToHz = (1/) <$> beatsToSecs
+beatsToHz = (1/) . beatsToSecs
 
 -- Allows us to loop a signal, not just a segment
 loopSig :: Sig2 -> Sig2
