@@ -159,8 +159,10 @@ randomChordsFrom n chords octave vel dur = do
 repeatToBeats :: Duration -> [Pch] -> [Pch]
 repeatToBeats beats ns = fst <$> takeWhile (\x -> snd x <= beats) zipped
   where
+    cumDurAcc acc (Pch _ _ _ d) = acc + d
+    cumDurAcc acc (Silent d) = acc + d
     cumDurs :: [Duration]
-    cumDurs = scanl (\acc (Pch _ _ _ d) -> acc + d) 0 (cycle ns)
+    cumDurs = scanl cumDurAcc 0 (cycle ns)
     zipped :: [(Pch, Duration)]
     zipped = zip (cycle ns) cumDurs
 

@@ -52,27 +52,39 @@ gros = compileD $ DrumTab "_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|X _ _
 mars = compileD $ DrumTab "_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ X _ _ _|X _ _ _ X _ _ _" Mp.mar numBeats
 qujs = compileD $ DrumTab "_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o _ _ _ _ _" Mp.qj numBeats
 
-padNotes = Pch <$> (take 4 . cycle $ minorChord D) ?? 5 ?? 0.3 ?? 8
+padNotes = Pch <$> (take 4 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
 pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
 
-intro1 = sum [kick, cows]
-intro2 = sum [intro1, snar, qujs]
-intro3 = sum [intro2, cyms, tams]
+lead = compileWith (Env gBPM polySynth 32) (take 64 $ cycle $ [Pch C 6 0.4 0.5, Silent 0.5])
+
+intro1 = toSeg <$> sum [kick, cows]
+intro2 = toSeg <$> sum [kick, cows, snar]
+maindrum = toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
+mainlead :: SE (Seg Sig2)
+mainlead = toSeg <$> pure lead
+mainpad :: SE (Seg Sig2)
+mainpad = toSeg <$> pure pad
 -- all = sum [kick, cows, snar, sna2, cyms, cymt, tams, gros, mars, qujs, pure pad]
 
 -- Adds a drop to the given segment
 -- TODO: Find a way to avoid the explicit delay passing
+-- TODO: For some reason this breaks and hangs
 withDrop :: (Sigs a) => Sig -> Seg a -> Seg a -> Seg a
 withDrop delay dropSeg seg = newSeg +:+ drop
   where
     newSeg = limSig (Beats gBPM delay) seg
     drop = delSig (Beats gBPM delay) drop
 
-addDrop = withDrop 12 (forBeats 4 . toSeg <$> qujs)
+addDrop seg = withDrop 12 <$> drop <*> seg
+  where
+    drop = (forBeats 4 . toSeg <$> qujs)
 
-song = [ forBeats 16 . toSeg <$> intro1
-       , forBeats 16 . toSeg <$> intro2
-       , forBeats 16 . toSeg <$> intro3
-       ]
+song =
+  runSeg . loop . mel
+  <$> sequence [ (=:=) <$> (forBeats 16 <$> intro1) <*> (forBeats 16 <$> mainpad)
+               , forBeats 16 <$> intro2
+               -- TODO: This last one only plays for one beat then dies.
+               , (=:=) <$> (forBeats 32 <$> maindrum) <*> (forBeats 32 <$> mainlead)
+               ]
 
-sat = runB gBPM $ catSegs song
+sat = runB gBPM song
