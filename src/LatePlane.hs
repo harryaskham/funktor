@@ -21,18 +21,13 @@ arps root = toMel . repeatToBeats numBeats <$>
 
 envs = repeat constEnv
 
-modEnv :: SegEnv -> SegEnv
-modEnv (SegEnv s) = SegEnv $ (s * (1.0 - balance)) + (balance * s)
-  where
-    balance = 0.2
-
 song' :: Note -> Song
 song' root = Song bpm $ EnvSegment <$+> segs <*++> envs
   where
     segs = Segment bpm guitar <$> arps root
 
 song :: SE Sig2
-song = compileSong $ song' Fs
+song = compileSong $ song' A
 
 rps :: IO ()
 rps = runB bpm song

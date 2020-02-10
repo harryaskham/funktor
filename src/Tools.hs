@@ -5,6 +5,7 @@ import Csound.Base hiding (random)
 import Csound.Sam
 import System.Random
 import Control.Monad
+import Control.Lens hiding (at)
 
 type Spb = Sig
 
@@ -19,9 +20,10 @@ infixl 5 <***>
 f <***> a = (<*> a) <$> f
 
 -- Flap function
-infixl 4 ??
-(??) :: (Functor f) => f (a -> b) -> a -> f b
-f ?? a = ($ a) <$> f
+-- No longer needed - defined by lens
+-- infixl 4 ??
+-- (??) :: (Functor f) => f (a -> b) -> a -> f b
+-- f ?? a = ($ a) <$> f
 
 -- Double nested Flap function
 infixl 4 ???
@@ -74,6 +76,9 @@ beatsToHz = (1/) <$> beatsToSecs
 -- Allows us to loop a signal, not just a segment
 loopSig :: Sig2 -> Sig2
 loopSig = runSeg . loop . toSeg
+
+concatSig :: Sig2 -> Sig2 -> Sig2
+concatSig s1 s2 = runSeg $ (toSeg s1) +:+ (toSeg s2)
 
 -- A number of beats at a given BPM.
 data Beats = Beats Bpm Sig
@@ -129,3 +134,6 @@ doN n f = foldr (.) id (replicate n f)
 
 pink2 = fromMono <$> pink
 brown2 = fromMono <$> brown
+
+stereoMap :: (a -> b) -> (a, a) -> (b, b)
+stereoMap f (a1, a2) = (f a1, f a2)

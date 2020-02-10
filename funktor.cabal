@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.1.
+-- This file has been generated from package.yaml by hpack version 0.31.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3ba2529f64ee7bfdafa48ad1c3cdb92a091faf9f5b10168c70a1afd895117b49
+-- hash: b380beb62532689cf5d800fe12969260bda104fad90420135454a016b3f322cc
 
 name:           funktor
 version:        0.1.0.0
@@ -37,10 +37,10 @@ library
       Melody
       Note
       PlaneToSJC
+      Saturday
       Tabs
       Tetris
       Tools
-      TwelveBar
   other-modules:
       Paths_funktor
   hs-source-dirs:
@@ -51,6 +51,7 @@ library
     , csound-expression
     , csound-sampler
     , extra
+    , lens
     , mtl
     , random
     , sort
@@ -71,6 +72,7 @@ executable funktor-exe
     , csound-sampler
     , extra
     , funktor
+    , lens
     , mtl
     , random
     , sort
@@ -92,6 +94,7 @@ test-suite funktor-test
     , csound-sampler
     , extra
     , funktor
+    , lens
     , mtl
     , random
     , sort

@@ -8,6 +8,7 @@ import Note
 import Melody
 import Data.Sort
 import Data.Ord
+import Control.Lens
 
 bpm = 140
 numBeats = 512
@@ -26,11 +27,11 @@ envs =
   , modEnv $ sinEnv bpm 0.4 (bars 3)
   , sqrEnv bpm 0.6 (bars 4)
   , modEnv $ sinEnv bpm 0.8 (bars 5)
-  , envCombine (*) (sqrEnv bpm 0.5 (bars 4)) (sqrEnv bpm 0 1)
+  , (sqrEnv bpm 0.5 (bars 4)) * (sqrEnv bpm 0 1)
   ]
 
 modEnv :: SegEnv -> SegEnv
-modEnv (SegEnv s) = SegEnv $ (s * (1.0 - balance)) + (balance * s)
+modEnv env = (env * (1.0 - balance)) + (balance * env)
   where
     balance = 0.2
 
