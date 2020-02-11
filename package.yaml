@@ -4,7 +4,7 @@ github:              "harryaskham/funktor"
 license:             BSD3
 author:              "Harry Askham"
 maintainer:          "harry@askham.ai"
-copyright:           "2019 Harry Askham"
+copyright:           "2020 Harry Askham"
 
 extra-source-files:
 - README.md

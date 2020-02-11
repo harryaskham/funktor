@@ -177,3 +177,8 @@ brown2 = fromMono <$> brown
 
 stereoMap :: (a -> b) -> (a, a) -> (b, b)
 stereoMap f (a1, a2) = (f a1, f a2)
+
+-- Reduces across set of monadic values.
+-- Ah - turns out this is "cotraverse" in the Distributive category...
+cotraverse :: (Monad m, Traversable t) => (t a -> a) -> t (m a) -> m a
+cotraverse f as = f <$> sequence as
