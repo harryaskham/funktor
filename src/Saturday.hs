@@ -57,6 +57,7 @@ pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
 
 lead = compileWith (Env gBPM polySynth 32) (take 64 $ cycle $ [Pch C 6 0.4 0.5, Silent 0.5])
 
+-- TODO: do all this inside the SE monad
 intro1 = toSeg <$> sum [kick, cows]
 intro2 = toSeg <$> sum [kick, cows, snar]
 maindrum = toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
