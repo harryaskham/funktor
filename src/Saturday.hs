@@ -47,8 +47,7 @@ song = do
   intro1 <- liftSE (cotraverse har [kick, cows])
   intro2 <- liftSE (cotraverse har [kick, cows, snar])
   maindrum <- liftSE (cotraverse har [kick, cows, snar, mars, tams, sna2])
-  loop . mel
-    <$> sequence
+  cotraverse (loop . mel)
     [ withDrop 4 12 drop =<< forBeatsM 16 (intro1 =:= pad)
     , forBeatsM 16 intro2
     -- TODO: Why does this only play for 8??? Seems like it takes the lowest
