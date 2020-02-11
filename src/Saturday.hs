@@ -15,6 +15,7 @@ import Control.Lens
 import qualified Csound.Catalog.Drum as Drum
 import Csound.Catalog.Drum.MiniPops as Mp
 import Csound.Catalog.Effect
+import System.IO.Unsafe
 
 -- LITERATE MUSIC
 -- Simple intro, pad, and then some dark house
@@ -30,6 +31,7 @@ makeLenses ''Env
 compileWith :: Env -> [Pch] -> Sig2
 compileWith env notes = compileTrack (env^.bpm) (env^.patch) (toMel . repeatToBeats (env^.beatDuration) $ notes)
 
+--compileD = unsafePerformIO . compileWithDropOut 0.1 gBPM
 compileD = compileTabs gBPM . pure
 
 forBeats :: (SigSpace a, Sigs a) => Sig -> Seg a -> Seg a
@@ -60,6 +62,7 @@ lead = compileWith (Env gBPM polySynth $ fromIntegral numBeats) (take 64 $ cycle
 -- drums = sum [kick, cows, snar, sna2, cyms, cymt, tams, gros, mars, qujs, pure pad]
 
 song = do
+  drop <- toSeg <$> qujs
   intro1 <- toSeg <$> sum [kick, cows]
   intro2 <- toSeg <$> sum [kick, cows, snar]
   maindrum <- toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
@@ -67,21 +70,17 @@ song = do
       mainpad = toSeg pad
   return
     $ runSeg . loop . mel
-    $ [ forBeats 16 intro1 =:= forBeats 16 mainpad
-      , forBeats 16 intro2
-      , forBeats 32 maindrum =:= forBeats 32 mainpad ]
+    $ [ (intro1 =:= mainpad) & forBeats 16 & withDrop 4 12 drop
+      , intro2 & forBeats 16
+      , (maindrum =:= mainpad) & forBeats 32
+      ]
 
--- Adds a drop to the given segment
--- TODO: Find a way to avoid the explicit delay passing
--- TODO: For some reason this breaks and hangs
-withDrop :: (Sigs a) => Sig -> Seg a -> Seg a -> Seg a
-withDrop delay dropSeg seg = newSeg +:+ drop
+-- Adds a drop to the given segment.
+-- TODO: Avoid the explicit length passing
+withDrop :: (Sigs a) => Sig -> Sig -> Seg a -> Seg a -> Seg a
+withDrop len delay drop seg = newSeg =:= newDrop
   where
-    newSeg = limSig (Beats gBPM delay) seg
-    drop = delSig (Beats gBPM delay) drop
-
-addDrop seg = withDrop 12 <$> drop <*> seg
-  where
-    drop = forBeats 4 . toSeg <$> qujs
+    newSeg = limSig (Beats gBPM delay) seg +:+ restSig (Beats gBPM len)
+    newDrop = restSig (Beats gBPM delay) +:+ limSig (Beats gBPM len) drop
 
 sat = runB gBPM song

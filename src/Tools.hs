@@ -93,6 +93,9 @@ limSig beats = constLim (beatsToSecs beats)
 delSig :: Num a => Beats -> Seg a -> Seg a
 delSig beats = constDel (beatsToSecs beats)
 
+restSig :: Num a => Beats -> Seg a
+restSig beats = constRest (beatsToSecs beats)
+
 -- Maps the given function to all but the last member of a list.
 mapToAllButLast :: (a -> a) -> [a] -> [a]
 mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)
