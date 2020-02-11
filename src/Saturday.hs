@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Saturday where
 
@@ -38,6 +39,11 @@ pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
 lead = compileWith (Env gBPM polySynth $ fromIntegral numBeats) (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
 
 -- TODO: Figure out MTL stack with a ReaderT here
+-- Maybe need a liftSE
+
+newtype SongM a = SongM {
+  runSong :: ReaderT Bpm SE a
+} deriving (Monad, Functor, Applicative) -- , MonadIO, MonadError AppError)
 
 song :: SE (Seg Sig2)
 song = do
