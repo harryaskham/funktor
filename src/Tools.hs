@@ -100,10 +100,8 @@ restSig :: Num a => Beats -> Seg a
 restSig beats = constRest (beatsToSecs beats)
 
 -- Play the given segment for only the number of beats given.
-forBeats :: (SigSpace a, Sigs a, MonadReader Bpm m) => Sig -> Seg a -> m (Seg a)
-forBeats n seg = do
-  bpm <- ask
-  return $ limSig (Beats bpm n) seg
+forBeats :: (Sigs a) => Bpm -> Sig -> Seg a -> Seg a
+forBeats gBPM n = limSig (Beats gBPM n)
 
 -- Maps the given function to all but the last member of a list.
 mapToAllButLast :: (a -> a) -> [a] -> [a]

@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Saturday where
 
 import Csound.Base hiding (Tab, clp, Duration)
@@ -35,21 +37,21 @@ padNotes = Pch <$> (take 4 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
 pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
 lead = compileWith (Env gBPM polySynth $ fromIntegral numBeats) (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
 
-type SongM = ReaderT Bpm SE
+-- TODO: Figure out MTL stack with a ReaderT here
 
-song :: SongM Sig2
+song :: SE (Seg Sig2)
 song = do
-  drop <- lift $ forBeats 4 . toSeg <$> qujs
-  intro1 <- lift $ forBeats 16 . toSeg <$> sum [kick, cows]
-  intro2 <- lift $ forBeats 16 . toSeg <$> sum [kick, cows, snar]
-  maindrum <- lift $ forBeats 32 . toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
-  mainlead <- forBeats 32 $ toSeg (pure lead)
-  mainpad <- forBeats 32 $ toSeg (pure pad)
+  drop <- forBeats gBPM 4 . toSeg <$> qujs
+  intro1 <- forBeats gBPM 16 . toSeg <$> sum [kick, cows]
+  intro2 <- forBeats gBPM 16 . toSeg <$> sum [kick, cows, snar]
+  maindrum <- forBeats gBPM 32 . toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
+  mainlead <- forBeats gBPM 32 . toSeg <$> pure lead
+  mainpad <- forBeats gBPM 32 . toSeg <$> pure pad
   return
-    $ runSeg . loop . mel
+    $ loop . mel
     $ [ intro1 =:= mainpad & withDrop gBPM 4 12 drop
       , intro2
       , maindrum =:= mainpad
       ]
 
-sat = runB gBPM (runReaderT song gBPM)
+sat = runB gBPM (runSeg <$> song)
