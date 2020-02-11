@@ -10,6 +10,19 @@ import Control.Monad
 import Control.Lens hiding (at)
 import Control.Monad.Reader
 
+class (Monad m) => MonadSE m where
+  liftSE :: SE a -> m a
+
+instance MonadSE SE where
+  liftSE = id
+
+-- MTL stack for song creation
+type SongM = ReaderT Bpm SE
+
+-- Lift a signal into seg-space within a song
+liftSeg :: (Sigs a) => SE a -> SongM (Seg a)
+liftSeg = lift . fmap toSeg
+
 type Spb = Sig
 
 -- Double nested fmap
@@ -103,7 +116,7 @@ restSig beats = constRest (beatsToSecs beats)
 forBeats :: (Sigs a) => Bpm -> Sig -> Seg a -> Seg a
 forBeats gBPM n = limSig (Beats gBPM n)
 
-forBeatsM :: (MonadReader Bpm m) => Sig -> Seg Sig2 -> m (Seg Sig2)
+forBeatsM :: (MonadReader Bpm m, Sigs a) => Sig -> Seg a -> m (Seg a)
 forBeatsM n seg = do
   bpm <- ask
   return $ limSig (Beats bpm n) seg

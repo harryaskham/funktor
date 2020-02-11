@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -11,6 +12,7 @@ import Tools
 import Note
 import Data.Tuple.Extra
 import Control.Lens
+import Control.Monad.Reader
 
 -- A convenience alias for compiled drums.
 type Drums = SE Sig2
@@ -151,8 +153,9 @@ genEnvSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
 
 -- Adds a drop to the given segment.
 -- TODO: Avoid the explicit length passing
-withDrop :: (Sigs a) => Bpm -> Sig -> Sig -> Seg a -> Seg a -> Seg a
-withDrop bpm len delay drop seg = newSeg =:= newDrop
-  where
-    newSeg = limSig (Beats bpm delay) seg +:+ restSig (Beats bpm len)
-    newDrop = restSig (Beats bpm delay) +:+ limSig (Beats bpm len) drop
+withDrop :: (MonadReader Bpm m, Sigs a) => Sig -> Sig -> Seg a -> Seg a -> m (Seg a)
+withDrop len delay drop seg = do
+  bpm <- ask
+  let newSeg = limSig (Beats bpm delay) seg +:+ restSig (Beats bpm len)
+      newDrop = restSig (Beats bpm delay) +:+ limSig (Beats bpm len) drop
+  return $ newSeg =:= newDrop

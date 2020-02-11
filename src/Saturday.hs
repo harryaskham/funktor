@@ -35,39 +35,26 @@ mars = compileD $ DrumTab "_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ X _ _ _|X _ _
 qujs = compileD $ DrumTab "_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o _ _ _ _ _" Mp.qj numBeats
 
 padNotes = Pch <$> (take 4 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
-pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
-lead = compileWith (Env gBPM polySynth $ fromIntegral numBeats) (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
+pad = compileWith
+        (Env gBPM razorPad $ fromIntegral numBeats)
+        padNotes
+lead = compileWith
+         (Env gBPM polySynth $ fromIntegral numBeats)
+         (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
 
--- TODO: Figure out MTL stack with a ReaderT here
-
-song' :: ReaderT Bpm SE (Seg Sig2)
+song' :: SongM (Seg Sig2)
 song' = do
-  intro1 <- lift $ toSeg <$> sum [kick, cows]
-  intro2 <- lift $ toSeg <$> sum [kick, cows, snar]
-  maindrum <- lift $ toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
-  mainlead <- lift $ toSeg <$> pure lead
-  mainpad <- lift $ toSeg <$> pure pad
+  drop <- liftSeg qujs
+  intro1 <- liftSeg $ sum [kick, cows]
+  intro2 <- liftSeg $ sum [kick, cows, snar]
+  maindrum <- liftSeg $ sum [kick, cows, snar, mars, tams, sna2]
+  mainlead <- liftSeg $ pure lead
+  mainpad <- liftSeg $ pure pad
   loop . mel
     <$> sequence
-    [ forBeatsM 16 (intro1 =:= mainpad)
+    [ withDrop 4 12 drop =<< forBeatsM 16 (intro1 =:= mainpad)
     , forBeatsM 16 intro2
     , forBeatsM 32 (maindrum =:= mainpad)
     ]
 
-song :: SE (Seg Sig2)
-song = do
-  drop <- forBeats gBPM 4 . toSeg <$> qujs
-  intro1 <- forBeats gBPM 16 . toSeg <$> sum [kick, cows]
-  intro2 <- forBeats gBPM 16 . toSeg <$> sum [kick, cows, snar]
-  maindrum <- forBeats gBPM 32 . toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
-  mainlead <- forBeats gBPM 32 . toSeg <$> pure lead
-  mainpad <- forBeats gBPM 32 . toSeg <$> pure pad
-  return
-    $ loop . mel
-    $ [ intro1 =:= mainpad & withDrop gBPM 4 12 drop
-      , intro2
-      , maindrum =:= mainpad
-      ]
-
---sat = runB gBPM (runSeg <$> song)
 sat = runB gBPM (runSeg <$> runReaderT song' gBPM)
