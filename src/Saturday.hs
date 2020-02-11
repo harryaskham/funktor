@@ -42,14 +42,14 @@ lead = compileWith
          (Env gBPM polySynth $ fromIntegral numBeats)
          (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
 
-song' :: SongM (Seg Sig2)
-song' = do
-  drop <- liftSeg qujs
-  intro1 <- liftSeg $ sum [kick, cows]
-  intro2 <- liftSeg $ sum [kick, cows, snar]
-  maindrum <- liftSeg $ sum [kick, cows, snar, mars, tams, sna2]
-  mainlead <- liftSeg $ pure lead
-  mainpad <- liftSeg $ pure pad
+song :: (MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
+song = do
+  drop <- toSeg <$> liftSE qujs
+  intro1 <- toSeg <$> liftSE (sum [kick, cows])
+  intro2 <- toSeg <$> liftSE (sum [kick, cows, snar])
+  maindrum <- toSeg <$> liftSE (sum [kick, cows, snar, mars, tams, sna2])
+  mainlead <- toSeg <$> liftSE (pure lead)
+  mainpad <- toSeg <$> liftSE (pure pad)
   loop . mel
     <$> sequence
     [ withDrop 4 12 drop =<< forBeatsM 16 (intro1 =:= mainpad)
@@ -57,4 +57,4 @@ song' = do
     , forBeatsM 32 (maindrum =:= mainpad)
     ]
 
-sat = runB gBPM (runSeg <$> runReaderT song' gBPM)
+sat = runB gBPM (runSeg <$> runReaderT (song :: SongM (Seg Sig2)) gBPM)
