@@ -1,9 +1,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Melody where
 
-import Csound.Base
+import Csound.Base hiding (Duration)
 import Csound.Patch
 import Csound.Sam
 import Tools
@@ -16,10 +17,6 @@ type Drums = SE Sig2
 
 -- Definition of a song segment including BPM and instrument information.
 data Segment a = Segment Bpm Patch2 a deriving (Functor)
-
--- Helper to run a segment by itself in isolation.
-runSegment :: TrackSegment -> IO ()
-runSegment seg@(Segment bpm patch notes) = runB bpm $ pure $ compileSegment seg
 
 -- The type of segment we're using here.
 type TrackSegment = Segment (Track Sig (D, D))
@@ -63,9 +60,24 @@ xEveryYBeatsForZBeats numBeats x y z = (\del -> make x del z) <$> [y, y*2 .. num
 compileTrack :: Bpm -> Patch2 -> Track Sig (D, D) -> Sig2
 compileTrack bpm patch = mix . atSco patch . fmap cpspch2 . str (spb bpm)
 
+data Env = Env { _bpmVal :: Bpm
+               , _patch :: Patch2
+               , _beatDuration :: Duration
+               }
+makeLenses ''Env
+
+-- Compile a track with a given environment
+compileWith :: Env -> [Pch] -> Sig2
+compileWith env notes =
+  compileTrack (env^.bpmVal) (env^.patch) (toMel . repeatToBeats (env^.beatDuration) $ notes)
+
 -- Compiles the given segment to a signal
 compileSegment :: TrackSegment -> Sig2
 compileSegment (Segment bpm patch track) = compileTrack bpm patch track
+
+-- Helper to run a segment by itself in isolation.
+runSegment :: TrackSegment -> IO ()
+runSegment seg@(Segment bpm patch notes) = runB bpm $ pure $ compileSegment seg
 
 -- Compiles the given delayed segment to a track segment with its delay
 -- TODO: Migrate to only using envelopes.
@@ -136,3 +148,11 @@ offEnv = 0
 -- Useful for IO-bound track segments.
 genEnvSegs :: Functor f => f (Note -> IO TrackSegment) -> Note -> SegEnv -> f (IO DelayedSegment)
 genEnvSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
+
+-- Adds a drop to the given segment.
+-- TODO: Avoid the explicit length passing
+withDrop :: (Sigs a) => Bpm -> Sig -> Sig -> Seg a -> Seg a -> Seg a
+withDrop bpm len delay drop seg = newSeg =:= newDrop
+  where
+    newSeg = limSig (Beats bpm delay) seg +:+ restSig (Beats bpm len)
+    newDrop = restSig (Beats bpm delay) +:+ limSig (Beats bpm len) drop

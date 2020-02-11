@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Tools where
 
 import Data.List
@@ -6,6 +8,7 @@ import Csound.Sam
 import System.Random
 import Control.Monad
 import Control.Lens hiding (at)
+import Control.Monad.Reader
 
 type Spb = Sig
 
@@ -95,6 +98,12 @@ delSig beats = constDel (beatsToSecs beats)
 
 restSig :: Num a => Beats -> Seg a
 restSig beats = constRest (beatsToSecs beats)
+
+-- Play the given segment for only the number of beats given.
+forBeats :: (SigSpace a, Sigs a, MonadReader Bpm m) => Sig -> Seg a -> m (Seg a)
+forBeats n seg = do
+  bpm <- ask
+  return $ limSig (Beats bpm n) seg
 
 -- Maps the given function to all but the last member of a list.
 mapToAllButLast :: (a -> a) -> [a] -> [a]
