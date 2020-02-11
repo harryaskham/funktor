@@ -51,8 +51,8 @@ song = do
     <$> sequence
     [ withDrop 4 12 drop =<< forBeatsM 16 (intro1 =:= pad)
     , forBeatsM 16 intro2
-    -- TODO: Why does this only play for 8???
-    , forBeatsM 32 (maindrum =:= pad)
+    -- TODO: Why does this only play for 8??? Seems like it takes the lowest
+    , forBeatsM 32 (maindrum =:= pad =:= lead)
     ]
 
 sat = runB gBPM (runSeg <$> runReaderT (song :: SongM (Seg Sig2)) gBPM)
