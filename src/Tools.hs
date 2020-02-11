@@ -103,6 +103,11 @@ restSig beats = constRest (beatsToSecs beats)
 forBeats :: (Sigs a) => Bpm -> Sig -> Seg a -> Seg a
 forBeats gBPM n = limSig (Beats gBPM n)
 
+forBeatsM :: (MonadReader Bpm m) => Sig -> Seg Sig2 -> m (Seg Sig2)
+forBeatsM n seg = do
+  bpm <- ask
+  return $ limSig (Beats bpm n) seg
+
 -- Maps the given function to all but the last member of a list.
 mapToAllButLast :: (a -> a) -> [a] -> [a]
 mapToAllButLast f xs = reverse $ head rev : fmap f (tail rev)

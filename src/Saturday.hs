@@ -39,11 +39,20 @@ pad = compileWith (Env gBPM razorPad $ fromIntegral numBeats) padNotes
 lead = compileWith (Env gBPM polySynth $ fromIntegral numBeats) (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
 
 -- TODO: Figure out MTL stack with a ReaderT here
--- Maybe need a liftSE
 
-newtype SongM a = SongM {
-  runSong :: ReaderT Bpm SE a
-} deriving (Monad, Functor, Applicative) -- , MonadIO, MonadError AppError)
+song' :: ReaderT Bpm SE (Seg Sig2)
+song' = do
+  intro1 <- lift $ toSeg <$> sum [kick, cows]
+  intro2 <- lift $ toSeg <$> sum [kick, cows, snar]
+  maindrum <- lift $ toSeg <$> sum [kick, cows, snar, mars, tams, sna2]
+  mainlead <- lift $ toSeg <$> pure lead
+  mainpad <- lift $ toSeg <$> pure pad
+  loop . mel
+    <$> sequence
+    [ forBeatsM 16 (intro1 =:= mainpad)
+    , forBeatsM 16 intro2
+    , forBeatsM 32 (maindrum =:= mainpad)
+    ]
 
 song :: SE (Seg Sig2)
 song = do
@@ -60,4 +69,5 @@ song = do
       , maindrum =:= mainpad
       ]
 
-sat = runB gBPM (runSeg <$> song)
+--sat = runB gBPM (runSeg <$> song)
+sat = runB gBPM (runSeg <$> runReaderT song' gBPM)
