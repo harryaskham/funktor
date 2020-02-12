@@ -23,7 +23,7 @@ instance MonadSE SE where
   liftSE = id
 
 instance MonadSE SongM where
-  liftSE = lift
+  liftSE = lift . liftSE
 
 -- Lift a signal into seg-space within a song
 liftSeg :: (Sigs a) => SE a -> SongM (Seg a)
