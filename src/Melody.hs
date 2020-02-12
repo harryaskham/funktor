@@ -64,14 +64,13 @@ compileTrack bpm patch = mix . atSco patch . fmap cpspch2 . str (spb bpm)
 
 data Env = Env { _bpmVal :: Bpm
                , _patch :: Patch2
-               , _beatDuration :: Duration
                }
 makeLenses ''Env
 
 -- Compile a track with a given environment
 compileWith :: Env -> [Pch] -> Sig2
 compileWith env notes =
-  compileTrack (env^.bpmVal) (env^.patch) (toMel . repeatToBeats (env^.beatDuration) $ notes)
+  compileTrack (env^.bpmVal) (env^.patch) (toMel notes)
 
 -- Compiles the given segment to a signal
 compileSegment :: TrackSegment -> Sig2

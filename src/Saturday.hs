@@ -34,11 +34,11 @@ mars = compileD $ DrumTab "_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ X _ _ _|X _ _
 qujs = compileD $ DrumTab "_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o _ _ _ _ _|_ _ o _ _ _ _ _" Mp.qj
 
 padNotes = Pch <$> (take 4 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
-pad = toSeg $ compileWith
-        (Env gBPM razorPad $ fromIntegral numBeats)
+pad = loop . toSeg $ compileWith
+        (Env gBPM razorPad)
         padNotes
-lead = toSeg $ compileWith
-         (Env gBPM polySynth $ fromIntegral numBeats)
+lead = loop . toSeg $ compileWith
+         (Env gBPM polySynth)
          (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
 
 song :: (MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
