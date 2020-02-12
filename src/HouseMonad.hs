@@ -22,8 +22,8 @@ numBeats = 32
 
 compileD = fmap toSeg . compileTabs gBPM . pure
 kcks = compileD $ DrumTab "X _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _" Tr808.bd numBeats
-snrs = compileD $ DrumTab "_ _ _ _ _ _ o _|_ _ _ _ o _ _ _|_ _ o _ _ _ o _|_ _ _ _ O _ _ _" Tr808.sn numBeats
-ohhs = compileD $ DrumTab ". _ . _ . _ . _|. . . . . . . .|. . . . . . . .|. . . . . . . ." Tr808.ohh numBeats
+snrs = compileD $ DrumTab "_ _ _ _ _ _ _ _|O _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _" Tr808.sn numBeats
+ohhs = compileD $ DrumTab ". _ _ _ . _ _ _|. _ _ _ . _ _ _|. _ _ _ . _ _ _|. _ _ _ . _ _ _" Tr808.ohh numBeats
 chhs = compileD $ DrumTab "X _ o _ o _ o _|O _ o _ o _ o _|X _ o _ o _ o _|X _ o _ o _ o _" Tr808.chh numBeats
 
 padNotes = Pch <$> (take 4 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
@@ -36,7 +36,7 @@ lead = toSeg $ compileWith
 
 song :: (MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
 song = do
-  intro <- liftSE (cotraverse har [kcks, snrs])
+  intro <- liftSE (cotraverse har [kcks])
   verse <- liftSE (cotraverse har [kcks, snrs, ohhs])
   chorus <- liftSE (cotraverse har [kcks, snrs, ohhs, chhs])
   cotraverse (loop . mel)
