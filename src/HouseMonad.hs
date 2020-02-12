@@ -38,4 +38,4 @@ song = do
     , forBeats 16 verse
     ]
 
-hmo = runSeg . loopBy 4 <$> runReaderT (song :: SongM) 112
+hmo = runSeg . loopBy 2 <$> runReaderT (song :: SongM) 112
