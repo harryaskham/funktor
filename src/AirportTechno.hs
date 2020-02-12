@@ -23,13 +23,13 @@ numBeats :: Int
 numBeats = 256
 
 compile = compileWithDropOut 0.2 bpm
-bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _" Drum.mpBd numBeats
-sn1 = compile $ DrumTab "_ _ _ _ _ _ o _|_ _ _ _ o _ _ _|_ _ _ _ _ _ o _|_ _ _ _ X _ _ _" Drum.mpSn1 numBeats
-sn2 = compile $ DrumTab "_ _ o _ _ _ _ _|_ _ _ _ _ _ . _|_ _ _ _ . _ _ _|_ _ _ _ X _ X _" Drum.mpSn2 numBeats
-cl  = compile $ DrumTab "O _ o _ O _ o _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _" Drum.mpCl numBeats
-bn1 = compile $ DrumTab "_ O _ _ O _ O _|" Drum.mpBon1 numBeats
-bn2 = compile $ DrumTab "O _ O _ _ O _ _|" Drum.mpBon2 numBeats
-bn3 = compile $ DrumTab "_ _ _ O _ _ _ O|" Drum.mpBon3 numBeats
+bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _" Drum.mpBd
+sn1 = compile $ DrumTab "_ _ _ _ _ _ o _|_ _ _ _ o _ _ _|_ _ _ _ _ _ o _|_ _ _ _ X _ _ _" Drum.mpSn1
+sn2 = compile $ DrumTab "_ _ o _ _ _ _ _|_ _ _ _ _ _ . _|_ _ _ _ . _ _ _|_ _ _ _ X _ X _" Drum.mpSn2
+cl  = compile $ DrumTab "O _ o _ O _ o _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _" Drum.mpCl
+bn1 = compile $ DrumTab "_ O _ _ O _ O _|" Drum.mpBon1
+bn2 = compile $ DrumTab "O _ O _ _ O _ _|" Drum.mpBon2
+bn3 = compile $ DrumTab "_ _ _ O _ _ _ O|" Drum.mpBon3
 
 organ :: Note -> IO TrackSegment
 organ root = do

@@ -26,11 +26,11 @@ compile tab = do
   g <- getStdGen
   return $ compileTabsDropOut bpm (dropOut g 0.3) (pure tab)
 
-bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|o _ _ _ _ _ _ _|o _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.bd2 numBeats
-sn2 = compile $ DrumTab "_ _ _ _ _ _ O _|_ _ _ _ o _ . _|_ _ . _ . _ . _|_ _ _ _ _ _ O _" Hm.sn2 numBeats
-chh = compile $ DrumTab "o . . ." Hm.chh numBeats
-ohh = compile $ DrumTab "_ _ _ O" Hm.ohh numBeats
-clp = compile $ DrumTab "o o o o|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _" Hm.clap numBeats
+bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|o _ _ _ _ _ _ _|o _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.bd2
+sn2 = compile $ DrumTab "_ _ _ _ _ _ O _|_ _ _ _ o _ . _|_ _ . _ . _ . _|_ _ _ _ _ _ O _" Hm.sn2
+chh = compile $ DrumTab "o . . ." Hm.chh
+ohh = compile $ DrumTab "_ _ _ O" Hm.ohh
+clp = compile $ DrumTab "o o o o|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _" Hm.clap
 
 chords = Segment bpm nightPad $ loopBy 128 . mel $ toChord <$>
   [ [ Pch C 8 1.0 (bars 2)

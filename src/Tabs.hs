@@ -20,7 +20,7 @@ type TabLength = Int
 -- O = heavy beat
 -- | = bar separator
 -- ' ' = beat separator
-data DrumTab = DrumTab String Sam TabLength
+data DrumTab = DrumTab String Sam
 
 type BeatLength = D
 type BeatVelocity = D
@@ -40,7 +40,7 @@ compileSamples bpm = compileSample bpm . sum
 
 -- Compiles a tab to its list of beats, and replicate until we took enough beats.
 compileTabToBeats :: DrumTab -> [Beat]
-compileTabToBeats (DrumTab t s l) = take l . cycle . concat $ compileBar <$> splitOn "|" t
+compileTabToBeats (DrumTab t s) = concat $ compileBar <$> splitOn "|" t
 
 -- Compiles a drum tab with dropout.
 -- TODO: Merge IO/SE
@@ -52,7 +52,7 @@ compileWithDropOut dot bpm tab = do
 -- | Compiles a tab intno a polyphonic signal.
 -- | Can be used to introduce dropout.
 compileTab :: [DropOut] -> DrumTab -> Sam
-compileTab dropOut dt@(DrumTab t s l) = pat' velocities (sig <$> lengths) s
+compileTab dropOut dt@(DrumTab t s) = pat' velocities (sig <$> lengths) s
   where
     beats = compileTabToBeats dt
     dropOutBeats = applyDropout dropOut beats

@@ -20,11 +20,11 @@ numBeats = 512
 
 compile = compileTabs bpm . pure
 
-bd2 = compile $ DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2 numBeats
-sn2 = compile $ DrumTab "_ _ _ o|_ _ o _|" Hm.sn2 numBeats
-chh = compile $ DrumTab "o . . .|" Hm.chh numBeats
-ohh = compile $ DrumTab "_ . o O|" Hm.ohh numBeats
-clp = compile $ DrumTab "o o o o|" Hm.clap numBeats
+bd2 = compile $ DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
+sn2 = compile $ DrumTab "_ _ _ o|_ _ o _|" Hm.sn2
+chh = compile $ DrumTab "o . . .|" Hm.chh
+ohh = compile $ DrumTab "_ . o O|" Hm.ohh
+clp = compile $ DrumTab "o o o o|" Hm.clap
 
 chord = Segment bpm nightPad
   $ toChord

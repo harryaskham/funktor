@@ -20,11 +20,11 @@ import Control.Monad.Reader
 gBPM = 128
 numBeats = 32
 
-compileD = fmap toSeg . compileTabs gBPM . pure
-kcks = compileD $ DrumTab "X _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _" Tr808.bd numBeats
-snrs = compileD $ DrumTab "_ _ _ _ _ _ _ _|O _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _" Tr808.sn numBeats
-ohhs = compileD $ DrumTab ". _ _ _ . _ _ _|. _ _ _ . _ _ _|. _ _ _ . _ _ _|. _ _ _ . _ _ _" Tr808.ohh numBeats
-chhs = compileD $ DrumTab "X _ o _ o _ o _|O _ o _ o _ o _|X _ o _ o _ o _|X _ o _ o _ o _" Tr808.chh numBeats
+compileD = fmap (loop . toSeg) . compileTabs gBPM . pure
+kcks = compileD $ DrumTab "X _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _" Tr808.bd
+snrs = compileD $ DrumTab "_ _ _ _ _ _ _ _|O _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _" Tr808.sn
+ohhs = compileD $ DrumTab ". _ _ _ . _ _ _|. _ _ _ . _ _ _|. _ _ _ . _ _ _|. _ _ _ . _ _ _" Tr808.ohh
+chhs = compileD $ DrumTab "X _ o _ o _ o _|O _ o _ o _ o _|X _ o _ o _ o _|X _ o _ o _ o _" Tr808.chh
 
 padNotes = Pch <$> (take 4 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
 pad = toSeg $ compileWith
