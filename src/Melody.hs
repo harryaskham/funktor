@@ -158,3 +158,10 @@ withDrop len delay drop seg = do
   let newSeg = limSig (Beats bpm delay) seg +:+ restSig (Beats bpm len)
       newDrop = restSig (Beats bpm delay) +:+ limSig (Beats bpm len) drop
   return $ newSeg =:= newDrop
+
+-- Tool for monadically compiling instrument using BPM from environment
+compileI :: (MonadReader Bpm m) => Patch2 -> [Pch] -> m (Seg Sig2)
+compileI instr notes = do
+  bpm <- ask
+  return $ toSeg $ compileWith (Env bpm instr) notes
+

@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Tabs where
 
 import Csound.Base
@@ -8,6 +10,7 @@ import Data.List.Split
 import Data.Bifunctor
 import Tools
 import System.Random
+import Control.Monad.Reader
 
 -- Number of beats after which to truncate the tab.
 type TabLength = Int
@@ -121,3 +124,9 @@ compileBeat b = error $ "Invalid beat: " ++ b
 -- Split the given bar into its constituent beat strings
 splitBar :: String -> [String]
 splitBar = filter (not . null) . splitOn " "
+
+-- Tool for monadically compiling drums using BPM from environment
+compileD :: (MonadReader Bpm m) => DrumTab -> m (SE (Seg Sig2))
+compileD tab = do
+  bpm <- ask
+  return $ toSeg <$> compileTabs bpm [tab]

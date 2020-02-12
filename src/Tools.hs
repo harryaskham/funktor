@@ -176,3 +176,7 @@ stereoMap f (a1, a2) = (f a1, f a2)
 -- Ah - turns out this is "cotraverse" in the Distributive category...
 cotraverse :: (Monad m, Traversable t) => (t a -> a) -> t (m a) -> m a
 cotraverse f as = f <$> sequence as
+
+-- Convenience combination of cotraverse har over SE segments.
+cotHar :: (MonadSE m) => [SE (Seg Sig2)] -> m (Seg Sig2)
+cotHar = liftSE . cotraverse har
