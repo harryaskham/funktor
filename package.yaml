@@ -30,6 +30,7 @@ dependencies:
 - random
 - sort
 - lens
+- MonadRandom
 
 library:
   source-dirs: src

@@ -16,6 +16,7 @@ import Csound.Catalog.Drum.Tr808 as Tr808
 import Csound.Catalog.Effect
 import System.IO.Unsafe
 import Control.Monad.Reader
+import Control.Monad.Random
 
 gBPM = 112
 
@@ -30,8 +31,9 @@ leadNotes = take 32 . cycle $ [Pch C 6 0.4 0.5, Silent 0.5]
 pad = toSeg $ compileWith (Env gBPM razorPad) padNotes
 lead = toSeg $ compileWith (Env gBPM polySynth) leadNotes
 
-song :: (MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
+song :: (MonadRandom m, MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
 song = do
+  g <- newStdGen
   intro <- liftSE (cotraverse har [kcks, snrs, pure lead])
   verse <- liftSE (cotraverse har [kcks, snrs, chhs, pure pad])
   chorus <- liftSE (cotraverse har [kcks, snrs, ohhs, chhs])
