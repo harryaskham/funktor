@@ -31,20 +31,19 @@ leadNotes = take 32 . cycle $ [Pch C 6 0.4 0.5, Silent 0.5]
 pad = toSeg $ compileWith (Env gBPM razorPad) padNotes
 lead = toSeg $ compileWith (Env gBPM polySynth) leadNotes
 
-song :: (MonadRandom m, MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
+song :: (MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
 song = do
-  g <- newStdGen
   intro <- liftSE (cotraverse har [kcks, snrs, pure lead])
   verse <- liftSE (cotraverse har [kcks, snrs, chhs, pure pad])
   chorus <- liftSE (cotraverse har [kcks, snrs, ohhs, chhs])
   -- TODO: Something is stopping this from working.
   -- Loop is not doing what I want it to.
   -- STILL STOPS AFTER 32 BEATS WHYYY
-  cotraverse mel
-    [ forBeatsM 16 intro
-    , forBeatsM 16 verse
-    , forBeatsM 16 chorus
-    , forBeatsM 16 verse
+  cotraverse (loop . mel)
+    [ forBeatsM 4 intro
+    , forBeatsM 4 verse
+    , forBeatsM 4 chorus
+    , forBeatsM 4 verse
     ]
 
-hmo = runB gBPM (runSeg <$> runReaderT (song :: SongM (Seg Sig2)) gBPM)
+hmo = runB gBPM (runSeg <$> runReaderT (song :: SongM) gBPM)

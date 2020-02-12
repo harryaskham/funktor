@@ -31,6 +31,7 @@ dependencies:
 - sort
 - lens
 - MonadRandom
+- distributive
 
 library:
   source-dirs: src

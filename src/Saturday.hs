@@ -54,4 +54,4 @@ song = do
     , forBeatsM 32 (maindrum =:= pad =:= lead)
     ]
 
-sat = runB gBPM (runSeg <$> runReaderT (song :: SongM (Seg Sig2)) gBPM)
+sat = runB gBPM (runSeg <$> runReaderT (song :: SongM) gBPM)

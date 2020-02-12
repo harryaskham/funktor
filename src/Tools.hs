@@ -13,7 +13,8 @@ import Control.Lens hiding (at)
 import Control.Monad.Reader
 
 -- MTL stack for song creation
-type SongM = ReaderT Bpm SE
+type SongM' = ReaderT Bpm SE
+type SongM = SongM' (Seg Sig2)
 
 -- A MonadIO like class for SE
 class (Monad m) => MonadSE m where
@@ -22,12 +23,8 @@ class (Monad m) => MonadSE m where
 instance MonadSE SE where
   liftSE = id
 
-instance MonadSE SongM where
+instance MonadSE SongM' where
   liftSE = lift . liftSE
-
--- Lift a signal into seg-space within a song
-liftSeg :: (Sigs a) => SE a -> SongM (Seg a)
-liftSeg = lift . fmap toSeg
 
 type Spb = Sig
 

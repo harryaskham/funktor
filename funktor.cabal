@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.31.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b380beb62532689cf5d800fe12969260bda104fad90420135454a016b3f322cc
+-- hash: eac76ce5257e290b270b1537bf1d6b355d4134f2a36afe222e3a20581f50a365
 
 name:           funktor
 version:        0.1.0.0
@@ -13,7 +13,7 @@ homepage:       https://github.com/harryaskham/funktor#readme
 bug-reports:    https://github.com/harryaskham/funktor/issues
 author:         Harry Askham
 maintainer:     harry@askham.ai
-copyright:      2019 Harry Askham
+copyright:      2020 Harry Askham
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -31,6 +31,7 @@ library
       ArpAttempt
       AuldLangSyne
       Croatia
+      HouseMonad
       HouseSong
       LatePlane
       LofiAttempt
@@ -46,10 +47,12 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      MonadRandom
+    , base >=4.7 && <5
     , csound-catalog
     , csound-expression
     , csound-sampler
+    , distributive
     , extra
     , lens
     , mtl
@@ -66,10 +69,12 @@ executable funktor-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      MonadRandom
+    , base >=4.7 && <5
     , csound-catalog
     , csound-expression
     , csound-sampler
+    , distributive
     , extra
     , funktor
     , lens
@@ -88,10 +93,12 @@ test-suite funktor-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      MonadRandom
+    , base >=4.7 && <5
     , csound-catalog
     , csound-expression
     , csound-sampler
+    , distributive
     , extra
     , funktor
     , lens
