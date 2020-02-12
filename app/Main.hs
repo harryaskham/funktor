@@ -18,6 +18,7 @@ import ArpAttempt
 import AuldLangSyne
 import LatePlane
 import Saturday
+import HouseMonad
 
 main :: IO ()
 main = runToDisk =<< LofiAttempt.song
