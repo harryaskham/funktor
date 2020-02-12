@@ -40,10 +40,10 @@ song = do
   -- Loop is not doing what I want it to.
   -- STILL STOPS AFTER 32 BEATS WHYYY
   cotraverse (loop . mel)
-    [ forBeatsM 4 intro
-    , forBeatsM 4 verse
-    , forBeatsM 4 chorus
-    , forBeatsM 4 verse
+    [ forBeats 4 intro
+    , forBeats 4 verse
+    , forBeats 4 chorus
+    , forBeats 4 verse
     ]
 
 hmo = runB gBPM (runSeg <$> runReaderT (song :: SongM) gBPM)

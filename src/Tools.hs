@@ -116,11 +116,8 @@ restSig :: Num a => Beats -> Seg a
 restSig beats = constRest (beatsToSecs beats)
 
 -- Play the given segment for only the number of beats given.
-forBeats :: (Sigs a) => Bpm -> Sig -> Seg a -> Seg a
-forBeats gBPM n = limSig (Beats gBPM n)
-
-forBeatsM :: (MonadReader Bpm m, Sigs a) => Sig -> Seg a -> m (Seg a)
-forBeatsM n seg = do
+forBeats :: (MonadReader Bpm m, Sigs a) => Sig -> Seg a -> m (Seg a)
+forBeats n seg = do
   bpm <- ask
   return $ limSig (Beats bpm n) seg
 

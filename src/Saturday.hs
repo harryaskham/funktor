@@ -48,10 +48,10 @@ song = do
   intro2 <- liftSE (cotraverse har [kick, cows, snar])
   maindrum <- liftSE (cotraverse har [kick, cows, snar, mars, tams, sna2])
   cotraverse (loop . mel)
-    [ withDrop 4 12 drop =<< forBeatsM 16 (intro1 =:= pad)
-    , forBeatsM 16 intro2
+    [ withDrop 4 12 drop =<< forBeats 16 (intro1 =:= pad)
+    , forBeats 16 intro2
     -- TODO: Why does this only play for 8??? Seems like it takes the lowest
-    , forBeatsM 32 (maindrum =:= pad =:= lead)
+    , forBeats 32 (maindrum =:= pad =:= lead)
     ]
 
 sat = runB gBPM (runSeg <$> runReaderT (song :: SongM) gBPM)
