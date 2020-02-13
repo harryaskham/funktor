@@ -22,7 +22,9 @@ import Data.List
 -- TODO:
 -- fix the issues around segments overlappin
 -- add drops back in
+-- make ti sound actually good - simple house with variety using the new tools
 -- turn into literate song file
+-- pitched drums, with FX, movd out to own module so that we can use across songs
 
 song :: SongM
 song = do
@@ -39,7 +41,7 @@ song = do
   lead <-
     compileI polySynth
     $ take 64 . cycle
-    $ intersperse (Silent 0.5) (Pch <$> minorScale C ?? 6 ?? 0.4 ?? 0.5) ++ [Silent 0.5]
+    $ [Pch C 6 0.4 0.5, Silent 0.5]
 
   -- Sequences
   let intro = har [kcks, snrs, lead]
@@ -56,4 +58,4 @@ song = do
     , forBeats 8 verse
     ]
 
-hmo = runSongM 112 song
+hmo = runSongM 128 song
