@@ -32,10 +32,10 @@ song = do
   -- TODO: Something is stopping this from working.
   -- Seems to be related to the pad length, which is insane because this isn't supposed to be playing yet.
   cotraverse mel
-    [ forBeats 16 intro
-    , forBeats 16 verse
-    , forBeats 16 chorus
-    , forBeats 16 verse
+    [ forBeats 8 intro
+    , forBeats 8 verse
+    , forBeats 8 chorus
+    , forBeats 8 verse
     ]
 
 hmo = runSeg . loopBy 2 <$> runReaderT (song :: SongM) 112
