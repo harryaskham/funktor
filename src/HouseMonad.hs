@@ -19,7 +19,7 @@ import Control.Monad.Reader
 import Control.Monad.Random
 import Data.List
 
-song :: (MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
+song :: SongM
 song = do
   -- Drums
   kcks <- compileD $ DrumTab "X _ _ _ _ _ . _|o _ _ _ _ _ _ _|o _ _ _ _ _ . _|o _ _ _ _ _ _ _" Tr808.bd
@@ -36,9 +36,9 @@ song = do
     $ take 64 . cycle $ intersperse (Silent 0.5) (Pch <$> minorScale C ?? 6 ?? 0.4 ?? 0.5) ++ [Silent 0.5]
 
   -- Sequences
-  intro <- cotHar [kcks, snrs, pure lead]
-  verse <- cotHar [kcks, snrs, chhs, pure pad]
-  chorus <- cotHar [kcks, snrs, ohhs, chhs, pure lead, pure pad]
+  let intro = har [kcks, snrs, lead]
+      verse = har [kcks, snrs, chhs, pad]
+      chorus = har [kcks, snrs, ohhs, chhs, lead, pad]
 
   -- Song structure
   -- TODO: Something is stopping this from working.

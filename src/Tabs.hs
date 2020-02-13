@@ -126,7 +126,9 @@ splitBar :: String -> [String]
 splitBar = filter (not . null) . splitOn " "
 
 -- Tool for monadically compiling drums using BPM from environment
-compileD :: (MonadReader Bpm m) => DrumTab -> m (SE (Seg Sig2))
+-- Also hides SE in the monad stack for nicer mixing with regular signals.
+compileD :: (MonadReader Bpm m, MonadSE m) => DrumTab -> m (Seg Sig2)
 compileD tab = do
   bpm <- ask
-  return $ toSeg <$> compileTabs bpm [tab]
+  compiled <- liftSE $ compileTabs bpm [tab]
+  return $ toSeg compiled
