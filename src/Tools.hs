@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Tools where
 
@@ -13,8 +12,8 @@ import Control.Lens hiding (at)
 import Control.Monad.Reader
 
 -- MTL stack for song creation
-type SongM' = ReaderT Bpm SE
-type SongM = SongM' (Seg Sig2)
+type SongT = ReaderT Bpm SE
+type SongM = SongT (Seg Sig2)
 
 -- A MonadIO like class for SE
 class (Monad m) => MonadSE m where
@@ -23,8 +22,11 @@ class (Monad m) => MonadSE m where
 instance MonadSE SE where
   liftSE = id
 
-instance MonadSE SongM' where
+instance MonadSE SongT where
   liftSE = lift . liftSE
+
+runSongM :: Bpm -> SongM -> SE Sig2
+runSongM bpm song = runSeg <$> runReaderT song bpm
 
 type Spb = Sig
 
