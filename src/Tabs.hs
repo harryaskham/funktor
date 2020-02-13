@@ -132,3 +132,7 @@ compileD tab = do
   bpm <- ask
   compiled <- liftSE $ compileTabs bpm [tab]
   return $ toSeg compiled
+
+-- Convenience  wrapper  around monadic  drum creation
+drums :: (MonadReader Bpm m, MonadSE m) => String -> Sam -> m (Seg Sig2)
+drums tab sam = compileD (DrumTab tab sam)

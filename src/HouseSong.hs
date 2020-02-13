@@ -43,7 +43,7 @@ tabSeqs = [
   -- Then don't drop down much at all
   drop 3 $ increasingSequences tabs]
 
-drums = compileTabSequenceWithLoop bpm 128 <$> tabSeqs
+drms = compileTabSequenceWithLoop bpm 128 <$> tabSeqs
 
 -- Chords that persist in the background.
 pad = Segment bpm dreamPad notes
@@ -67,7 +67,7 @@ arp = Segment bpm banyan melody
     melody = loopBy 32 $ mel [notes, notes, silence]
 
 segments :: [DelayedSegment]
-segments = [ DelayedDrums (head drums) (SegDelay 0) (SegDuration 256)
+segments = [ DelayedDrums (head drms) (SegDelay 0) (SegDuration 256)
            , DelayedSegment pad (SegDelay 0) (SegDuration 256)
            , DelayedSegment tinkle (SegDelay 64) (SegDuration 256)
            , DelayedSegment arp (SegDelay 128) (SegDuration 128) ]
