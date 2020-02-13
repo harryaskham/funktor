@@ -23,3 +23,4 @@ cabal.project.local~
 tmp.csd
 tmp.wav
 tmp.mp3
+stack.yaml.lock
