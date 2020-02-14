@@ -25,6 +25,10 @@ import Data.List
 -- make ti sound actually good - simple house with variety using the new tools
 -- turn into literate song file
 -- pitched drums, with FX, movd out to own module so that we can use across songs
+-- named patterns and arps that we can concat and introduce expressively
+
+-- TODO: Move inside song monad
+numBeats = 128
 
 song :: SongM
 song = do
@@ -37,21 +41,22 @@ song = do
   -- Instruments
   pad <-
     compileI razorPad
-    $ Pch <$> (take 32 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
+    $ repeatToBeats numBeats
+    $ Pch <$> minorChord C ?? 5 ?? 0.3 ?? 8
   lead <-
     compileI polySynth
-    $ take 64 . cycle
-    $ [Pch C 6 0.4 0.5, Silent 0.5]
+    $ repeatToBeats numBeats
+    [Pch C 6 0.4 0.5, Silent 0.5]
 
   -- Sequences
   let intro = har [kcks, snrs, lead]
       verse = har [kcks, snrs, chhs, pad]
-      chorus = har [kcks, snrs, ohhs, chhs, lead, pad]
+      chorus = har [kcks, snrs, chhs, lead, pad]
 
   -- Song structure
   -- TODO: Something is stopping this from working.
   -- Seems to be related to the pad length, which is insane because this isn't supposed to be playing yet.
-  cotraverse mel
+  loop <$> cotraverse mel
     [ forBeats 8 intro
     , forBeats 8 verse
     , forBeats 8 chorus
