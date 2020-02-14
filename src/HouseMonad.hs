@@ -29,6 +29,7 @@ import Data.List
 
 -- TODO: Move inside song monad
 numBeats = 128
+root = C
 
 song :: SongM
 song = do
@@ -42,11 +43,11 @@ song = do
   pad <-
     compileI razorPad
     $ repeatToBeats numBeats
-    $ Pch <$> minorChord C ?? 5 ?? 0.3 ?? 8
+    $ Pch <$> minorChord root ?? 5 ?? 0.3 ?? 8
   lead <-
     compileI polySynth
     $ repeatToBeats numBeats
-    [Pch C 6 0.4 0.5, Silent 0.5]
+    $ ((expandScale [6, 7] (minorScale root) ?? 0.4 ?? 0.5) !!) <$> [0, 4, 2, 7, 5, 13, 12, 11]
 
   -- Sequences
   let intro = har [kcks, snrs, lead]
@@ -56,7 +57,7 @@ song = do
   -- Song structure
   -- TODO: Something is stopping this from working.
   -- Seems to be related to the pad length, which is insane because this isn't supposed to be playing yet.
-  loop <$> cotraverse mel
+  cotraverse mel
     [ forBeats 8 intro
     , forBeats 8 verse
     , forBeats 8 chorus
