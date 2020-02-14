@@ -58,4 +58,4 @@ song = do
     , forBeats 8 verse
     ]
 
-hmo = runSongM 128 song
+hmo = runSongM 112 song

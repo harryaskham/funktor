@@ -21,4 +21,4 @@ import Saturday
 import HouseMonad
 
 main :: IO ()
-main = runToDisk =<< LofiAttempt.song
+main = runToDisk hmo
