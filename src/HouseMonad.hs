@@ -45,14 +45,16 @@ song = do
     $ repeatToBeats numBeats
     $ Pch <$> minorChord root ?? 5 ?? 0.3 ?? 8
   lead <-
-    compileI polySynth
+    compileI razorLead
     $ repeatToBeats numBeats
     $ ((expandScale [6, 7] (minorScale root) ?? 0.4 ?? 0.5) !!) <$> [0, 4, 2, 7, 5, 13, 12, 11]
 
   -- Sequences
+  -- TODO: this only works with the drums removed - some weird interaction with SE
+  -- Is non-deterministic
   let intro = har [kcks, snrs, lead]
       verse = har [kcks, snrs, chhs, pad]
-      chorus = har [kcks, snrs, chhs, lead, pad]
+      chorus = har [kcks, snrs, chhs, ohhs, lead, pad]
 
   -- Song structure
   -- TODO: Something is stopping this from working.
