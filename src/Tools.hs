@@ -123,13 +123,14 @@ concatSigs = runSeg . loop . mel . fmap toSeg
 data Beats = Beats Bpm Sig
 
 -- ALlows us to limit a signal, not just a segment
+-- TODO: Monadify the below three
 limSig :: Beats -> Seg a -> Seg a
 limSig beats = constLim (beatsToSecs beats)
 
 delSig :: Num a => Beats -> Seg a -> Seg a
 delSig beats = constDel (beatsToSecs beats)
 
-restSig :: Num a => Beats -> Seg a
+restSig :: Beats -> Seg Sig2
 restSig beats = constRest (beatsToSecs beats)
 
 -- Play the given segment for only the number of beats given.

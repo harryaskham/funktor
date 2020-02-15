@@ -141,7 +141,7 @@ genEnvSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
 
 -- Adds a drop to the given segment.
 -- TODO: Avoid the explicit length passing
-withDrop :: (MonadReader SongEnv m, Sigs a) => Sig -> Sig -> Seg a -> Seg a -> m (Seg a)
+withDrop :: (MonadReader SongEnv m) => Sig -> Sig -> Seg Sig2 -> Seg Sig2 -> m (Seg Sig2)
 withDrop len delay drop seg = do
   bpm <- asks (view bpm)
   let newSeg = limSig (Beats bpm delay) seg +:+ restSig (Beats bpm len)

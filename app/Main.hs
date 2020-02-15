@@ -20,4 +20,4 @@ import HouseMonad
 import DnbPlayground
 
 main :: IO ()
-main = runToDisk =<< hmo
+main = runToDisk =<< dnb'

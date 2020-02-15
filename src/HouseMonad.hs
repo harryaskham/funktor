@@ -47,13 +47,12 @@ song = do
     $ Pch <$> minorChord root ?? 5 ?? 0.3 ?? 8
   lead <-
     compileI razorLead
-    $ repeatToBeats numBeats
-    $ ((expandScale [6, 7] (minorScale root) ?? 0.4 ?? 0.5) !!) <$> [0, 4, 2, 7, 5, 13, 12, 11]
+    $ repeatToBeats numBeats [Pch root 6 0.4 0.5, Silent 0.5]
 
   -- Sequences
-  let intro = har [kcks, snrs]
-      verse = har [kcks, snrs, chhs]
-      chorus = har [kcks, snrs, ohhs, chhs]
+  let intro = har [kcks, snrs, lead]
+      verse = har [kcks, snrs, chhs, pad]
+      chorus = har [kcks, snrs, ohhs, chhs, lead, pad]
 
   -- Song structure
   -- TODO: Something is stopping this from working.
@@ -65,7 +64,7 @@ song = do
     , forBeats 8 verse
     ]
 
-songEnv = SongEnv { _bpm=128
+songEnv = SongEnv { _bpm=112
                   , _beatLength=128
                   }
 hmo = runSongM songEnv song
