@@ -26,6 +26,11 @@ import Data.List
 -- turn into literate song file
 -- pitched drums, with FX, movd out to own module so that we can use across songs
 -- Song env has more than just bpm
+-- named patterns and arps that we can concat and introduce expressively
+
+-- TODO: Move inside song monad
+numBeats = 128
+root = C
 
 song :: SongM
 song = do
@@ -38,13 +43,16 @@ song = do
   -- Instruments
   pad <-
     compileI razorPad
-    $ Pch <$> (take 32 . cycle $ minorChord C) ?? 5 ?? 0.3 ?? 8
+    $ repeatToBeats numBeats
+    $ Pch <$> minorChord root ?? 5 ?? 0.3 ?? 8
   lead <-
-    compileI polySynth
-    $ take 64 . cycle
-    $ [Pch C 6 0.4 0.5, Silent 0.5]
+    compileI razorLead
+    $ repeatToBeats numBeats
+    $ ((expandScale [6, 7] (minorScale root) ?? 0.4 ?? 0.5) !!) <$> [0, 4, 2, 7, 5, 13, 12, 11]
 
   -- Sequences
+  -- TODO: this only works with the drums removed - some weird interaction with SE
+  -- Is non-deterministic
   let intro = har [kcks, snrs]
       verse = har [kcks, snrs, chhs]
       chorus = har [kcks, snrs, ohhs, chhs]
@@ -59,4 +67,5 @@ song = do
     , forBeats 8 verse
     ]
 
-hmo = dac =<< runSongM 128 song
+hmo = runSongM 128 song
+hmod = dac =<< hmo
