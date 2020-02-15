@@ -17,6 +17,7 @@ import ArpAttempt
 import LatePlane
 import Saturday
 import HouseMonad
+import DnbPlayground
 
 main :: IO ()
 main = runToDisk =<< hmo

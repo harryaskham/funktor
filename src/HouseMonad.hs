@@ -28,17 +28,17 @@ import Data.List
 -- Song env has more than just bpm
 -- named patterns and arps that we can concat and introduce expressively
 
--- TODO: Move inside song monad
-numBeats = 128
 root = C
 
 song :: SongM
 song = do
-  -- Drums
-  kcks <- drumsDr "X _ _ _ _ _ . _|o _ _ _ _ _ _ _|o _ _ _ _ _ . _|o _ _ _ _ _ _ _" Tr808.bd 0.5
-  snrs <- drumsDr "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _" Tr808.sn 0.5
-  chhs <- drumsDr "_ _ _ _ . _ _ _|_ _ _ _ . _ _ _|_ _ _ _ O _ _ _|_ _ _ _ o _ _ _" Tr808.chh 0.5
-  ohhs <- drumsDr "O _ . _ . _ . _|o _ . _ . _ . _|X _ . _ . _ . _|o _ . _ . _ . _" Tr808.ohh 0.5
+  numBeats <- asks (view beatLength)
+
+  -- Drums with 20% dropout
+  kcks <- drumsDr (concat $ replicate 8 "X _ _ _ _ _ . _|o _ _ _ _ _ _ _|o _ _ _ _ _ . _|o _ _ _ _ _ _ _|") Tr808.bd 0.2
+  snrs <- drumsDr (concat $ replicate 8 "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|") Tr808.sn 0.2
+  chhs <- drumsDr (concat $ replicate 8 "_ _ _ _ . _ _ _|_ _ _ _ . _ _ _|_ _ _ _ O _ _ _|_ _ _ _ o _ _ _|") Tr808.chh 0.2
+  ohhs <- drumsDr (concat $ replicate 8 "O _ . _ . _ . _|o _ . _ . _ . _|X _ . _ . _ . _|o _ . _ . _ . _|") Tr808.ohh 0.2
 
   -- Instruments
   pad <-
@@ -51,8 +51,6 @@ song = do
     $ ((expandScale [6, 7] (minorScale root) ?? 0.4 ?? 0.5) !!) <$> [0, 4, 2, 7, 5, 13, 12, 11]
 
   -- Sequences
-  -- TODO: this only works with the drums removed - some weird interaction with SE
-  -- Is non-deterministic
   let intro = har [kcks, snrs]
       verse = har [kcks, snrs, chhs]
       chorus = har [kcks, snrs, ohhs, chhs]
@@ -67,6 +65,8 @@ song = do
     , forBeats 8 verse
     ]
 
-songEnv = SongEnv 128 128
+songEnv = SongEnv { _bpm=128
+                  , _beatLength=128
+                  }
 hmo = runSongM songEnv song
 hmod = dac =<< hmo

@@ -137,6 +137,7 @@ compileD tab = do
 drums :: (MonadReader SongEnv m, MonadSE m) => String -> Sam -> m (Seg Sig2)
 drums tab sam = compileD (DrumTab tab sam)
 
+-- Monadic dropout drums.
 drumsDr :: (MonadReader SongEnv m, MonadSE m, MonadIO m) => String -> Sam -> Double -> m (Seg Sig2)
 drumsDr tab sam dropout = do
   bpm <- asks (view bpm)

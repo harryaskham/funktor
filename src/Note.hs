@@ -156,8 +156,8 @@ randomChordsFrom n chords octave vel dur = do
 
 -- Takes a list of notes and repeats them until we have a certain number of beats by duration.
 -- Relies on lazy scan-zip to cycle indefinitely.
-repeatToBeats :: Duration -> [Pch] -> [Pch]
-repeatToBeats beats ns = fst <$> takeWhile (\x -> snd x <= beats) zipped
+repeatToBeats :: Int -> [Pch] -> [Pch]
+repeatToBeats beats ns = fst <$> takeWhile (\x -> snd x <= fromIntegral beats) zipped
   where
     cumDurAcc acc (Pch _ _ _ d) = acc + d
     cumDurAcc acc (Silent d) = acc + d
