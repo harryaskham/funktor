@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a23658f7b6253b65b5510d4310ecf789f69e1d14987e648d4acf8f8dcbfc3ba1
+-- hash: 13ca41da73efa149b7e7d9c752efc45daa11526a2aafa7dda1de860d24e69a85
 
 name:           funktor
 version:        0.1.0.0
@@ -55,6 +55,7 @@ library
     , distributive
     , extra
     , lens
+    , listsafe
     , mtl
     , random
     , sort
@@ -79,6 +80,7 @@ executable funktor-exe
     , extra
     , funktor
     , lens
+    , listsafe
     , mtl
     , random
     , sort
@@ -104,6 +106,7 @@ test-suite funktor-test
     , extra
     , funktor
     , lens
+    , listsafe
     , mtl
     , random
     , sort

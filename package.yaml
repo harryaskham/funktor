@@ -33,6 +33,7 @@ dependencies:
 - MonadRandom
 - distributive
 - acme-iot
+- listsafe
 
 library:
   source-dirs: src

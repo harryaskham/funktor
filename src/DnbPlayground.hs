@@ -30,7 +30,7 @@ import Data.List
 -- play light pad over, etc etc etc- vocal samples - just need to pitch the drums
 -- drops / fills / breaks
 -- should be able to pitch down samples since Sam Sig2 is a functor
--- Need to solve the 
+-- Need to solve the tab problem
 
 root = C
 
@@ -64,10 +64,7 @@ song = do
   -- Put together a few different dnb patterns
   let patterns =
         har
-        <$> [ pure snrsP1
-            , pure snrsP2
-            , pure snrsP3
-            , pure snrsP4
+        <$> [ [kcks1]
             , [kcks1, snrs1]
             , [snrsP1, snrsP2, snrsP3, snrsP4]
             , [kcks2, snrs2, snrsP1, snrsP2, snrsP3, snrsP4]
