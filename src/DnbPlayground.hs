@@ -99,7 +99,6 @@ song = do
   allDrums <- cotraverse mel (forBeats 32 <$> patterns)
   return $ har [ allDrums
                , bass
-               --, lead
                , restSig (Beats gBPM 28) +:+ lead
                ]
 
