@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Tools where
 
@@ -12,10 +13,17 @@ import Control.Lens hiding (at)
 import Control.Monad.Reader
 import Control.Monad.Trans.IO
 
+-- TODO: rethink the melody env
+data SongEnv = SongEnv { _bpm :: Bpm
+                       , _beatLength :: Int
+                       }
+makeLenses ''SongEnv
+
 -- MTL stack for song creation.
--- Has an environment reader (currently only BPM)
+-- Has an environment in SongEnv
+-- Has SE to allow drums alongside computational waveforms
 -- Also has IOT to enable e.g. randomness
-type SongT = ReaderT Bpm (IOT SE)
+type SongT = ReaderT SongEnv (IOT SE)
 type SongM = SongT (Seg Sig2)
 
 -- A MonadIO like class for SE
@@ -32,8 +40,8 @@ instance MonadSE SongT where
   liftSE = lift . liftSE
 
 -- Kind of a valid runner, but also handles seg -> sig conversion
-runSongM :: Bpm -> SongM -> IO (SE Sig2)
-runSongM bpm song = runSeg <$$> runIOT (runReaderT song bpm)
+runSongM :: SongEnv -> SongM -> IO (SE Sig2)
+runSongM env song = runSeg <$$> runIOT (runReaderT song env)
 
 type Spb = Sig
 
@@ -125,9 +133,9 @@ restSig :: Num a => Beats -> Seg a
 restSig beats = constRest (beatsToSecs beats)
 
 -- Play the given segment for only the number of beats given.
-forBeats :: (MonadReader Bpm m, Sigs a) => Sig -> Seg a -> m (Seg a)
+forBeats :: (MonadReader SongEnv m, Sigs a) => Sig -> Seg a -> m (Seg a)
 forBeats n seg = do
-  bpm <- ask
+  bpm <- asks (view bpm)
   return $ limSig (Beats bpm n) seg
 
 -- Maps the given function to all but the last member of a list.

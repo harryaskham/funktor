@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Melody where
 
@@ -61,16 +60,6 @@ xEveryYBeatsForZBeats numBeats x y z = (\del -> make x del z) <$> [y, y*2 .. num
 -- Compiles the given trac
 compileTrack :: Bpm -> Patch2 -> Track Sig (D, D) -> Sig2
 compileTrack bpm patch = mix . atSco patch . fmap cpspch2 . str (spb bpm)
-
-data Env = Env { _bpmVal :: Bpm
-               , _patch :: Patch2
-               }
-makeLenses ''Env
-
--- Compile a track with a given environment
-compileWith :: Env -> [Pch] -> Sig2
-compileWith env notes =
-  compileTrack (env^.bpmVal) (env^.patch) (toMel notes)
 
 -- Compiles the given segment to a signal
 compileSegment :: TrackSegment -> Sig2
@@ -152,16 +141,16 @@ genEnvSegs instrs root env = EnvSegment <$$> (instrs ?? root) ??? env
 
 -- Adds a drop to the given segment.
 -- TODO: Avoid the explicit length passing
-withDrop :: (MonadReader Bpm m, Sigs a) => Sig -> Sig -> Seg a -> Seg a -> m (Seg a)
+withDrop :: (MonadReader SongEnv m, Sigs a) => Sig -> Sig -> Seg a -> Seg a -> m (Seg a)
 withDrop len delay drop seg = do
-  bpm <- ask
+  bpm <- asks (view bpm)
   let newSeg = limSig (Beats bpm delay) seg +:+ restSig (Beats bpm len)
       newDrop = restSig (Beats bpm delay) +:+ limSig (Beats bpm len) drop
   return $ newSeg =:= newDrop
 
 -- Tool for monadically compiling instrument using BPM from environment
-compileI :: (MonadReader Bpm m) => Patch2 -> [Pch] -> m (Seg Sig2)
+compileI :: (MonadReader SongEnv m) => Patch2 -> [Pch] -> m (Seg Sig2)
 compileI instr notes = do
-  bpm <- ask
-  return $ toSeg $ compileWith (Env bpm instr) notes
+  bpm <- asks (view bpm)
+  return $ toSeg $ compileTrack bpm instr (toMel notes)
 

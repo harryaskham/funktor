@@ -11,6 +11,7 @@ import Data.Bifunctor
 import Tools
 import System.Random
 import Control.Monad.Reader
+import Control.Lens
 
 -- Number of beats after which to truncate the tab.
 type TabLength = Int
@@ -126,18 +127,18 @@ splitBar = filter (not . null) . splitOn " "
 
 -- Tool for monadically compiling drums using BPM from environment
 -- Also hides SE in the monad stack for nicer mixing with regular signals.
-compileD :: (MonadReader Bpm m, MonadSE m) => DrumTab -> m (Seg Sig2)
+compileD :: (MonadReader SongEnv m, MonadSE m) => DrumTab -> m (Seg Sig2)
 compileD tab = do
-  bpm <- ask
+  bpm <- asks (view bpm)
   compiled <- liftSE $ compileTabs bpm [tab]
   return $ toSeg compiled
 
 -- Convenience  wrapper  around monadic  drum creation
-drums :: (MonadReader Bpm m, MonadSE m) => String -> Sam -> m (Seg Sig2)
+drums :: (MonadReader SongEnv m, MonadSE m) => String -> Sam -> m (Seg Sig2)
 drums tab sam = compileD (DrumTab tab sam)
 
-drumsDr :: (MonadReader Bpm m, MonadSE m, MonadIO m) => String -> Sam -> Double -> m (Seg Sig2)
+drumsDr :: (MonadReader SongEnv m, MonadSE m, MonadIO m) => String -> Sam -> Double -> m (Seg Sig2)
 drumsDr tab sam dropout = do
-  bpm <- ask
+  bpm <- asks (view bpm)
   compiled <- liftIO $ compileWithDropOut dropout bpm (DrumTab tab sam)
   toSeg <$> liftSE compiled

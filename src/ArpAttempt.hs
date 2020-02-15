@@ -10,7 +10,7 @@ import Data.Sort
 import Data.Ord
 import Control.Lens
 
-bpm = 140
+gBPM = 140
 numBeats = 512
 
 arps root = toMel . repeatToBeats numBeats <$>
@@ -22,12 +22,12 @@ arps root = toMel . repeatToBeats numBeats <$>
   ] -- ++ [ loopBy 64 . mel $ toChord <$> ((((Pch <$$> minorChords root) ??? 8) <***> [0.5, 0.3]) ??? 1) ]
 
 envs =
-  [ modEnv $ sinEnv bpm 0 (bars 1)
-  , modEnv $ sinEnv bpm 0.2 (bars 2)
-  , modEnv $ sinEnv bpm 0.4 (bars 3)
-  , sqrEnv bpm 0.6 (bars 4)
-  , modEnv $ sinEnv bpm 0.8 (bars 5)
-  , (sqrEnv bpm 0.5 (bars 4)) * (sqrEnv bpm 0 1)
+  [ modEnv $ sinEnv gBPM 0 (bars 1)
+  , modEnv $ sinEnv gBPM 0.2 (bars 2)
+  , modEnv $ sinEnv gBPM 0.4 (bars 3)
+  , sqrEnv gBPM 0.6 (bars 4)
+  , modEnv $ sinEnv gBPM 0.8 (bars 5)
+  , (sqrEnv gBPM 0.5 (bars 4)) * (sqrEnv gBPM 0 1)
   ]
 
 modEnv :: SegEnv -> SegEnv
@@ -36,12 +36,12 @@ modEnv env = (env * (1.0 - balance)) + (balance * env)
     balance = 0.2
 
 song' :: Note -> Song
-song' root = Song bpm $ EnvSegment <$+> segs <*++> envs
+song' root = Song gBPM $ EnvSegment <$+> segs <*++> envs
   where
-    segs = Segment bpm epiano1 <$> arps root
+    segs = Segment gBPM epiano1 <$> arps root
 
 song :: SE Sig2
 song = compileSong $ song' Fs
 
 ras :: IO ()
-ras = runB bpm song
+ras = runB gBPM song

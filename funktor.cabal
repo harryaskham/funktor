@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 901da9f5ba77a197db264ed597d766befe8d52224dafc49ebc122381c0a5268a
+-- hash: b7db951aa95ad16f07687d29b23e749c6cf06145065059fd7be12923d5d4fc26
 
 name:           funktor
 version:        0.1.0.0
@@ -29,7 +29,6 @@ library
   exposed-modules:
       AirportTechno
       ArpAttempt
-      AuldLangSyne
       Croatia
       HouseMonad
       HouseSong
@@ -40,7 +39,6 @@ library
       PlaneToSJC
       Saturday
       Tabs
-      Tetris
       Tools
   other-modules:
       Paths_funktor

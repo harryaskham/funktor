@@ -25,7 +25,7 @@ numBeats = 512
 -- Notion of 'verse' / 'chorus' / 'verse' structure to compose
 -- Explore way more instrument types, and experiment with adding effects to get new ones
 -- A choppy kind of "on-off" filter like end of mt st michael
-bpm = 128
+gBPM = 128
 bd2 = DrumTab "O _ _ _|O _ _ _|O _ _ _|O _ _ _" Hm.bd2
 sn1 = DrumTab "_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ _ _ O|_ _ o _|_ O _ O|_ _ o _" Hm.sn1
 sn2 = DrumTab "_ _ _ _|_ _ _ _|_ _ _ _|_ _ O O" Hm.sn2
@@ -33,7 +33,7 @@ chh = DrumTab ". _ . _|. _ . _|. _ . _|. _ . _" Hm.chh
 ohh = DrumTab "_ o _ o|_ . _ .|_ O _ o|_ . _ ." Hm.ohh
 clp = DrumTab "_ _ o _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ . _|_ _ _ _|_ _ _ _|_ _ o _" Hm.clap
 tabs = [bd2, sn1, sn2, chh, ohh, clp]
-alldrums = compileTabs bpm tabs
+alldrums = compileTabs gBPM tabs
 
 tabSeqs = [
   -- First build up to full set
@@ -43,10 +43,10 @@ tabSeqs = [
   -- Then don't drop down much at all
   drop 3 $ increasingSequences tabs]
 
-drms = compileTabSequenceWithLoop bpm 128 <$> tabSeqs
+drms = compileTabSequenceWithLoop gBPM 128 <$> tabSeqs
 
 -- Chords that persist in the background.
-pad = Segment bpm dreamPad notes
+pad = Segment gBPM dreamPad notes
   where
     chord1 = toChord $ Pch <$> [C, Eb, G] <*> [6] <*> [0.5] <*> [8]
     --chord2 = toChord $ Pch <$> [F, Ab, C] <*> [6] <*> [0.5] <*> [8]
@@ -54,13 +54,13 @@ pad = Segment bpm dreamPad notes
     notes = loopBy 128 $ mel [chord1, silence]
 
 -- A less frequent bar of notes to kick in kind of soon.
-tinkle = Segment bpm overtoneLead melody
+tinkle = Segment gBPM overtoneLead melody
   where
     notes = Pch <$> [C, Bb, Eb, F, G, Ab, D, C] <*> [8] <*> [0.9] <*> [1]
     melody = loopBy 32 . mel $ [toMel notes, toMel [Silent 32]]
 
 -- An arpeggio that kicks in and persists
-arp = Segment bpm banyan melody
+arp = Segment gBPM banyan melody
   where
     notes = toMel $ Pch <$> reverse [C, Bb, Eb, F, G, Ab, D, C] <*> [7, 8] <*> [0.7] <*> [1/2]
     silence = toMel [Silent 8]
@@ -73,7 +73,7 @@ segments = [ DelayedDrums (head drms) (SegDelay 0) (SegDuration 256)
            , DelayedSegment arp (SegDelay 128) (SegDuration 128) ]
 
 song' :: Song
-song' = Song bpm segments
+song' = Song gBPM segments
 
 song :: SE Sig2
 song = compileSong song'

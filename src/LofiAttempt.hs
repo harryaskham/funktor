@@ -17,14 +17,14 @@ import Control.Monad
 import Control.Lens
 
 -- Nice slo lofi bpm
-bpm = 70
+gBPM = 70
 
 numBeats :: Int
 numBeats = 256
 
 -- Remove 10% of the beats and incorporate pink noise into the samples.
 drumFx = (* pink2)
-compile t = drumFx <$> compileWithDropOut 0.1 bpm t
+compile t = drumFx <$> compileWithDropOut 0.1 gBPM t
 
 bd1 = compile $ DrumTab "O _ _ _ _ _ _ _|_ _ _ _ _ _ o _|_ _ _ _ _ _ _ _|_ _ o _ _ _ _ _" Hm.bd1
 sn1 = compile $ DrumTab "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.sn1
@@ -37,14 +37,14 @@ weights = [5, 3, 3, 2, 3, 3, 2]
 chords :: Note -> IO TrackSegment
 chords root = do
   chords <- randomChordsFrom numBeats (minorChords root) 7 0.6 (bars 1)
-  return $ Segment bpm epiano1 chords
+  return $ Segment gBPM epiano1 chords
 
 -- Hit 50% of beats from the scale on the banyan
 lead :: Note -> IO TrackSegment
 lead root = do
   g <- newStdGen
   return
-    $ Segment bpm banyan
+    $ Segment gBPM banyan
     $ toMel $ rndFrom g numBeats 
     $ notes
     <*> [7, 7, 8, 8, 8, 9, 9]
@@ -58,7 +58,7 @@ motif :: Note -> IO TrackSegment
 motif root = do
   g <- newStdGen
   return
-    $ Segment bpm epiano1
+    $ Segment gBPM epiano1
     $ toMel . getZipList
     $ ZipList (take numBeats . cycle $ rndFrom g 7 noteGen)
     <*> ZipList (cycle [4, 4, 1, 1, 1, 0.5, 4.5])
@@ -71,7 +71,7 @@ motif root = do
 -- TODO: A wavetable version that lets us have uneven on/off
 
 song' :: Note -> IO Song
-song' root = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
+song' root = Song gBPM <$> sequenceA (drumSegments ++ instrSegments)
   where
     drumSegments =
       [ EnvDrums <$> bd1 ?? constEnv
@@ -92,6 +92,6 @@ songLoop = do
   return $ do
     fsSeg <- toSeg <$> fsSong
     aSeg <- toSeg <$> aSong
-    return $ runSeg $ loop $ mel [constLim (beatsToSecs $ Beats bpm 4) fsSeg, constLim (beatsToSecs $ Beats bpm 4) aSeg]
+    return $ runSeg $ loop $ mel [constLim (beatsToSecs $ Beats gBPM 4) fsSeg, constLim (beatsToSecs $ Beats gBPM 4) aSeg]
 
-rls = runB bpm =<< song
+rls = runB gBPM =<< song

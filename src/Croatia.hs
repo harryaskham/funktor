@@ -13,12 +13,12 @@ import Note
 import Melody
 import Data.Functor ((<&>))
 
-bpm = 120
+gBPM = 120
 
 numBeats :: Int
 numBeats = 512
 
-compile = compileTabs bpm . pure
+compile = compileTabs gBPM . pure
 
 bd2 = compile $ DrumTab "O _ _ _|o _ _ _|o _ _ _|o _ _ _" Hm.bd2
 sn2 = compile $ DrumTab "_ _ _ o|_ _ o _|" Hm.sn2
@@ -26,13 +26,13 @@ chh = compile $ DrumTab "o . . .|" Hm.chh
 ohh = compile $ DrumTab "_ . o O|" Hm.ohh
 clp = compile $ DrumTab "o o o o|" Hm.clap
 
-chord = Segment bpm nightPad
+chord = Segment gBPM nightPad
   $ toChord
   $ Pch <$> [D, F, A] <*> pure 6 <*> pure 1.0 <*> pure (bars 2)
 
-bell = Segment bpm tubularBell $ toMel $ replicate 8 $ Pch D 7 1.0 1
+bell = Segment gBPM tubularBell $ toMel $ replicate 8 $ Pch D 7 1.0 1
 
-cello = Segment bpm celloSynt notes
+cello = Segment gBPM celloSynt notes
   where
     notes = toMel [ Pch D 8 0.8 (bars 2)
                   , Pch A 7 0.8 (bars 1)
@@ -52,7 +52,7 @@ cellos = trigger cello 96 16
 bells = trigger bell 24 8
 
 song' :: Song
-song' = Song bpm segments
+song' = Song gBPM segments
   where
     segments = chords
                ++ cellos

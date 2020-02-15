@@ -17,12 +17,12 @@ import System.Random
 import Control.Monad
 import Control.Lens
 
-bpm = 60
+gBPM = 90
 
 numBeats :: Int
 numBeats = 256
 
-compile = compileWithDropOut 0.2 bpm
+compile = compileWithDropOut 0.2 gBPM
 bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _|O _ _ _ _ _ _ _" Drum.mpBd
 sn1 = compile $ DrumTab "_ _ _ _ _ _ o _|_ _ _ _ o _ _ _|_ _ _ _ _ _ o _|_ _ _ _ X _ _ _" Drum.mpSn1
 sn2 = compile $ DrumTab "_ _ o _ _ _ _ _|_ _ _ _ _ _ . _|_ _ _ _ . _ _ _|_ _ _ _ X _ X _" Drum.mpSn2
@@ -34,24 +34,24 @@ bn3 = compile $ DrumTab "_ _ _ O _ _ _ O|" Drum.mpBon3
 organ :: Note -> IO TrackSegment
 organ root = do
   notes <- noteCycle numBeats 8 root [8] [0.3] (repeat 1)
-  return $ Segment bpm epiano2 $ toMel notes
+  return $ Segment gBPM epiano2 $ toMel notes
 
 highs :: Note -> IO TrackSegment
 highs root = do
   notes <- noteCycle numBeats 10 root [8] [0.9] (cycle [1, 15])
-  return $ Segment bpm epiano2 $ toMel notes
+  return $ Segment gBPM epiano2 $ toMel notes
 
 song' :: Note -> IO Song
-song' root = Song bpm <$> sequenceA (drumSegments ++ instrSegments)
+song' root = Song gBPM <$> sequenceA (drumSegments ++ instrSegments)
   where
     drumSegments = [
         EnvDrums <$> bd2 ?? constEnv
       , EnvDrums <$> sn1 ?? constEnv
       , EnvDrums <$> sn2 ?? constEnv 
       , EnvDrums <$> cl ?? constEnv
-      , EnvDrums <$> bn1 ?? sqrEnv bpm 0 (bars 2)
-      , EnvDrums <$> bn2 ?? sqrEnv bpm 0 (bars 4)
-      , EnvDrums <$> bn3 ?? sqrEnv bpm 0 (bars 8)
+      , EnvDrums <$> bn1 ?? sqrEnv gBPM 0 (bars 2)
+      , EnvDrums <$> bn2 ?? sqrEnv gBPM 0 (bars 4)
+      , EnvDrums <$> bn3 ?? sqrEnv gBPM 0 (bars 8)
       ]
     instrSegments = genEnvSegs [organ, highs] root constEnv
 
@@ -59,4 +59,4 @@ song :: IO (SE Sig2)
 song = compileSong <$> song' Fs
 
 rs :: IO ()
-rs = runB bpm =<< song
+rs = runB gBPM =<< song

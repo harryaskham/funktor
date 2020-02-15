@@ -15,7 +15,7 @@ import Data.Functor ((<&>))
 import System.Random
 import Control.Monad
 
-bpm = 120
+gBPM = 120
 
 numBeats :: Int
 numBeats = 1024
@@ -24,7 +24,7 @@ numBeats = 1024
 compile :: DrumTab -> IO (SE Sig2)
 compile tab = do
   g <- getStdGen
-  return $ compileTabsDropOut bpm (dropOut g 0.3) (pure tab)
+  return $ compileTabsDropOut gBPM (dropOut g 0.3) (pure tab)
 
 bd2 = compile $ DrumTab "X _ _ _ _ _ _ _|o _ _ _ _ _ _ _|o _ _ _ _ _ _ _|o _ _ _ _ _ _ _" Hm.bd2
 sn2 = compile $ DrumTab "_ _ _ _ _ _ O _|_ _ _ _ o _ . _|_ _ . _ . _ . _|_ _ _ _ _ _ O _" Hm.sn2
@@ -32,7 +32,7 @@ chh = compile $ DrumTab "o . . ." Hm.chh
 ohh = compile $ DrumTab "_ _ _ O" Hm.ohh
 clp = compile $ DrumTab "o o o o|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _" Hm.clap
 
-chords = Segment bpm nightPad $ loopBy 128 . mel $ toChord <$>
+chords = Segment gBPM nightPad $ loopBy 128 . mel $ toChord <$>
   [ [ Pch C 8 1.0 (bars 2)
     , Pch Eb 8 1.0 (bars 2)
     , Pch G 8 1.0 (bars 2)
@@ -60,15 +60,15 @@ notes = weightsToPchs weights
 
 bells = do
   g <- getStdGen
-  return $ Segment bpm tubularBell $ toMel $ rndFrom g 1024 $ notes <*> [7, 8, 9] <*> [0.5, 0.8, 0.9] <*> [1, 2, 4, 8, 0]
+  return $ Segment gBPM tubularBell $ toMel $ rndFrom g 1024 $ notes <*> [7, 8, 9] <*> [0.5, 0.8, 0.9] <*> [1, 2, 4, 8, 0]
 
 lead = do
   g <- getStdGen
-  return $ Segment bpm razorLead $ toMel $ rndFrom g 1024 $ notes <*> [8, 9] <*> [0.5] <*> [0.5, 1, 2] ++ replicate 17 0.0
+  return $ Segment gBPM razorLead $ toMel $ rndFrom g 1024 $ notes <*> [8, 9] <*> [0.5] <*> [0.5, 1, 2] ++ replicate 17 0.0
 
 bass = do
   g <- getStdGen
-  return $ Segment bpm simpleBass $ toMel $ rndFrom g 1024 $ notes <*> [7] <*> [0.6] <*> [4, 0, 0, 0]
+  return $ Segment gBPM simpleBass $ toMel $ rndFrom g 1024 $ notes <*> [7] <*> [0.6] <*> [4, 0, 0, 0]
 
 song' :: IO Song
 song' = do
@@ -80,7 +80,7 @@ song' = do
   bells' <- bells
   lead' <- lead
   bass' <- bass
-  return $ Song bpm [ DelayedDrums bd2' (SegDelay 0) (SegDuration $ toSig numBeats)
+  return $ Song gBPM [ DelayedDrums bd2' (SegDelay 0) (SegDuration $ toSig numBeats)
                     , DelayedDrums sn2' (SegDelay 4) (SegDuration $ toSig numBeats)
                     , DelayedDrums chh' (SegDelay 8) (SegDuration $ toSig numBeats)
                     , DelayedDrums ohh' (SegDelay 12) (SegDuration $ toSig numBeats)

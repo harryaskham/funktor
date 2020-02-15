@@ -10,7 +10,7 @@ import Melody
 import Data.Sort
 import Data.Ord
 
-bpm = 80
+gBPM = 80
 numBeats = 512
 
 arps root = toMel . repeatToBeats numBeats <$>
@@ -23,12 +23,12 @@ arps root = toMel . repeatToBeats numBeats <$>
 envs = repeat constEnv
 
 song' :: Note -> Song
-song' root = Song bpm $ EnvSegment <$+> segs <*++> envs
+song' root = Song gBPM $ EnvSegment <$+> segs <*++> envs
   where
-    segs = Segment bpm guitar <$> arps root
+    segs = Segment gBPM guitar <$> arps root
 
 song :: SE Sig2
 song = compileSong $ song' A
 
 rps :: IO ()
-rps = runB bpm song
+rps = runB gBPM song

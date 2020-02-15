@@ -67,5 +67,6 @@ song = do
     , forBeats 8 verse
     ]
 
-hmo = runSongM 128 song
+songEnv = SongEnv 128 128
+hmo = runSongM songEnv song
 hmod = dac =<< hmo
