@@ -46,7 +46,6 @@ compileTabToBeats :: DrumTab -> [Beat]
 compileTabToBeats (DrumTab t s) = concat $ compileBar <$> splitOn "|" t
 
 -- Compiles a drum tab with dropout.
--- TODO: Merge IO/SE
 compileWithDropOut :: Double -> Bpm -> DrumTab -> IO (SE Sig2)
 compileWithDropOut dot bpm tab = do
   g <- newStdGen
@@ -136,3 +135,9 @@ compileD tab = do
 -- Convenience  wrapper  around monadic  drum creation
 drums :: (MonadReader Bpm m, MonadSE m) => String -> Sam -> m (Seg Sig2)
 drums tab sam = compileD (DrumTab tab sam)
+
+drumsDr :: (MonadReader Bpm m, MonadSE m, MonadIO m) => String -> Sam -> Double -> m (Seg Sig2)
+drumsDr tab sam dropout = do
+  bpm <- ask
+  compiled <- liftIO $ compileWithDropOut dropout bpm (DrumTab tab sam)
+  toSeg <$> liftSE compiled

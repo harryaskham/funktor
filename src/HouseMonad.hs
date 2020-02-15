@@ -25,14 +25,15 @@ import Data.List
 -- make ti sound actually good - simple house with variety using the new tools
 -- turn into literate song file
 -- pitched drums, with FX, movd out to own module so that we can use across songs
+-- Song env has more than just bpm
 
 song :: SongM
 song = do
   -- Drums
-  kcks <- drums "X _ _ _ _ _ . _|o _ _ _ _ _ _ _|o _ _ _ _ _ . _|o _ _ _ _ _ _ _" Tr808.bd
-  snrs <- drums "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _" Tr808.sn
-  chhs <- drums "_ _ _ _ . _ _ _|_ _ _ _ . _ _ _|_ _ _ _ O _ _ _|_ _ _ _ o _ _ _" Tr808.chh
-  ohhs <- drums "O _ . _ . _ . _|o _ . _ . _ . _|X _ . _ . _ . _|o _ . _ . _ . _" Tr808.ohh
+  kcks <- drumsDr "X _ _ _ _ _ . _|o _ _ _ _ _ _ _|o _ _ _ _ _ . _|o _ _ _ _ _ _ _" Tr808.bd 0.5
+  snrs <- drumsDr "_ _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _" Tr808.sn 0.5
+  chhs <- drumsDr "_ _ _ _ . _ _ _|_ _ _ _ . _ _ _|_ _ _ _ O _ _ _|_ _ _ _ o _ _ _" Tr808.chh 0.5
+  ohhs <- drumsDr "O _ . _ . _ . _|o _ . _ . _ . _|X _ . _ . _ . _|o _ . _ . _ . _" Tr808.ohh 0.5
 
   -- Instruments
   pad <-
@@ -44,9 +45,9 @@ song = do
     $ [Pch C 6 0.4 0.5, Silent 0.5]
 
   -- Sequences
-  let intro = har [kcks, snrs, lead]
-      verse = har [kcks, snrs, chhs, pad]
-      chorus = har [kcks, snrs, ohhs, chhs, lead, pad]
+  let intro = har [kcks, snrs]
+      verse = har [kcks, snrs, chhs]
+      chorus = har [kcks, snrs, ohhs, chhs]
 
   -- Song structure
   -- TODO: Something is stopping this from working.
@@ -58,4 +59,4 @@ song = do
     , forBeats 8 verse
     ]
 
-hmo = runSongM 128 song
+hmo = dac =<< runSongM 128 song

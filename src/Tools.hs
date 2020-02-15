@@ -10,9 +10,12 @@ import System.Random
 import Control.Monad
 import Control.Lens hiding (at)
 import Control.Monad.Reader
+import Control.Monad.Trans.IO
 
--- MTL stack for song creation
-type SongT = ReaderT Bpm SE
+-- MTL stack for song creation.
+-- Has an environment reader (currently only BPM)
+-- Also has IOT to enable e.g. randomness
+type SongT = ReaderT Bpm (IOT SE)
 type SongM = SongT (Seg Sig2)
 
 -- A MonadIO like class for SE
@@ -22,11 +25,15 @@ class (Monad m) => MonadSE m where
 instance MonadSE SE where
   liftSE = id
 
+instance MonadSE (IOT SE) where
+  liftSE = lift . liftSE
+
 instance MonadSE SongT where
   liftSE = lift . liftSE
 
-runSongM :: Bpm -> SongM -> SE Sig2
-runSongM bpm song = runSeg <$> runReaderT song bpm
+-- Kind of a valid runner, but also handles seg -> sig conversion
+runSongM :: Bpm -> SongM -> IO (SE Sig2)
+runSongM bpm song = runSeg <$$> runIOT (runReaderT song bpm)
 
 type Spb = Sig
 

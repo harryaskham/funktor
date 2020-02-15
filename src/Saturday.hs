@@ -41,7 +41,7 @@ lead = loop . toSeg $ compileWith
          (Env gBPM polySynth)
          (take 64 $ cycle [Pch C 6 0.4 0.5, Silent 0.5])
 
-song :: (MonadReader Bpm m, MonadSE m) => m (Seg Sig2)
+song :: SongM
 song = do
   drop <- liftSE qujs
   intro1 <- liftSE (cotraverse har [kick, cows])
@@ -54,4 +54,4 @@ song = do
     , forBeats 32 (maindrum =:= pad =:= lead)
     ]
 
-sat = runB gBPM (runSeg <$> runReaderT (song :: SongM) gBPM)
+sat = runSongM gBPM song

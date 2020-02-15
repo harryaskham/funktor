@@ -12,4 +12,5 @@ extra-deps:
 - sharc-timbre-0.2
 - temporal-media-0.6.3
 - wl-pprint-1.2.1
+- acme-iot-0.1.0.1@sha256:2e8e331469a7237c6b32bfdaccb44d657a651abe8ad74ca435cfc8549e664859,646
 resolver: lts-13.17

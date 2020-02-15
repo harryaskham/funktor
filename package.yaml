@@ -32,6 +32,7 @@ dependencies:
 - lens
 - MonadRandom
 - distributive
+- acme-iot
 
 library:
   source-dirs: src
