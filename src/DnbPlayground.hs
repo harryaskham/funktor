@@ -29,7 +29,7 @@ import Data.List
 -- play light pad over, etc etc etc- vocal samples - just need to pitch the drums
 -- drops / fills / breaks
 
-root = G
+root = D
 
 sn1P1 = Tr808.sn' $ TrSpec 0.8 0 342 (Just 0.085)
 sn1P2 = Tr808.sn' $ TrSpec 0.8 3 300 (Just 0.085)
@@ -38,9 +38,6 @@ sn1P4 = Tr808.sn' $ TrSpec 0.8 9 200 (Just 0.085)
 
 song :: SongM
 song = do
-  numBeats <- asks (view beatLength)
-  gBPM <- asks (view bpm)
-
   kcks1 <- drums "X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ O _ _ _|_ _ _ _ _ _ _ _|" Hm.bd2
   kcks2 <- drums "X _ _ _ O _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ O _ _ _|_ _ _ _ _ _ _ _|" Hm.bd2
   kcks3 <- drums "X _ _ _ _ _ _ _|o _ _ _ _ _ _ _|_ _ _ _ X _ _ _|o _ _ _ _ _ _ _|" Hm.bd2
@@ -85,16 +82,14 @@ song = do
     , forBeats 8 break1
     ]
 
-  pat1 <- forBeats 32 $ har [kcks7, snrs3, chhs4, cyms1, clps1]
+  let pat1 = har [kcks7, snrs3, chhs4, cyms1, clps1]
 
   pad <-
     compileI dreamPad
-    $ repeatToBeats numBeats
     $ Pch <$> minorChord root ?? 6 ?? 0.5 ?? 16
 
   bass <-
     compileI (withDeepBass 1.0 pwBass)
-    $ repeatToBeats numBeats
     $ Pch
     <$> [root, doN 2 succC root, doN 3 succC root, doN 7 succC root]
     <*> [5]
@@ -103,7 +98,6 @@ song = do
 
   lead <-
     compileI frenchHorn
-    $ repeatToBeats numBeats
     $ ((expandScale [6, 7, 8] (minorScale root) !!)
     <$> [0, 5, 5, 2, 14, 20, 12, 12, 3, 2, 7, 7])
     <*> [0.4]
@@ -111,22 +105,47 @@ song = do
 
   arp1 <-
     compileI epiano2
-    $ repeatToBeats numBeats
     $ ((expandScale [6, 7, 8] (minorScale root) !!)
     <$> [0, 1, 2, 3, 10, 9, 8, 7, 2, 3, 4, 5, 16, 15, 14, 13])
     <*> [0.4]
     <*> [1]
 
   let arpat1 root =
-        take 8 . cycle $ Pch <$> (minorChord root) ++ (majorChord (doN 5 succC root)) <*> [7] <*> [0.5] <*> [1/2]
+        take 8 . cycle $ Pch <$> minorChord root ++ majorChord (doN 5 succC root) <*> [7] <*> [0.5] <*> [1/2]
+      arpat2 root =
+        doN <$> [0, 2, 0, 3, 0, 5, 0, 6] <*> [succN] <*> [Pch root 7 0.5 (1/2)]
+      arpat3 root =
+        doN <$> [0, 2, 3, 2, 3, 5, 7, 5, 7, 8, 10, 8, 10, 12, 14, 15] <*> [succN] <*> [Pch root 7 0.3 (1/2)]
+      arpat4 root =
+        doN <$> [0, 0, 0, -1, 3, 3, 3, 2] <*> [succN] <*> [Pch root 7 0.3 (1/2)]
+      arpat5 root =
+        getZipList
+        (ZipList (Pch <$> (doN <$> [0, 7, 6, 5, 3, 5, 3, 2] <*> [succC] <*> [root]) <*> [6] <*> [0.5])
+        <*> ZipList [5, 1, 1, 1, 5, 1, 1, 1])
+      arpat6 root = (sort (expandScale [7, 8, 9] (minorChord root) <*> [0.3] <*> [1/2]) !!) <$> randomRs (0, 8) (mkStdGen 42)
+      arpat7 root = (sort (expandScale [7, 8] (majorScale root) <*> [0.2] <*> [1/2]) !!) <$> randomRs (0, 13) (mkStdGen 666)
+      arpat8 root = (sort (expandScale [7, 8, 9] (majorScale root) <*> [0.1] <*> [2]) !!) <$> randomRs (0, 13) (mkStdGen 66)
+      arpat9 root =
+        getZipList
+        $ (ZipList $ Pch <$> cycle (reverse $ majorChord root) <*> [6] <*> [0.5])
+        <*> ZipList [5, 3, 5, 3]
 
-  arp2 <-
-    compileI guitar
-    $ repeatToBeats numBeats
-    $ arpat1 D
+  arp2 <- compileI guitar $ arpat1 root
+  arp3 <- compileI banyan $ arpat2 root
+  arp4 <- compileI accordeon $ arpat3 root
+  arp5 <- compileI epiano2 $ arpat4 root
+  arp6 <- compileI brokenAccordeon $ arpat4 (doN 5 succC root)
+  arp7 <- cotraverse (loop . mel) [forBeats 8 arp5, forBeats 8 arp6]
+  arp8 <- compileI mutedBassClarinet $ arpat5 root
+  arp9 <- compileI epiano1 $ arpat6 root
+  arp10 <- compileI epiano1 $ arpat7 root
+  arp11 <- compileI epiano1 $ arpat8 root
+  arp12 <- compileI simpleBass $ arpat9 root
     
-  return $ arp2 =:= pat1
+  return $ pat1 =:= arp12 =:= arp10 =:= arp11
+
   {-
+  gBPM <- asks (view bpm)
   let patterns =
         rever2 0.2
         <$$> [ intro
@@ -140,7 +159,7 @@ song = do
   -}
 
 songEnv = SongEnv { _bpm=174
-                  , _beatLength=128
+                  , _beatLength=512
                   }
 dnb' = runSongM songEnv song
 dnb = dac =<< dnb'

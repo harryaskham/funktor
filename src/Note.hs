@@ -135,6 +135,19 @@ majorChords n = [ majorChord n
                 , majorChord (doN 7 succC n)
                 , minorChord (doN 9 succC n) ]
 
+-- Take the next highest note
+succN :: Pch -> Pch
+succN (Pch n o v d) = if n == maxBound
+                         then Pch minBound (o+1) v d
+                         else Pch (succ n) o v d
+
+-- Next lowest note
+predN :: Pch -> Pch
+predN (Pch n o v d) = if n == minBound
+                         then Pch maxBound (o-1) v d
+                         else Pch (pred n) o v d
+
+
 -- Takes the root, octave weightings to choose from, velocities to choose from, and the durations of each note
 -- Returns a cycle of notes in the minor scale.
 noteCycle :: Int -> Int -> Note -> [Octave] -> [Velocity] -> [Duration] -> IO [Pch]
@@ -165,5 +178,3 @@ repeatToBeats beats ns = fst <$> takeWhile (\x -> snd x <= fromIntegral beats) z
     cumDurs = scanl cumDurAcc 0 (cycle ns)
     zipped :: [(Pch, Duration)]
     zipped = zip (cycle ns) cumDurs
-
-

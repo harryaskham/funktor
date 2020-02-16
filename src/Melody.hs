@@ -149,8 +149,10 @@ withDrop len delay drop seg = do
   return $ newSeg =:= newDrop
 
 -- Tool for monadically compiling instrument using BPM from environment
+-- Ensures it plays for duration of song
+-- TODO: Revisit this once we can do instrument segments better without leakage.
 compileI :: (MonadReader SongEnv m) => Patch2 -> [Pch] -> m (Seg Sig2)
 compileI instr notes = do
   bpm <- asks (view bpm)
-  return $ toSeg $ compileTrack bpm instr (toMel notes)
-
+  beatLength <- asks (view beatLength)
+  return $ toSeg $ compileTrack bpm instr (toMel (repeatToBeats beatLength notes))
