@@ -74,7 +74,7 @@ song = do
 
   break1 <-
     cotraverse har
-    [ drums "O _ _ _|o _ _ _|o _ _ _|o _ _ _|O _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.cym
+    [ drums "O _ _ _|o _ _ _|o _ _ _|o _ _ _|O _ o _|o _ o _|o . . .|o . . .|" Tr808.cym
     --drums "o . _ _|. _ . _|_ _ . _|. _ . .|_ _ o _|. _ . _|. . . .|_ . _ .|" Tr808.chh
     --, drums "_ _ O _|_ . _ _|X _ _ .|_ _ _ _|X _ _ O|_ . _ _|O o . .|_ _ o _|" Tr808.sn
     ]
@@ -85,8 +85,7 @@ song = do
     , forBeats 8 break1
     ]
 
-  pat1 <- forBeats 32 $ har [kcks7, snrs3, chhs4, cyms1]
-  pat2 <- forBeats 32 $ har [kcks7, snrs3, chhs4, cyms1, clps1]
+  pat1 <- forBeats 32 $ har [kcks7, snrs3, chhs4, cyms1, clps1]
 
   pad <-
     compileI nightPad
@@ -114,7 +113,6 @@ song = do
         rever2 0.2
         <$$> [ intro
              , pat1
-             , pat2
              ]
 
   return $ har [ mel patterns
