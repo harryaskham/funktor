@@ -74,7 +74,7 @@ song = do
 
   break1 <-
     cotraverse har
-    [ drums "O _ _ _|o _ _ _|o _ _ _|o _ _ _|O _ o _|o _ o _|o . . .|o . . .|" Tr808.cym
+    [ drums "O _ _ _|o _ _ _|o _ _ _|o _ _ _|O _ o _|o _ o _|. . o o|O O X X|" Tr808.cym
     --drums "o . _ _|. _ . _|_ _ . _|. _ . .|_ _ o _|. _ . _|. . . .|_ . _ .|" Tr808.chh
     --, drums "_ _ O _|_ . _ _|X _ _ .|_ _ _ _|X _ _ O|_ . _ _|O o . .|_ _ o _|" Tr808.sn
     ]
@@ -109,15 +109,23 @@ song = do
     <*> [0.4]
     <*> replicate 4 0.25
 
-  arp <-
+  arp1 <-
     compileI epiano2
     $ repeatToBeats numBeats
     $ ((expandScale [6, 7, 8] (minorScale root) !!)
     <$> [0, 1, 2, 3, 10, 9, 8, 7, 2, 3, 4, 5, 16, 15, 14, 13])
     <*> [0.4]
     <*> [1]
+
+  let arpat1 root =
+        take 8 . cycle $ Pch <$> (minorChord root) ++ (majorChord (doN 5 succC root)) <*> [7] <*> [0.5] <*> [1/2]
+
+  arp2 <-
+    compileI guitar
+    $ repeatToBeats numBeats
+    $ arpat1 D
     
-  return $ arp =:= lead
+  return $ arp2 =:= pat1
   {-
   let patterns =
         rever2 0.2
