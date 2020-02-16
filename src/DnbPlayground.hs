@@ -88,7 +88,7 @@ song = do
   pat1 <- forBeats 32 $ har [kcks7, snrs3, chhs4, cyms1, clps1]
 
   pad <-
-    compileI nightPad
+    compileI dreamPad
     $ repeatToBeats numBeats
     $ Pch <$> minorChord root ?? 6 ?? 0.5 ?? 16
 
@@ -109,6 +109,16 @@ song = do
     <*> [0.4]
     <*> replicate 4 0.25
 
+  arp <-
+    compileI epiano2
+    $ repeatToBeats numBeats
+    $ ((expandScale [6, 7, 8] (minorScale root) !!)
+    <$> [0, 1, 2, 3, 10, 9, 8, 7, 2, 3, 4, 5, 16, 15, 14, 13])
+    <*> [0.4]
+    <*> [1]
+    
+  return $ arp =:= lead
+  {-
   let patterns =
         rever2 0.2
         <$$> [ intro
@@ -119,6 +129,7 @@ song = do
                , bass
                , restSig (Beats gBPM 28) +:+ lead
                ]
+  -}
 
 songEnv = SongEnv { _bpm=174
                   , _beatLength=128
