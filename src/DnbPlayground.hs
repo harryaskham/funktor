@@ -21,7 +21,6 @@ import Control.Monad.Random
 import Data.List
 
 -- TODO:
--- pitched drums, with FX, movd out to own module so that we can use across songs
 -- named patterns and arps that we can concat and introduce expressively
 -- Pitch drums and make actual genuine drum n bass.
 -- Lots of different drum sections that can reuse whenever
