@@ -145,20 +145,6 @@ song = do
 
   return $ pat1 =:= arp12 =:= arp10 =:= arp11
 
-  {-
-  gBPM <- asks (view bpm)
-  let patterns =
-        rever2 0.2
-        <$$> [ intro
-             , pat1
-             ]
-
-  return $ har [ mel patterns
-               , bass
-               , restSig (Beats gBPM 28) +:+ lead
-               ]
-  -}
-
 songEnv = SongEnv { _bpm=174
                   , _beatLength=512
                   }
