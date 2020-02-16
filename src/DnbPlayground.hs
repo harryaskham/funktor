@@ -82,7 +82,8 @@ song = do
     , forBeats 8 break1
     ]
 
-  let pat1 = har [kcks7, snrs3, chhs4, cyms1, clps1]
+  let pat0 = har [kcks7, snrs3, chhs4, cyms1]
+      pat1 = har [kcks7, snrs3, chhs4, cyms1, clps1]
 
   pad <-
     compileI dreamPad
@@ -138,11 +139,12 @@ song = do
   arp7 <- cotraverse (loop . mel) [forBeats 8 arp5, forBeats 8 arp6]
   arp8 <- compileI mutedBassClarinet $ arpat5 root
   arp9 <- compileI epiano1 $ arpat6 root
-  arp10 <- compileI epiano1 $ arpat7 root
-  arp11 <- compileI epiano1 $ arpat8 root
+  arp10 <- compileI epiano1 $ take 64 $ arpat7 root
+  arp11 <- compileI epiano1 $ take 64 $ arpat8 root
   arp12 <- compileI simpleBass $ arpat9 root
-    
-  return $ pat1 =:= arp12 =:= arp10 =:= arp11
+   
+  i32 <- forBeats 16 pat0
+  return $ mel [i32, pat1 =:= arp12 =:= arp10 =:= arp11]
 
   {-
   gBPM <- asks (view bpm)
