@@ -71,6 +71,18 @@ song = do
 
   clps1 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Hm.clap
 
+  break1 <-
+    cotraverse har
+    [ drums "o . _ _|. _ . _|_ _ . _|. _ . .|_ _ o _|. _ . _|. . . .|_ . _ .|" Tr808.chh
+    , drums "_ _ O _|_ . _ _|X _ _ .|_ _ _ _|X _ _ O|_ . _ _|O o . .|_ _ o _|" Tr808.sn
+    ]
+
+  intro <-
+    cotraverse mel
+    [ forBeats 24 cyms1
+    , forBeats 8 break1
+    ]
+
   pad <-
     compileI nightPad
     $ repeatToBeats numBeats
@@ -95,15 +107,12 @@ song = do
 
   let patterns =
         fmap (rever2 0.2) . har
-        <$> [ [cyms1]
+        <$> [ [break1]
+            , [intro]
             , [kcks4, snrs3, chhs3, ohhs3, cyms1, clps1]
-            , [cyms1]
-            , [kcks4, snrs3, chhs3, ohhs3, cyms1, clps1]
-            , [cyms1]
             ]
 
-  allDrums <- cotraverse mel (forBeats 32 <$> patterns)
-  return $ har [ allDrums
+  return $ har [ mel patterns
                , bass
                , restSig (Beats gBPM 28) +:+ lead
                ]
