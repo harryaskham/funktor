@@ -79,12 +79,19 @@ song = do
   bass <-
     compileI (withDeepBass 1.0 pwBass)
     $ repeatToBeats numBeats
-    $ Pch <$> [root, doN 2 succC root, doN 3 succC root, doN 7 succC root] <*> [5] <*> [0.5, 0.0] <*> [2]
+    $ Pch
+    <$> [root, doN 2 succC root, doN 3 succC root, doN 7 succC root]
+    <*> [5]
+    <*> [0.5, 0.0]
+    <*> [2]
 
   lead <-
     compileI frenchHorn
     $ repeatToBeats numBeats
-    $ ((expandScale [6, 7, 8] (minorScale root) !!) <$> [0, 5, 5, 2, 14, 20, 12, 12, 3, 2, 7, 7]) <*> [0.4] <*> replicate 4 0.25
+    $ ((expandScale [6, 7, 8] (minorScale root) !!)
+    <$> [0, 5, 5, 2, 14, 20, 12, 12, 3, 2, 7, 7])
+    <*> [0.4]
+    <*> replicate 4 0.25
 
   let patterns =
         fmap (rever2 0.2) . har
@@ -98,7 +105,6 @@ song = do
   allDrums <- cotraverse mel (forBeats 32 <$> patterns)
   return $ har [ allDrums
                , bass
-               --, lead
                , restSig (Beats gBPM 28) +:+ lead
                ]
 
