@@ -143,8 +143,7 @@ song = do
   arp11 <- compileI epiano1 $ take 64 $ arpat8 root
   arp12 <- compileI simpleBass $ arpat9 root
    
-  i32 <- forBeats 16 pat0
-  return $ mel [i32, pat1 =:= arp12 =:= arp10 =:= arp11]
+  return $ pat1 =:= arp12 =:= arp10 =:= arp11
 
   {-
   gBPM <- asks (view bpm)
