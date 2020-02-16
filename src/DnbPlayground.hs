@@ -142,7 +142,7 @@ song = do
   arp10 <- compileI epiano1 $ take 64 $ arpat7 root
   arp11 <- compileI epiano1 $ take 64 $ arpat8 root
   arp12 <- compileI simpleBass $ arpat9 root
-   
+
   return $ pat1 =:= arp12 =:= arp10 =:= arp11
 
   {-
