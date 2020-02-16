@@ -60,8 +60,9 @@ song = do
   let psnrs = har [snrsP1, snrsP2, snrsP3, snrsP4]
 
   chhs1 <- drums ". _ _ _ . _ _ _|_ _ _ _ . _ _ _|. _ _ _ _ _ _ _|_ _ _ _ . _ _ _|" Hm.chh
-  chhs2 <- drums "O _ _ _ . _ _ _|. _ _ _ . _ _ _|o _ _ _ . _ _ _|. _ _ _ . _ _ _|" Hm.chh
+  chhs2 <- drums "O _ _ _ . _ _ _|. _ _ _ o _ _ _|o _ _ _ . _ _ _|. _ _ _ . _ _ _|" Hm.chh
   chhs3 <- drums "_ _ _ _ _ _ _ _|_ _ _ _ _ _ . _|_ _ . _ _ _ _ _|_ _ _ _ _ _ . _|" Tr808.chh
+  chhs4 <- drums "O _ _ _ . _ _ _|. _ _ _ o _ _ _|o _ _ _ . _ _ _|. _ _ _ . _ _ _|" Tr808.chh
 
   ohhs1 <- drums "_ _ _ _ _ _ _ _|_ _ _ _ _ _ . _|_ _ . _ _ _ _ _|_ _ _ _ _ _ . _|" Hm.ohh
   ohhs2 <- drums "_ _ _ _ _ _ _ _|_ _ _ _ _ _ . _|_ _ . _ _ _ _ _|_ _ _ _ _ _ . _|" Tr808.ohh
@@ -73,15 +74,19 @@ song = do
 
   break1 <-
     cotraverse har
-    [ drums "o . _ _|. _ . _|_ _ . _|. _ . .|_ _ o _|. _ . _|. . . .|_ . _ .|" Tr808.chh
-    , drums "_ _ O _|_ . _ _|X _ _ .|_ _ _ _|X _ _ O|_ . _ _|O o . .|_ _ o _|" Tr808.sn
+    [ drums "O _ _ _|o _ _ _|o _ _ _|o _ _ _|O _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.cym
+    --drums "o . _ _|. _ . _|_ _ . _|. _ . .|_ _ o _|. _ . _|. . . .|_ . _ .|" Tr808.chh
+    --, drums "_ _ O _|_ . _ _|X _ _ .|_ _ _ _|X _ _ O|_ . _ _|O o . .|_ _ o _|" Tr808.sn
     ]
 
   intro <-
     cotraverse mel
-    [ forBeats 24 cyms1
+    [ forBeats 24 (har [kcks7, chhs4, snrs3])
     , forBeats 8 break1
     ]
+
+  pat1 <- forBeats 32 $ har [kcks7, snrs3, chhs4, cyms1]
+  pat2 <- forBeats 32 $ har [kcks7, snrs3, chhs4, cyms1, clps1]
 
   pad <-
     compileI nightPad
@@ -106,11 +111,11 @@ song = do
     <*> replicate 4 0.25
 
   let patterns =
-        fmap (rever2 0.2) . har
-        <$> [ [break1]
-            , [intro]
-            , [kcks4, snrs3, chhs3, ohhs3, cyms1, clps1]
-            ]
+        rever2 0.2
+        <$$> [ intro
+             , pat1
+             , pat2
+             ]
 
   return $ har [ mel patterns
                , bass
