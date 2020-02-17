@@ -58,6 +58,7 @@ song = do
     , Pch (predC root) 6 0.8 (1/2)
     ]
 
+  -- TODO: Massive gaps between segments need fixing
   drums <-
     cotraverse mel [ forBeats 16 $ har [pat0, bass]
                    , forBeats 16 $ har [pat1, pad]
