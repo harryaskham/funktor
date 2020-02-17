@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module TechnoPlayground where
 
@@ -19,6 +20,7 @@ import System.IO.Unsafe
 import Control.Monad.Reader
 import Control.Monad.Random
 import Data.List
+import System.Random
 
 -- TODO here:
 -- randomised section generator that spits out
@@ -26,6 +28,49 @@ import Data.List
 --
 -- For later: slow right down, introduce noise, and make
 -- binaural / infinite ambient generator
+
+data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
+                                       , _arps :: [Seg Sig2]
+                                       , _envelopes :: [Sig]
+                                       -- The beat durations to choose from.
+                                       -- Will always change this.
+                                       , _durations :: [Sig]
+                                       }
+makeLenses ''TechnoGenerator
+
+data TechnoState = TechnoState { _drumSelection :: Seg Sig2
+                               , _arpSelection :: Seg Sig2
+                               , _envelopeSelection :: Sig
+                               , _durationSelection :: Sig
+                               }
+makeLenses ''TechnoState
+
+data TechnoChangeable = ChangeDrums
+                      | ChangeArps
+                      | ChangeEnvelope
+
+randomFrom :: (MonadIO m) => [a] -> m a
+randomFrom xs = do
+  i <- liftIO $ randomRIO (0, length xs - 1)
+  return $ xs !! i
+
+generateTechnoState :: (MonadIO m) => TechnoGenerator -> m TechnoState
+generateTechnoState tg = do
+  drm <- liftIO $ randomFrom $ tg^.drumPatterns
+  arp <- liftIO $ randomFrom $ tg^.arps
+  env <- liftIO $ randomFrom $ tg^.envelopes
+  duration <- liftIO $ randomFrom $ tg^.durations
+  return TechnoState { _drumSelection=drm
+                     , _arpSelection=arp
+                     , _envelopeSelection=env
+                     , _durationSelection=duration
+                     }
+  
+renderTechnoState :: TechnoState -> SongM
+renderTechnoState ts =
+  forBeats
+    (ts^.durationSelection)
+    (fmap (stereoMap (*(ts^.envelopeSelection))) (har [ts^.drumSelection, ts^.arpSelection]))
 
 root = D
 
@@ -58,15 +103,27 @@ song = do
     , Pch (predC root) 6 0.8 (1/2)
     ]
 
-  drums <-
-    cotraverse mel [ forBeats 16 pat0
-                   , forBeats 16 pat1
-                   , forBeats 32 pat2
-                   , forBeats 32 pat3
-                   , forBeats 32 pat4
-                   ]
+  gBPM <- asks (view bpm)
+  let tg = TechnoGenerator { _drumPatterns = [ pat0
+                                             , pat1
+                                             , pat2
+                                             , pat3
+                                             , pat4
+                                             ]
+                           , _arps = [ pad
+                                     , bass
+                                     ]
+                           , _envelopes = [ constEnv
+                                          , sinEnv gBPM 0 8
+                                          , sinEnv gBPM 0 16
+                                          , sinEnv gBPM 0 32
+                                          ]
+                           , _durations = [8, 16, 32]
+                           }
 
-  return $ loop drums =:= loop pad =:= bass
+  states <- replicateM 4 (generateTechnoState tg)
+  sections <- sequence $ renderTechnoState <$> states
+  return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
                   , _beatLength=1024
