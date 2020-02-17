@@ -59,14 +59,14 @@ song = do
     ]
 
   drums <-
-    cotraverse mel [ forBeats 16 pat0
-                   , forBeats 16 pat1
-                   , forBeats 32 pat2
-                   , forBeats 32 pat3
-                   , forBeats 32 pat4
+    cotraverse mel [ forBeats 16 $ har [pat0, bass]
+                   , forBeats 16 $ har [pat1, pad]
+                   , forBeats 32 $ har [pat2, bass, pad]
+                   , forBeats 32 $ har [pat3, bass, pad]
+                   , forBeats 32 $ har [pat4, bass, pad]
                    ]
 
-  return $ loop drums =:= loop pad =:= bass
+  return $ loop drums
 
 songEnv = SongEnv { _bpm=140
                   , _beatLength=1024
