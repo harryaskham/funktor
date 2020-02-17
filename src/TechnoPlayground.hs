@@ -20,6 +20,13 @@ import Control.Monad.Reader
 import Control.Monad.Random
 import Data.List
 
+-- TODO here:
+-- randomised section generator that spits out
+-- length, arptype, envelope mix, effect mix
+--
+-- For later: slow right down, introduce noise, and make
+-- binaural / infinite ambient generator
+
 root = D
 
 song :: SongM
