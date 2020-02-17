@@ -139,9 +139,9 @@ song = do
   arp7 <- cotraverse (loop . mel) [forBeats 8 arp5, forBeats 8 arp6]
   arp8 <- compileI mutedBassClarinet $ arpat5 root
   arp9 <- compileI epiano1 $ arpat6 root
-  arp10 <- compileI epiano1 $ take 64 $ arpat7 root
-  arp11 <- compileI epiano1 $ take 64 $ arpat8 root
-  arp12 <- compileI simpleBass $ arpat9 root
+  arp10 <- compileI epiano1 $ take 32 $ arpat7 root
+  arp11 <- compileI epiano1 $ take 32 $ arpat8 root
+  arp12 <- compileI (withDeepBass 1.0 simpleBass) $ arpat9 root
 
   return $ pat1 =:= arp12 =:= arp10 =:= arp11
 
