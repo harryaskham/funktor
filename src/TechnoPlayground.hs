@@ -89,18 +89,25 @@ song = do
       pat3 = har [kcks1, clps1, ohhs1]
       pat4 = har [kcks1, clps1, cyms1]
 
-  pad <-
-    -- TODO: rename to e.g. instr
-    compileI dreamPad
-    [ Pch root 6 0.8 8
-    , Silent 8
-    ]
-
-  bass <-
+  bass1 <-
     compileI fmBass2
     [ Pch root 6 0.8 (1/2)
     , Pch (doN 3 succC root) 6 0.8 (1/2)
     , Pch (predC root) 6 0.8 (1/2)
+    ]
+
+  bass2 <-
+    compileI fmBass2
+    [ Pch root 6 0.8 (1/2)
+    , Pch (doN 6 succC root) 6 0.8 (1/2)
+    , Pch (doN 4 succC root) 6 0.8 (1/2)
+    ]
+
+  bass3 <-
+    compileI fmBass2
+    [ Pch root 6 0.8 (1/2)
+    , Pch (predC root) 6 0.8 (1/2)
+    , Silent 3
     ]
 
   gBPM <- asks (view bpm)
@@ -108,17 +115,18 @@ song = do
                                              , pat1
                                              , pat2
                                              , pat3
-                                             , pat4
+                                             --, pat4
                                              ]
-                           , _arps = [ pad
-                                     , bass
+                           , _arps = [ bass1
+                                     , bass2
+                                     , bass3
                                      ]
                            , _envelopes = [ constEnv
-                                          , sinEnv gBPM 0 8
-                                          , sinEnv gBPM 0 16
-                                          , sinEnv gBPM 0 32
+                                          --, sinEnv gBPM 0 8
+                                          --, sinEnv gBPM 0 16
+                                          --, sinEnv gBPM 0 32
                                           ]
-                           , _durations = [8, 16, 32]
+                           , _durations = [16]
                            }
 
   states <- replicateM 4 (generateTechnoState tg)
