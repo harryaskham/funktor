@@ -26,8 +26,8 @@ song :: SongM
 song = do
   kcks1 <- drums "O _ _ _ _ _ _ _|o _ _ _ _ _ _ _|O _ _ _ _ _ _ _|o _ _ _ _ _ _ _|" Tr808.bd2
   snrs1 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Tr808.sn
-  chhs1 <- drums ". _ _ _ _ _ _ _|o _ _ _ _ _ _ _|. _ _ _ _ _ _ _|. _ _ _ _ _ _ _|" Tr808.chh
-  ohhs1 <- drums ". _ _ _ . _ _ _|_ _ _ _ . _ _ _|. _ _ _ _ _ _ _|_ _ _ _ . _ _ _|" Tr808.ohh
+  chhs1 <- drums "_ _ _ _ o _ _ _|_ _ _ _ . _ _ _|_ _ _ _ o _ _ _|_ _ _ _ . _ _ _|" Tr808.chh
+  ohhs1 <- drums "_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|" Tr808.ohh
   cyms1 <- drums "O _ o _ . _ . _|" Tr808.cym
   clps1 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Hm.clap
 
@@ -36,6 +36,7 @@ song = do
       pat2 = har [kcks1, clps1, cyms1]
 
   pad <-
+    -- TODO: rename to e.g. instr
     compileI dreamPad
     [ Pch root 6 0.8 8
     , Silent 8
