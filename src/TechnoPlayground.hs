@@ -41,13 +41,13 @@ song = do
     , Silent 8
     ]
 
-  looped <-
+  drums <-
     cotraverse mel [ forBeats 16 pat0
                    , forBeats 16 pat1
                    , forBeats 32 pat2
                    ]
 
-  return $ loop looped =:= loop pad
+  return $ loop drums =:= loop pad
 
 songEnv = SongEnv { _bpm=140
                   , _beatLength=512
