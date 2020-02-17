@@ -37,9 +37,9 @@ song = do
 
   pad <-
     compileI dreamPad
-    $ [ Pch root 6 0.8 8
-      , Silent 8
-      ]
+    [ Pch root 6 0.8 8
+    , Silent 8
+    ]
 
   looped <-
     cotraverse mel [ forBeats 16 pat0
