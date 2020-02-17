@@ -58,16 +58,15 @@ song = do
     , Pch (predC root) 6 0.8 (1/2)
     ]
 
-  -- TODO: Massive gaps between segments need fixing
   drums <-
-    cotraverse mel [ forBeats 16 $ har [pat0, bass]
-                   , forBeats 16 $ har [pat1, pad]
-                   , forBeats 32 $ har [pat2, bass, pad]
-                   , forBeats 32 $ har [pat3, bass, pad]
-                   , forBeats 32 $ har [pat4, bass, pad]
+    cotraverse mel [ forBeats 16 pat0
+                   , forBeats 16 pat1
+                   , forBeats 32 pat2
+                   , forBeats 32 pat3
+                   , forBeats 32 pat4
                    ]
 
-  return $ loop drums
+  return $ loop drums =:= loop pad =:= bass
 
 songEnv = SongEnv { _bpm=140
                   , _beatLength=1024
