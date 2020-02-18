@@ -22,18 +22,9 @@ import Control.Monad.Random
 import Data.List
 import System.Random
 
--- TODO here:
--- randomised section generator that spits out
--- length, arptype, envelope mix, effect mix
---
--- For later: slow right down, introduce noise, and make
--- binaural / infinite ambient generator
-
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [Seg Sig2]
                                        , _envelopes :: [Sig]
-                                       -- The beat durations to choose from.
-                                       -- Will always change this.
                                        , _durations :: [Sig]
                                        }
 makeLenses ''TechnoGenerator
@@ -126,7 +117,7 @@ song = do
                                           --, sinEnv gBPM 0 16
                                           --, sinEnv gBPM 0 32
                                           ]
-                           , _durations = [16]
+                           , _durations = [32]
                            }
 
   states <- replicateM 4 (generateTechnoState tg)
@@ -134,7 +125,7 @@ song = do
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=1024
+                  , _beatLength=128
                   }
 tec' = runSongM songEnv song
 tec = dac =<< tec'
