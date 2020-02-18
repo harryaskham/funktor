@@ -22,20 +22,24 @@ import Control.Monad.Random
 import Data.List
 import System.Random
 
+-- TODO: Pre-load every section to avoid pauses
+-- TODO: Envelope application doesn't seem to be working. Beats versus bars?
+
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [Seg Sig2]
-                                       , _envelopes :: [Sig]
+                                       , _envelopes :: [Sig -> Sig]
                                        , _durations :: [Sig]
                                        }
 makeLenses ''TechnoGenerator
 
 data TechnoState = TechnoState { _drumSelection :: Seg Sig2
                                , _arpSelection :: Seg Sig2
-                               , _envelopeSelection :: Sig
+                               , _envelopeSelection :: Sig -> Sig
                                , _durationSelection :: Sig
                                }
 makeLenses ''TechnoState
 
+-- TODO: Only change one thing at a time
 data TechnoChangeable = ChangeDrums
                       | ChangeArps
                       | ChangeEnvelope
@@ -61,7 +65,9 @@ renderTechnoState :: TechnoState -> SongM
 renderTechnoState ts =
   forBeats
     (ts^.durationSelection)
-    (fmap (stereoMap (*(ts^.envelopeSelection))) (har [ts^.drumSelection, ts^.arpSelection]))
+    (fmap (stereoMap (*env)) (har [ts^.drumSelection, ts^.arpSelection]))
+  where
+    env = (ts^.envelopeSelection) (ts^.durationSelection)
 
 root = D
 
@@ -70,7 +76,9 @@ song = do
   kcks1 <- drums "O _ _ _ _ _ _ _|o _ _ _ _ _ _ _|O _ _ _ _ _ _ _|o _ _ _ _ _ _ _|" Tr808.bd2
   snrs1 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Tr808.sn
   chhs1 <- drums "_ _ _ _ o _ _ _|_ _ _ _ . _ _ _|_ _ _ _ o _ _ _|_ _ _ _ . _ _ _|" Tr808.chh
+  chhs2 <- drums "O _ o _ _ _ o _|" Tr808.chh
   ohhs1 <- drums "o _ _ _ o _ _ _|" Tr808.ohh
+  ohhs2 <- drums "_ _ _ _ O _ _ _|" Tr808.ohh
   cyms1 <- drums "O _ o _ . _ . _|" Tr808.cym
   clps1 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Hm.clap
 
@@ -79,6 +87,7 @@ song = do
       pat2 = har [kcks1, clps1, chhs1]
       pat3 = har [kcks1, clps1, ohhs1]
       pat4 = har [kcks1, clps1, cyms1]
+      pat5 = har [kcks1, chhs2, ohhs2]
 
   bass1 <-
     compileI fmBass2
@@ -106,26 +115,25 @@ song = do
                                              , pat1
                                              , pat2
                                              , pat3
-                                             --, pat4
+                                             , pat4
+                                             , pat5
                                              ]
                            , _arps = [ bass1
                                      , bass2
                                      , bass3
                                      ]
-                           , _envelopes = [ constEnv
-                                          --, sinEnv gBPM 0 8
-                                          --, sinEnv gBPM 0 16
-                                          --, sinEnv gBPM 0 32
+                           , _envelopes = [ const constEnv
+                                          , sinEnv gBPM 0
                                           ]
-                           , _durations = [32]
+                           , _durations = [16, 32]
                            }
 
-  states <- replicateM 4 (generateTechnoState tg)
+  states <- replicateM 16 (generateTechnoState tg)
   sections <- sequence $ renderTechnoState <$> states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=128
+                  , _beatLength=1024
                   }
 tec' = runSongM songEnv song
 tec = dac =<< tec'
