@@ -28,34 +28,35 @@ import System.Random
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [Seg Sig2]
-                                       , _envelopes :: [Sig -> Sig]
+                                       , _envelopes :: [Sig]
                                        , _durations :: [Sig]
                                        }
 makeLenses ''TechnoGenerator
 
 data TechnoState = TechnoState { _drumSelection :: Seg Sig2
                                , _arpSelection :: Seg Sig2
-                               , _envelopeSelection :: Sig -> Sig
+                               , _envelopeSelection :: Sig
                                , _durationSelection :: Sig
                                }
 makeLenses ''TechnoState
 
-data TechnoChangeable = ChangeDrums
-                      | ChangeArps
+data TechnoChangeable = ChangeDrum
+                      | ChangeArp
                       | ChangeEnvelope
                       | ChangeEffect
 
 -- Change only a single part of the state.
 changeOne :: (MonadIO m) => TechnoGenerator -> TechnoState -> m TechnoState
 changeOne tg ts = do
-  changeable <- randomFrom [ChangeDrums, ChangeArps]
+  changeable <- randomFrom [ChangeDrum, ChangeArp, ChangeEnvelope]
   case changeable of
-    ChangeDrums -> do
-      newDrums <- randomFrom (tg^.drumPatterns)
-      return $ ts & drumSelection .~ newDrums
-    ChangeArps -> do
-      newArp <- randomFrom (tg^.arps)
-      return $ ts & arpSelection .~ newArp
+    ChangeDrum -> change drumSelection drumPatterns
+    ChangeArp -> change arpSelection arps
+    ChangeEnvelope -> change envelopeSelection envelopes
+  where
+    change selection from = do
+      new <- liftIO $ randomFrom (tg^.from)
+      return $ ts & selection .~ new
 
 -- Generate n changeOne states.
 generateTechnoStates :: (MonadIO m) => TechnoGenerator -> Int -> m [TechnoState]
@@ -85,9 +86,7 @@ renderTechnoState :: TechnoState -> SongM
 renderTechnoState ts =
   forBeats
     (ts^.durationSelection)
-    (har [ts^.drumSelection, stereoMap (*env) <$> (ts^.arpSelection)])
-  where
-    env = (ts^.envelopeSelection) (ts^.durationSelection / 2)
+    (har [ts^.drumSelection, stereoMap (*(ts^.envelopeSelection)) <$> (ts^.arpSelection)])
 
 root = D
 
@@ -147,8 +146,10 @@ song = do
                                      , bass3
                                      , silence
                                      ]
-                           , _envelopes = [ const constEnv
-                                          , sinEnv gBPM 0
+                           , _envelopes = [ constEnv
+                                          , sqrEnv gBPM 0 2
+                                          , sqrEnv gBPM 0 4
+                                          , sqrEnv gBPM 0 8
                                           ]
                            , _durations = [16, 32]
                            }
