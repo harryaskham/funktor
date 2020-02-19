@@ -147,6 +147,7 @@ song = do
                                      , silence
                                      ]
                            , _envelopes = [ constEnv
+                                          , sqrEnv gBPM 0 1
                                           , sqrEnv gBPM 0 2
                                           , sqrEnv gBPM 0 4
                                           , sqrEnv gBPM 0 8
