@@ -39,10 +39,28 @@ data TechnoState = TechnoState { _drumSelection :: Seg Sig2
                                }
 makeLenses ''TechnoState
 
--- TODO: Only change one thing at a time
 data TechnoChangeable = ChangeDrums
                       | ChangeArps
                       | ChangeEnvelope
+
+-- Change only a single part of the state.
+changeOne :: (MonadIO m) => TechnoGenerator -> TechnoState -> m TechnoState
+changeOne tg ts = do
+  changeable <- randomFrom [ChangeDrums, ChangeArps]
+  case changeable of
+    ChangeDrums -> do
+      newDrums <- randomFrom (tg^.drumPatterns)
+      return $ ts & drumSelection .~ newDrums
+    ChangeArps -> do
+      newArp <- randomFrom (tg^.arps)
+      return $ ts & arpSelection .~ newArp
+
+-- Generate n changeOne states.
+generateTechnoStates :: (MonadIO m) => TechnoGenerator -> Int -> m [TechnoState]
+generateTechnoStates tg n = go (n-1) [] =<< generateTechnoState tg
+  where
+    go 0 acc last = return $ acc ++ [last]
+    go n acc last = go (n-1) (acc ++ [last]) =<< changeOne tg last
 
 randomFrom :: (MonadIO m) => [a] -> m a
 randomFrom xs = do
@@ -123,17 +141,17 @@ song = do
                                      , bass3
                                      ]
                            , _envelopes = [ const constEnv
-                                          , sinEnv gBPM 0
+                                          --, sinEnv gBPM 0
                                           ]
                            , _durations = [16, 32]
                            }
 
-  states <- replicateM 16 (generateTechnoState tg)
+  states <- generateTechnoStates tg 8
   sections <- sequence $ renderTechnoState <$> states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=1024
+                  , _beatLength=256
                   }
 tec' = runSongM songEnv song
 tec = dac =<< tec'
