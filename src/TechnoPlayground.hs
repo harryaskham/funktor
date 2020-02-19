@@ -157,7 +157,7 @@ song = do
 
   --states <- generateTechnoStates tg 64
   states <- replicateM 64 $ generateTechnoState tg
-  sections <- sequence $ renderTechnoState <$> states
+  sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
