@@ -85,9 +85,9 @@ renderTechnoState :: TechnoState -> SongM
 renderTechnoState ts =
   forBeats
     (ts^.durationSelection)
-    (fmap (stereoMap (*env)) (har [ts^.drumSelection, ts^.arpSelection]))
+    (har [ts^.drumSelection, stereoMap (*env) <$> (ts^.arpSelection)])
   where
-    env = (ts^.envelopeSelection) (ts^.durationSelection)
+    env = (ts^.envelopeSelection) (ts^.durationSelection / 2)
 
 root = D
 
@@ -130,20 +130,25 @@ song = do
     , Silent 3
     ]
 
+  -- TODO: Remove BPM ask with MonadReader refactor.
   gBPM <- asks (view bpm)
+  let silence = restSig (Beats gBPM 4)
+
   let tg = TechnoGenerator { _drumPatterns = [ pat0
                                              , pat1
                                              , pat2
                                              , pat3
                                              , pat4
                                              , pat5
+                                             , silence
                                              ]
                            , _arps = [ bass1
                                      , bass2
                                      , bass3
+                                     , silence
                                      ]
                            , _envelopes = [ const constEnv
-                                          --, sinEnv gBPM 0
+                                          , sinEnv gBPM 0
                                           ]
                            , _durations = [16, 32]
                            }
