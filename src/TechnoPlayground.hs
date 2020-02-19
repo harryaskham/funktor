@@ -24,6 +24,7 @@ import System.Random
 
 -- TODO: Pre-load every section to avoid pauses
 -- TODO: Envelope application doesn't seem to be working. Beats versus bars?
+-- TODO: Add ability to do effects too.
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [Seg Sig2]
@@ -42,6 +43,7 @@ makeLenses ''TechnoState
 data TechnoChangeable = ChangeDrums
                       | ChangeArps
                       | ChangeEnvelope
+                      | ChangeEffect
 
 -- Change only a single part of the state.
 changeOne :: (MonadIO m) => TechnoGenerator -> TechnoState -> m TechnoState
@@ -146,12 +148,12 @@ song = do
                            , _durations = [16, 32]
                            }
 
-  states <- generateTechnoStates tg 8
+  states <- generateTechnoStates tg 32
   sections <- sequence $ renderTechnoState <$> states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=256
+                  , _beatLength=1024
                   }
 tec' = runSongM songEnv song
 tec = dac =<< tec'
