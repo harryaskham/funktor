@@ -155,7 +155,8 @@ song = do
                            , _durations = [16, 32, 64]
                            }
 
-  states <- generateTechnoStates tg 64
+  --states <- generateTechnoStates tg 64
+  states <- replicateM 64 $ generateTechnoState tg
   sections <- sequence $ renderTechnoState <$> states
   return $ loop (mel sections)
 
