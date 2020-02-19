@@ -151,15 +151,15 @@ song = do
                                           , sqrEnv gBPM 0 4
                                           , sqrEnv gBPM 0 8
                                           ]
-                           , _durations = [16, 32]
+                           , _durations = [16, 32, 64]
                            }
 
-  states <- generateTechnoStates tg 32
+  states <- generateTechnoStates tg 64
   sections <- sequence $ renderTechnoState <$> states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=1024
+                  , _beatLength=2056
                   }
 tec' = runSongM songEnv song
 tec = dac =<< tec'
