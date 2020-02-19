@@ -156,7 +156,7 @@ song = do
                            }
 
   --states <- generateTechnoStates tg 64
-  states <- replicateM 64 $ generateTechnoState tg
+  states <- replicateM 16 $ generateTechnoState tg
   sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
