@@ -139,12 +139,12 @@ song = do
                                              , pat3
                                              , pat4
                                              , pat5
-                                             , silence
+                                             --, silence
                                              ]
                            , _arps = [ bass1
                                      , bass2
                                      , bass3
-                                     , silence
+                                     --, silence
                                      ]
                            , _envelopes = [ constEnv
                                           , sqrEnv gBPM 0 1
@@ -155,8 +155,8 @@ song = do
                            , _durations = [16, 32, 64]
                            }
 
-  --states <- generateTechnoStates tg 64
-  states <- replicateM 16 $ generateTechnoState tg
+  states <- generateTechnoStates tg 64
+  -- states <- replicateM 16 $ generateTechnoState tg
   sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
