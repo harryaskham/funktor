@@ -61,8 +61,12 @@ changeOne tg ts = do
       return $ ts & selection .~ new
 
 -- Generate n changeOne states.
-generateOneChangeTechnoStates :: (MonadIO m) => TechnoGenerator -> Int -> m [TechnoState]
-generateOneChangeTechnoStates tg n = go (n-1) [] =<< generateTechnoState tg
+generateOneChangeTechnoStates :: (MonadIO m)
+                              => TechnoGenerator
+                              -> Int
+                              -> m [TechnoState]
+generateOneChangeTechnoStates tg n =
+  go (n-1) [] =<< generateTechnoState tg
   where
     go 0 acc last = return $ acc ++ [last]
     go n acc last = go (n-1) (acc ++ [last]) =<< changeOne tg last
