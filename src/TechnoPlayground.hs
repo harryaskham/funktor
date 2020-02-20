@@ -171,7 +171,8 @@ song = do
                                           , sqrEnv gBPM 0 4
                                           , sqrEnv gBPM 0 8
                                           ]
-                           , _durations = [16, 32, 64]
+                           --, _durations = [16, 32, 64]
+                           , _durations = [16]
                            }
 
   states <- generateNChangeTechnoStates tg 16 2
@@ -182,5 +183,7 @@ song = do
 songEnv = SongEnv { _bpm=140
                   , _beatLength=512
                   }
+
+-- TODO: dacBy function for trying to fix with options
 tec' = runSongM songEnv song
 tec = dac =<< tec'
