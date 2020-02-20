@@ -182,7 +182,12 @@ predC :: (Eq a, Enum a, Bounded a) => a -> a
 predC a = if a == minBound then maxBound else pred a
 
 -- Do N times
-doN n f = foldr (.) id (replicate n f)
+doN :: Int -> (a -> a) -> a -> a
+doN n f = foldl1 (.) (replicate n f)
+
+-- Do N times monadically
+doNM :: (Monad m) => Int -> (a -> m a) -> a -> m a
+doNM n f = foldl1 (>=>) (replicate n f)
 
 pink2 = fromMono <$> pink
 brown2 = fromMono <$> brown

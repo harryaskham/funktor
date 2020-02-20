@@ -61,15 +61,17 @@ changeOne tg ts = do
       return $ ts & selection .~ new
 
 -- Generate n changeOne states.
-generateOneChangeTechnoStates :: (MonadIO m)
+-- Each state changes only one thing about the last state
+generateNChangeTechnoStates :: (MonadIO m)
                               => TechnoGenerator
                               -> Int
+                              -> Int
                               -> m [TechnoState]
-generateOneChangeTechnoStates tg n =
-  go (n-1) [] =<< generateTechnoState tg
+generateNChangeTechnoStates tg nStates nChanges =
+  go (nStates-1) [] =<< generateTechnoState tg
   where
     go 0 acc last = return $ acc ++ [last]
-    go n acc last = go (n-1) (acc ++ [last]) =<< changeOne tg last
+    go n acc last = go (n-1) (acc ++ [last]) =<< doNM nChanges (changeOne tg) last
 
 randomFrom :: (MonadIO m) => [a] -> m a
 randomFrom xs = do
@@ -172,8 +174,8 @@ song = do
                            , _durations = [16, 32, 64]
                            }
 
-  -- states <- generateOneChangeTechnoStates tg 4
-  states <- replicateM 16 $ generateTechnoState tg
+  states <- generateNChangeTechnoStates tg 16 2
+  -- states <- replicateM 16 $ generateTechnoState tg
   sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
