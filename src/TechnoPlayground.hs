@@ -107,6 +107,9 @@ song = do
       pat3 = har [kcks1, clps1, ohhs1]
       pat4 = har [kcks1, clps1, cyms1]
       pat5 = har [kcks1, chhs2, ohhs2]
+      pat6 = har [kcks1, chhs2, ohhs2, clps1]
+      pat7 = har [kcks1, snrs1]
+      pat8 = har [chhs1, ohhs1]
 
   bass1 <-
     compileI epiano2
@@ -139,6 +142,9 @@ song = do
                                              , pat3
                                              , pat4
                                              , pat5
+                                             , pat6
+                                             , pat7
+                                             , pat8
                                              --, silence
                                              ]
                            , _arps = [ bass1
