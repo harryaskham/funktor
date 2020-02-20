@@ -132,6 +132,10 @@ song = do
     , Silent 3
     ]
 
+  bass4 <- compileI epiano2 [ Pch root 6 0.8 (1/4)
+                            , Silent (1/4)
+                            ]
+
   -- TODO: Remove BPM ask with MonadReader refactor.
   gBPM <- asks (view bpm)
   let silence = restSig (Beats gBPM 4)
@@ -150,6 +154,7 @@ song = do
                            , _arps = [ bass1
                                      , bass2
                                      , bass3
+                                     , bass4
                                      --, silence
                                      ]
                            , _envelopes = [ constEnv
