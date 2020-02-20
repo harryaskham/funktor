@@ -25,6 +25,8 @@ import System.Random
 -- TODO: Pre-load every section to avoid pauses
 -- TODO: Envelope application doesn't seem to be working. Beats versus bars?
 -- TODO: Add ability to do effects too.
+-- TODO: Separate instrument from arp pattern so we can mix and match
+-- TODO: Separate envelopes for arps and drums
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [Seg Sig2]
