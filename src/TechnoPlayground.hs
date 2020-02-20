@@ -27,7 +27,7 @@ import System.Random
 -- TODO: Add ability to do effects too.
 -- TODO: Separate instrument from arp pattern so we can mix and match
 -- TODO: Separate envelopes for arps and drums
--- TODO: clipping is happening, probably need quiter drums
+-- TODO: Fix performance issues. Something to do with stitching segments together.
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [Seg Sig2]
@@ -176,8 +176,9 @@ song = do
                            , _durations = [16]
                            }
 
-  states <- generateNChangeTechnoStates tg 16 2
-  -- states <- replicateM 16 $ generateTechnoState tg
+  -- states <- generateNChangeTechnoStates tg 32 2
+  states <- replicateM 16 $ generateTechnoState tg
+  -- states <- pure <$> generateTechnoState tg
   sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
@@ -185,9 +186,5 @@ songEnv = SongEnv { _bpm=140
                   , _beatLength=512
                   }
 
-opts :: Options
-opts = def <> setRates 44100 64
-
--- TODO: dacBy function for trying to fix with options
 tec' = runSongM songEnv song
-tec = dacBy opts =<< tec'
+tec = dac =<< tec'
