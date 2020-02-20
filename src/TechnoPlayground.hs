@@ -109,21 +109,21 @@ song = do
       pat5 = har [kcks1, chhs2, ohhs2]
 
   bass1 <-
-    compileI fmBass2
+    compileI epiano2
     [ Pch root 6 0.8 (1/2)
     , Pch (doN 3 succC root) 6 0.8 (1/2)
     , Pch (predC root) 6 0.8 (1/2)
     ]
 
   bass2 <-
-    compileI fmBass2
+    compileI epiano2
     [ Pch root 6 0.8 (1/2)
     , Pch (doN 6 succC root) 6 0.8 (1/2)
     , Pch (doN 4 succC root) 6 0.8 (1/2)
     ]
 
   bass3 <-
-    compileI fmBass2
+    compileI epiano2
     [ Pch root 6 0.8 (1/2)
     , Pch (predC root) 6 0.8 (1/2)
     , Silent 3
@@ -155,13 +155,13 @@ song = do
                            , _durations = [16, 32, 64]
                            }
 
-  states <- generateTechnoStates tg 64
-  -- states <- replicateM 16 $ generateTechnoState tg
+  -- states <- generateTechnoStates tg 4
+  states <- replicateM 16 $ generateTechnoState tg
   sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=2056
+                  , _beatLength=512
                   }
 tec' = runSongM songEnv song
 tec = dac =<< tec'
