@@ -27,6 +27,7 @@ import System.Random
 -- TODO: Add ability to do effects too.
 -- TODO: Separate instrument from arp pattern so we can mix and match
 -- TODO: Separate envelopes for arps and drums
+-- TODO: clipping is happening, probably need quiter drums
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [Seg Sig2]
@@ -121,22 +122,22 @@ song = do
 
   bass1 <-
     compileI epiano2
-    [ Pch root 6 0.8 (1/2)
-    , Pch (doN 3 succC root) 6 0.8 (1/2)
-    , Pch (predC root) 6 0.8 (1/2)
+    [ Pch root 6 0.6 (1/2)
+    , Pch (doN 3 succC root) 6 0.6 (1/2)
+    , Pch (predC root) 6 0.6 (1/2)
     ]
 
   bass2 <-
     compileI epiano2
-    [ Pch root 6 0.8 (1/2)
-    , Pch (doN 6 succC root) 6 0.8 (1/2)
-    , Pch (doN 4 succC root) 6 0.8 (1/2)
+    [ Pch root 6 0.6 (1/2)
+    , Pch (doN 6 succC root) 6 0.6 (1/2)
+    , Pch (doN 4 succC root) 6 0.6 (1/2)
     ]
 
   bass3 <-
     compileI epiano2
-    [ Pch root 6 0.8 (1/2)
-    , Pch (predC root) 6 0.8 (1/2)
+    [ Pch root 6 0.6 (1/2)
+    , Pch (predC root) 6 0.6 (1/2)
     , Silent 3
     ]
 
@@ -184,6 +185,9 @@ songEnv = SongEnv { _bpm=140
                   , _beatLength=512
                   }
 
+opts :: Options
+opts = def <> setRates 44100 64
+
 -- TODO: dacBy function for trying to fix with options
 tec' = runSongM songEnv song
-tec = dac =<< tec'
+tec = dacBy opts =<< tec'

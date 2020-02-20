@@ -140,10 +140,10 @@ barLength = fromIntegral . length
 -- | Compiles a single beat string
 compileBeat :: String -> Beat
 compileBeat b@('_':_) = (fromIntegral $ length b, Nothing)
-compileBeat b@('.':_) = (fromIntegral $ length b, Just 0.4)
-compileBeat b@('o':_) = (fromIntegral $ length b, Just 0.7)
-compileBeat b@('O':_) = (fromIntegral $ length b, Just 0.9)
-compileBeat b@('X':_) = (fromIntegral $ length b, Just 1.0)
+compileBeat b@('.':_) = (fromIntegral $ length b, Just 0.2)
+compileBeat b@('o':_) = (fromIntegral $ length b, Just 0.4)
+compileBeat b@('O':_) = (fromIntegral $ length b, Just 0.6)
+compileBeat b@('X':_) = (fromIntegral $ length b, Just 0.8)
 compileBeat b = error $ "Invalid beat: " ++ b
 
 -- Split the given bar into its constituent beat strings
