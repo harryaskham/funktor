@@ -186,5 +186,14 @@ songEnv = SongEnv { _bpm=140
                   , _beatLength=512
                   }
 
+-- The options to dacBy when using jabras with the mac
+macJabraOpts :: Options
+macJabraOpts =
+  def
+  <> setRates 44100 10
+  <> setBufs 512 1024
+  <> setCoreAudio
+  <> setInput "Built-in Microphone"
+
 tec' = runSongM songEnv song
 tec = dac =<< tec'
