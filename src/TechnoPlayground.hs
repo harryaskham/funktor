@@ -141,9 +141,10 @@ song = do
         , Silent 3
         ]
       arp4 =
-        [ Pch root 6 0.8 (1/4)
+        [ Pch root 6 0.6 (1/4)
         , Silent (1/4)
         ]
+      arp5 = Pch <$> minorChord root ?? 7 ?? 0.6 ?? (1/3)
 
   -- TODO: Remove BPM ask with MonadReader refactor.
   gBPM <- asks (view bpm)
@@ -158,18 +159,22 @@ song = do
                                              , pat6
                                              , pat7
                                              , pat8
-                                             --, silence
+                                             , silence
                                              ]
                            , _arps = [ arp1
                                      , arp2
                                      , arp3
                                      , arp4
-                                     --, silence
+                                     , arp5
+                                     , [Silent 1]
                                      ]
-                           , _instruments = [ epiano1
+                           , _instruments = [ simpleBass
                                             , epiano2
                                             , fmBass1
                                             , fmBass2
+                                            , simpleBass
+                                            , guitar
+                                            , banyan
                                             ]
                            , _envelopes = [ constEnv
                                           , sqrEnv gBPM 0 1
