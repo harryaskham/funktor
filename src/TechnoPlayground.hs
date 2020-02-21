@@ -26,7 +26,7 @@ import System.Random
 -- TODO: Add ability to do effects too.
 -- TODO: Separate envelopes for arps and drums
 -- TODO: Fix performance issues. Something to do with stitching segments together.
--- TODO: Stitch together multiple change-ones for slow transitions mixed with fast trnsitions
+-- TODO: Separate instruments for arp and lead
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [[Pch]]
@@ -207,9 +207,13 @@ song = do
                            , _durations = [16]
                            }
 
+  -- Generate some slowly evolving techno
   -- states <- generateNChangeTechnoStates tg 32 2
+  -- Generate nondependent techno
   -- states <- replicateM 8 $ generateTechnoState tg
+  -- Generate 4 lots of 2-change 4 states
   states <- replicateM 4 $ generateNChangeTechnoStates tg 4 2
+  -- Generate a single state
   -- states <- pure <$> generateTechnoState tg
   sections <- traverse renderTechnoState (concat states)
   return $ loop (mel sections)
