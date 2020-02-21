@@ -30,32 +30,36 @@ import System.Random
 -- TODO: Fix performance issues. Something to do with stitching segments together.
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
-                                       , _arps :: [Seg Sig2]
+                                       , _arps :: [[Pch]]
                                        , _envelopes :: [Sig]
                                        , _durations :: [Sig]
+                                       , _instruments :: [Patch2]
                                        }
 makeLenses ''TechnoGenerator
 
 data TechnoState = TechnoState { _drumSelection :: Seg Sig2
-                               , _arpSelection :: Seg Sig2
+                               , _arpSelection :: [Pch]
                                , _envelopeSelection :: Sig
                                , _durationSelection :: Sig
+                               , _instrumentSelection :: Patch2
                                }
 makeLenses ''TechnoState
 
 data TechnoChangeable = ChangeDrum
                       | ChangeArp
                       | ChangeEnvelope
-                      | ChangeEffect
+                      | ChangeInstrument
+                      deriving (Enum, Bounded)
 
 -- Change only a single part of the state.
 changeOne :: (MonadIO m) => TechnoGenerator -> TechnoState -> m TechnoState
 changeOne tg ts = do
-  changeable <- randomFrom [ChangeDrum, ChangeArp, ChangeEnvelope]
+  changeable <- randomFrom [minBound..]
   case changeable of
     ChangeDrum -> change drumSelection drumPatterns
     ChangeArp -> change arpSelection arps
     ChangeEnvelope -> change envelopeSelection envelopes
+    ChangeInstrument -> change instrumentSelection instruments
   where
     change selection from = do
       new <- liftIO $ randomFrom (tg^.from)
@@ -84,18 +88,21 @@ generateTechnoState tg = do
   drm <- liftIO $ randomFrom $ tg^.drumPatterns
   arp <- liftIO $ randomFrom $ tg^.arps
   env <- liftIO $ randomFrom $ tg^.envelopes
+  instrument <- liftIO $ randomFrom $ tg^.instruments
   duration <- liftIO $ randomFrom $ tg^.durations
   return TechnoState { _drumSelection=drm
                      , _arpSelection=arp
                      , _envelopeSelection=env
                      , _durationSelection=duration
+                     , _instrumentSelection=instrument
                      }
   
 renderTechnoState :: TechnoState -> SongM
-renderTechnoState ts =
+renderTechnoState ts = do
+  arp <- compileI (ts^.instrumentSelection) (ts^.arpSelection)
   forBeats
     (ts^.durationSelection)
-    (har [ts^.drumSelection, stereoMap (*(ts^.envelopeSelection)) <$> (ts^.arpSelection)])
+    (har [ts^.drumSelection, stereoMap (*(ts^.envelopeSelection)) <$> arp])
 
 root = D
 
@@ -120,30 +127,25 @@ song = do
       pat7 = har [kcks1, snrs1]
       pat8 = har [chhs1, ohhs1]
 
-  bass1 <-
-    compileI epiano2
-    [ Pch root 6 0.6 (1/2)
-    , Pch (doN 3 succC root) 6 0.6 (1/2)
-    , Pch (predC root) 6 0.6 (1/2)
-    ]
-
-  bass2 <-
-    compileI epiano2
-    [ Pch root 6 0.6 (1/2)
-    , Pch (doN 6 succC root) 6 0.6 (1/2)
-    , Pch (doN 4 succC root) 6 0.6 (1/2)
-    ]
-
-  bass3 <-
-    compileI epiano2
-    [ Pch root 6 0.6 (1/2)
-    , Pch (predC root) 6 0.6 (1/2)
-    , Silent 3
-    ]
-
-  bass4 <- compileI epiano2 [ Pch root 6 0.8 (1/4)
-                            , Silent (1/4)
-                            ]
+  let arp1 =
+        [ Pch root 6 0.6 (1/2)
+        , Pch (doN 3 succC root) 6 0.6 (1/2)
+        , Pch (predC root) 6 0.6 (1/2)
+        ]
+      arp2 =
+        [ Pch root 6 0.6 (1/2)
+        , Pch (doN 6 succC root) 6 0.6 (1/2)
+        , Pch (doN 4 succC root) 6 0.6 (1/2)
+        ]
+      arp3 =
+        [ Pch root 6 0.6 (1/2)
+        , Pch (predC root) 6 0.6 (1/2)
+        , Silent 3
+        ]
+      arp4 =
+        [ Pch root 6 0.8 (1/4)
+        , Silent (1/4)
+        ]
 
   -- TODO: Remove BPM ask with MonadReader refactor.
   gBPM <- asks (view bpm)
@@ -160,12 +162,17 @@ song = do
                                              , pat8
                                              --, silence
                                              ]
-                           , _arps = [ bass1
-                                     , bass2
-                                     , bass3
-                                     , bass4
+                           , _arps = [ arp1
+                                     , arp2
+                                     , arp3
+                                     , arp4
                                      --, silence
                                      ]
+                           , _instruments = [ epiano1
+                                            , epiano2
+                                            , fmBass1
+                                            , fmBass2
+                                            ]
                            , _envelopes = [ constEnv
                                           , sqrEnv gBPM 0 1
                                           , sqrEnv gBPM 0 2
@@ -176,8 +183,8 @@ song = do
                            , _durations = [16]
                            }
 
-  -- states <- generateNChangeTechnoStates tg 32 2
-  states <- replicateM 16 $ generateTechnoState tg
+  states <- generateNChangeTechnoStates tg 32 2
+  -- states <- replicateM 16 $ generateTechnoState tg
   -- states <- pure <$> generateTechnoState tg
   sections <- traverse renderTechnoState states
   return $ loop (mel sections)
@@ -186,17 +193,22 @@ songEnv = SongEnv { _bpm=140
                   , _beatLength=512
                   }
 
+-- Okay weirdly, once we run once with the Mac options,
+-- we then apparently get permanently enabled on mac.
+
 -- The options to dacBy when using jabras with the mac
 macJabraOpts :: Options
 macJabraOpts =
   def
+  <> setCoreAudio
   <> setRates 44100 10
   <> setBufs 512 1024
-  <> setCoreAudio
-  <> setInput "Built-in Microphone"  -- Might only be working b/c of can't find Built
+  <> setDac
+  <> setAdc
+  -- <> setInput "adc2"
 
 dj :: (RenderCsd a) => a -> IO ()
-dj a = dacBy macJabraOpts a
+dj = dacBy macJabraOpts
 
 tec' = runSongM songEnv song
 tec = dac =<< tec'
