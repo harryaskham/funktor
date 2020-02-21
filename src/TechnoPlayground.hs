@@ -160,7 +160,7 @@ song = do
       arp5 = Pch <$> minorChord root ?? 7 ?? 0.6 ?? (1/3)
 
   let lead1 =
-        ((Pch <$> majorScale root ?? 8 ?? 0.6 ?? (1/4)) !!)
+        ((Pch <$> majorScale root ?? 8 ?? 0.6 ?? (1/2)) !!)
         <$> [0, 3, 1, 2, 5, 2, 4, 3]
 
   -- TODO: Remove BPM ask with MonadReader refactor.
@@ -206,14 +206,14 @@ song = do
                            , _durations = [16]
                            }
 
-  states <- generateNChangeTechnoStates tg 32 2
-  -- states <- replicateM 16 $ generateTechnoState tg
+  -- states <- generateNChangeTechnoStates tg 32 2
+  states <- replicateM 32 $ generateTechnoState tg
   -- states <- pure <$> generateTechnoState tg
   sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=512
+                  , _beatLength=1024
                   }
 
 -- Okay weirdly, once we run once with the Mac options,
