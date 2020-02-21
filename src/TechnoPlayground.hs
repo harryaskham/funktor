@@ -23,9 +23,7 @@ import Data.List
 import System.Random
 
 -- TODO: Pre-load every section to avoid pauses
--- TODO: Envelope application doesn't seem to be working. Beats versus bars?
 -- TODO: Add ability to do effects too.
--- TODO: Separate instrument from arp pattern so we can mix and match
 -- TODO: Separate envelopes for arps and drums
 -- TODO: Fix performance issues. Something to do with stitching segments together.
 
