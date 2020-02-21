@@ -49,10 +49,13 @@ data TechnoChangeable = ChangeDrum
                       | ChangeInstrument
                       deriving (Enum, Bounded)
 
+randEnum :: (Enum a, Bounded a, MonadIO m) => m a
+randEnum = randomFrom [minBound]
+
 -- Change only a single part of the state.
 changeOne :: (MonadIO m) => TechnoGenerator -> TechnoState -> m TechnoState
 changeOne tg ts = do
-  changeable <- randomFrom [minBound..]
+  changeable <- randEnum
   case changeable of
     ChangeDrum -> change drumSelection drumPatterns
     ChangeArp -> change arpSelection arps
