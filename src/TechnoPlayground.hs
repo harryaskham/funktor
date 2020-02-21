@@ -193,7 +193,10 @@ macJabraOpts =
   <> setRates 44100 10
   <> setBufs 512 1024
   <> setCoreAudio
-  <> setInput "Built-in Microphone"
+  <> setInput "Built-in Microphone"  -- Might only be working b/c of can't find Built
+
+dj :: (RenderCsd a) => a -> IO ()
+dj a = dacBy macJabraOpts a
 
 tec' = runSongM songEnv song
 tec = dac =<< tec'
