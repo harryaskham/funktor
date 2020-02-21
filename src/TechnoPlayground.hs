@@ -208,9 +208,10 @@ song = do
                            }
 
   -- states <- generateNChangeTechnoStates tg 32 2
-  states <- replicateM 8 $ generateTechnoState tg
+  -- states <- replicateM 8 $ generateTechnoState tg
+  states <- replicateM 4 $ generateNChangeTechnoStates tg 4 2
   -- states <- pure <$> generateTechnoState tg
-  sections <- traverse renderTechnoState states
+  sections <- traverse renderTechnoState (concat states)
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
@@ -229,8 +230,8 @@ macJabraOpts =
   <> setBufs 512 1024
   <> setDac
   <> setAdc
-  -- <> setInput "adc2"
 
+-- dac for jabras
 dj :: (RenderCsd a) => a -> IO ()
 dj = dacBy macJabraOpts
 
