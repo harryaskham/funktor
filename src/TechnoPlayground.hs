@@ -29,6 +29,7 @@ import System.Random
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [[Pch]]
+                                       , _leads :: [[Pch]]
                                        , _envelopes :: [Sig]
                                        , _durations :: [Sig]
                                        , _instruments :: [Patch2]
@@ -37,6 +38,7 @@ makeLenses ''TechnoGenerator
 
 data TechnoState = TechnoState { _drumSelection :: Seg Sig2
                                , _arpSelection :: [Pch]
+                               , _leadSelection :: [Pch]
                                , _envelopeSelection :: Sig
                                , _durationSelection :: Sig
                                , _instrumentSelection :: Patch2
@@ -45,6 +47,7 @@ makeLenses ''TechnoState
 
 data TechnoChangeable = ChangeDrum
                       | ChangeArp
+                      | ChangeLead
                       | ChangeEnvelope
                       | ChangeInstrument
                       deriving (Enum, Bounded)
@@ -59,6 +62,7 @@ changeOne tg ts = do
   case changeable of
     ChangeDrum -> change drumSelection drumPatterns
     ChangeArp -> change arpSelection arps
+    ChangeLead -> change leadSelection leads
     ChangeEnvelope -> change envelopeSelection envelopes
     ChangeInstrument -> change instrumentSelection instruments
   where
@@ -88,11 +92,13 @@ generateTechnoState :: (MonadIO m) => TechnoGenerator -> m TechnoState
 generateTechnoState tg = do
   drm <- liftIO $ randomFrom $ tg^.drumPatterns
   arp <- liftIO $ randomFrom $ tg^.arps
+  lead <- liftIO $ randomFrom $ tg^.leads
   env <- liftIO $ randomFrom $ tg^.envelopes
   instrument <- liftIO $ randomFrom $ tg^.instruments
   duration <- liftIO $ randomFrom $ tg^.durations
   return TechnoState { _drumSelection=drm
                      , _arpSelection=arp
+                     , _leadSelection=lead
                      , _envelopeSelection=env
                      , _durationSelection=duration
                      , _instrumentSelection=instrument
@@ -101,9 +107,13 @@ generateTechnoState tg = do
 renderTechnoState :: TechnoState -> SongM
 renderTechnoState ts = do
   arp <- compileI (ts^.instrumentSelection) (ts^.arpSelection)
+  lead <- compileI (ts^.instrumentSelection) (ts^.leadSelection)
   forBeats
     (ts^.durationSelection)
-    (har [ts^.drumSelection, stereoMap (*(ts^.envelopeSelection)) <$> arp])
+    (har [ ts^.drumSelection
+         , stereoMap (*(ts^.envelopeSelection)) <$> arp
+         , lead
+         ])
 
 root = D
 
@@ -149,6 +159,10 @@ song = do
         ]
       arp5 = Pch <$> minorChord root ?? 7 ?? 0.6 ?? (1/3)
 
+  let lead1 =
+        ((Pch <$> majorScale root ?? 8 ?? 0.6 ?? (1/4)) !!)
+        <$> [0, 3, 1, 2, 5, 2, 4, 3]
+
   -- TODO: Remove BPM ask with MonadReader refactor.
   gBPM <- asks (view bpm)
   let silence = restSig (Beats gBPM 4)
@@ -171,6 +185,9 @@ song = do
                                      , arp5
                                      , [Silent 1]
                                      ]
+                           , _leads = [ lead1
+                                      , [Silent 1]
+                                      ]
                            , _instruments = [ simpleBass
                                             , epiano2
                                             , fmBass1
