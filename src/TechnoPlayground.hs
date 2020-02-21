@@ -211,15 +211,15 @@ song = do
   -- states <- generateNChangeTechnoStates tg 32 2
 
   -- Generate nondependent techno
-  -- states <- replicateM 8 $ generateTechnoState tg
+  states <- replicateM 8 $ generateTechnoState tg
 
   -- Generate 4 lots of 2-change 4 states
-  states <- replicateM 2 $ generateNChangeTechnoStates tg 4 2
+  -- states <- replicateM 2 $ generateNChangeTechnoStates tg 4 2
 
   -- Generate a single state
   -- states <- pure <$> generateTechnoState tg
 
-  sections <- traverse renderTechnoState (concat states)
+  sections <- traverse renderTechnoState states
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
