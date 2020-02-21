@@ -214,7 +214,7 @@ song = do
   -- states <- replicateM 8 $ generateTechnoState tg
 
   -- Generate 4 lots of 2-change 4 states
-  states <- replicateM 4 $ generateNChangeTechnoStates tg 4 2
+  states <- replicateM 2 $ generateNChangeTechnoStates tg 4 2
 
   -- Generate a single state
   -- states <- pure <$> generateTechnoState tg
@@ -223,7 +223,7 @@ song = do
   return $ loop (mel sections)
 
 songEnv = SongEnv { _bpm=140
-                  , _beatLength=1024
+                  , _beatLength=128
                   }
 
 -- Okay weirdly, once we run once with the Mac options,
