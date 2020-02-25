@@ -26,7 +26,7 @@ root = D
 song :: SongM
 song = do
   pad' <-
-    compileI dreamPad
+    compileI nightPad
     [ Pch root 8 0.6 8
     , Pch (doN 5 succC root) 8 0.6 4
     , Pch (doN 3 succC root) 8 0.6 4
@@ -34,9 +34,9 @@ song = do
   gBPM <- asks (view bpm)
   let pad = stereoMap (sqrEnv gBPM 0 (1/8) *) <$> pad'
 
-  kcks <- drums "X _ _ _|_ _ _ _|X _ _ _|_ _ _ _|" Tr808.bd2
-  chhs <- drums ". . _ .|_ . _ .|. . _ .|_ . _ .|" Tr808.chh
-  ohhs <- drums "_ _ O _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
+  kcks <- drums "X _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.bd2
+  chhs <- drums "_ _ _ _|_ . _ .|. . _ .|_ . _ .|" Tr808.chh
+  ohhs <- drums "_ _ _ _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
   snrs <- drums "_ _ _ _|X _ _ _|_ _ _ _|X _ _ _|" Tr808.sn
   clls <- drums "X X X X|" Tr808.cl
 

@@ -22,4 +22,4 @@ import TechnoPlayground
 import Garage
 
 main :: IO ()
-main = runToDisk =<< dnb'
+main = runToDisk =<< gar'

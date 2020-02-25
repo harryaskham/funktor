@@ -231,7 +231,7 @@ macJabraOpts :: Options
 macJabraOpts =
   def
   <> setCoreAudio
-  <> setRates 44100 10
+  <> setRates 44100 1
   <> setBufs 512 1024
   <> setOutput "dac:1"
   <> setInput "adc:2"
