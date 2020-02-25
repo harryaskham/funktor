@@ -41,9 +41,7 @@ song = do
     $ sort
     $ expandScale [7, 8, 9] (minorScale root) ?? 0.2 ?? (1/2)
 
-  high' <-
-    compileI dreamPad
-    [ Pch root 9 0.6 16 ]
+  high' <- compileI dreamPad [ Pch root 9 0.6 16 ]
   let high = stereoMap ((sinEnv gBPM 0 4 * sqrEnv gBPM 0 (1/8)) *) <$> high'
 
   kcks <- drums "X _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.bd2
@@ -51,7 +49,7 @@ song = do
   ohhs <- drums "_ _ o _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
   clps <- drums "_ _ _ _|X _ _ _|_ X _ _|X _ _ _|" Hm.clap
   clls <- drums "X X X X|" Tr808.cl
-
+    {-
   segs <-
     traverse (forBeats 64)
     $ fmap har
@@ -64,8 +62,10 @@ song = do
     , [kcks, clls, high]
     , [kcks]
     ]
+    -}
 
-  return $ mel segs
+  -- return $ mel segs
+  return $ har [kcks, clls, pad, clps, high, chhs, ohhs, lead]
 
 songEnv = SongEnv { _bpm=128
                   , _beatLength=8*64
