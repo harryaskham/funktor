@@ -27,6 +27,9 @@ import System.Random
 -- TODO: Separate envelopes for arps and drums
 -- TODO: Fix performance issues. Something to do with stitching segments together.
 -- TODO: Separate instruments for arp and lead
+-- TODO: Weighting on the generator
+-- TODO: Pad + fast square for garage pad
+-- TODO: Monoid for SongM
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [[Pch]]
@@ -52,9 +55,6 @@ data TechnoChangeable = ChangeDrum
                       | ChangeEnvelope
                       | ChangeInstrument
                       deriving (Enum, Bounded)
-
-randEnum :: (Enum a, Bounded a, MonadIO m) => m a
-randEnum = randomFrom [minBound]
 
 -- Change only a single part of the state.
 changeOne :: (MonadIO m) => TechnoGenerator -> TechnoState -> m TechnoState
@@ -83,11 +83,6 @@ generateNChangeTechnoStates tg nStates nChanges =
   where
     go 0 acc last = return $ acc ++ [last]
     go n acc last = go (n-1) (acc ++ [last]) =<< doNM nChanges (changeOne tg) last
-
-randomFrom :: (MonadIO m) => [a] -> m a
-randomFrom xs = do
-  i <- liftIO $ randomRIO (0, length xs - 1)
-  return $ xs !! i
 
 generateTechnoState :: (MonadIO m) => TechnoGenerator -> m TechnoState
 generateTechnoState tg = do
@@ -161,7 +156,7 @@ song = do
       arp5 = Pch <$> minorChord root ?? 7 ?? 0.6 ?? (1/3)
 
   let lead1 =
-        ((Pch <$> majorScale root ?? 8 ?? 0.6 ?? (1/2)) !!)
+        ((Pch <$> minorScale root ?? 8 ?? 0.6 ?? (1/2)) !!)
         <$> [0, 3, 1, 2, 5, 2, 4, 3]
 
   -- TODO: Remove BPM ask with MonadReader refactor.
@@ -202,6 +197,9 @@ song = do
                                           , sqrEnv gBPM 0 2
                                           , sqrEnv gBPM 0 4
                                           , sqrEnv gBPM 0 8
+                                          , sqrEnv gBPM 0 (1/2)
+                                          , sqrEnv gBPM 0 (1/4)
+                                          , sqrEnv gBPM 0 (1/8)
                                           ]
                            --, _durations = [16, 32, 64]
                            , _durations = [16]
@@ -211,10 +209,11 @@ song = do
   -- states <- generateNChangeTechnoStates tg 32 2
 
   -- Generate nondependent techno
-  states <- replicateM 8 $ generateTechnoState tg
+  -- states <- replicateM 8 $ generateTechnoState tg
 
   -- Generate 4 lots of 2-change 4 states
-  -- states <- replicateM 2 $ generateNChangeTechnoStates tg 4 2
+  states' <- replicateM 2 $ generateNChangeTechnoStates tg 4 2
+  let states = concat states'
 
   -- Generate a single state
   -- states <- pure <$> generateTechnoState tg

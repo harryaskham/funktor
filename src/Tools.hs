@@ -203,3 +203,9 @@ cotraverse f as = f <$> sequence as
 -- Convenience combination of cotraverse har over SE segments.
 cotHar :: (MonadSE m) => [SE (Seg Sig2)] -> m (Seg Sig2)
 cotHar = liftSE . cotraverse har
+
+randomFrom :: (MonadIO m) => [a] -> m a
+randomFrom xs = (xs !!) <$> liftIO (randomRIO (0, length xs - 1))
+
+randEnum :: (Enum a, Bounded a, MonadIO m) => m a
+randEnum = randomFrom [minBound..maxBound]
