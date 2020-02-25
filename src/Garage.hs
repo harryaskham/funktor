@@ -67,10 +67,8 @@ song = do
 
   return $ mel segs
 
-
-
 songEnv = SongEnv { _bpm=128
-                  , _beatLength=128
+                  , _beatLength=8*64
                   }
 
 gar' = runSongM songEnv song
