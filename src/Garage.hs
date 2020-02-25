@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Garage where
 
@@ -35,10 +34,13 @@ song = do
   gBPM <- asks (view bpm)
   let pad = stereoMap (sqrEnv gBPM 0 (1/8) *) <$> pad'
 
-  kcks <- drums "X _ _ _|" Tr808.bd2
+  kcks <- drums "X _ _ _|_ _ _ _|X _ _ _|_ _ _ _|" Tr808.bd2
+  chhs <- drums ". . _ .|_ . _ .|. . _ .|_ . _ .|" Tr808.chh
+  ohhs <- drums "_ _ O _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
+  snrs <- drums "_ _ _ _|X _ _ _|_ _ _ _|X _ _ _|" Tr808.sn
   clls <- drums "X X X X|" Tr808.cl
 
-  return $ har [pad, kcks, clls]
+  return $ har [pad, kcks, chhs, ohhs, snrs, clls]
 
 songEnv = SongEnv { _bpm=128
                   , _beatLength=128

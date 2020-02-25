@@ -233,8 +233,8 @@ macJabraOpts =
   <> setCoreAudio
   <> setRates 44100 10
   <> setBufs 512 1024
-  <> setDac
-  <> setAdc
+  <> setOutput "dac:1"
+  <> setInput "adc:2"
 
 -- dac for jabras
 dj :: (RenderCsd a) => a -> IO ()
