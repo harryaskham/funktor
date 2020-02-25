@@ -26,14 +26,19 @@ root = D
 
 song :: SongM
 song = do
-  pad <-
+  pad' <-
     compileI dreamPad
     [ Pch root 8 0.6 8
     , Pch (doN 5 succC root) 8 0.6 4
     , Pch (doN 3 succC root) 8 0.6 4
     ]
   gBPM <- asks (view bpm)
-  return $ stereoMap (sqrEnv gBPM 0 (1/8) *) <$> pad
+  let pad = stereoMap (sqrEnv gBPM 0 (1/8) *) <$> pad'
+
+  kcks <- drums "X _ _ _|" Tr808.bd2
+  clls <- drums "X X X X|" Tr808.cl
+
+  return $ har [pad, kcks, clls]
 
 songEnv = SongEnv { _bpm=128
                   , _beatLength=128

@@ -47,10 +47,7 @@ runSongM :: SongEnv -> SongM -> IO (SE Sig2)
 runSongM env song = runSeg <$$> runIOT (runReaderT song env)
 
 instance Semigroup SongM where
-  a <> b = do
-    aSeg <- a
-    bSeg <- b
-    return $ aSeg =:= bSeg
+  a <> b = cotraverse mel [a, b]
 
 instance Monoid SongM where
   mempty = return $ constRest 0
