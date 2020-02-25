@@ -14,6 +14,9 @@ import Control.Monad.Reader
 import Control.Monad.Trans.IO
 
 -- TODO: rethink the melody env
+-- TODO: beatLength in the Env is awful.
+--       only needed to replicate melodies forever
+--       so they dont run out but this is a bug.
 data SongEnv = SongEnv { _bpm :: Bpm
                        , _beatLength :: Int
                        }
@@ -42,6 +45,15 @@ instance MonadSE SongT where
 -- Kind of a valid runner, but also handles seg -> sig conversion
 runSongM :: SongEnv -> SongM -> IO (SE Sig2)
 runSongM env song = runSeg <$$> runIOT (runReaderT song env)
+
+instance Semigroup SongM where
+  a <> b = do
+    aSeg <- a
+    bSeg <- b
+    return $ aSeg =:= bSeg
+
+instance Monoid SongM where
+  mempty = return $ constRest 0
 
 type Spb = Sig
 

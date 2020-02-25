@@ -18,6 +18,8 @@ import LatePlane
 import Saturday
 import HouseMonad
 import DnbPlayground
+import TechnoPlayground
+import Garage
 
 main :: IO ()
 main = runToDisk =<< dnb'
