@@ -27,13 +27,21 @@ song :: SongM
 song = do
   gBPM <- asks (view bpm)
 
-  pad' <-
+  pad1' <-
     compileI razorPad
     [ Pch root 8 0.4 8
     , Pch (doN 7 succC root) 8 0.4 4
     , Pch (doN 3 succC root) 8 0.4 4
     ]
-  let pad = stereoMap (sqrEnv gBPM 0 (1/8) *) <$> pad'
+  let pad1 = stereoMap (sqrEnv gBPM 0.5 32 * sqrEnv gBPM 0 (1/8) *) <$> pad1'
+
+  pad2' <-
+    compileI razorPad
+    [ Pch root 8 0.4 8
+    , Pch (doN 10 succC root) 8 0.4 4
+    , Pch (doN 8 succC root) 8 0.4 4
+    ]
+  let pad2 = stereoMap (sqrEnv gBPM 0 32 * sqrEnv gBPM 0 (1/8) *) <$> pad2'
 
   lead1' <-
     compileI sawOrgan
@@ -66,13 +74,22 @@ song = do
     $ expandScale [8, 9, 10] (minorScale root) ?? 0.2 ?? (1/2)
   let lead4 = stereoMap (sqrEnv gBPM 0 16 *) <$> lead4'
 
-  kcks <- drums "X _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.bd2
-  chhs <- drums "O . _ .|_ . _ .|. . _ .|_ . _ .|" Tr808.chh
-  ohhs <- drums "_ _ o _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
-  clps <- drums "_ _ _ _|X _ _ _|_ X _ _|X _ _ _|" Hm.clap
-  clls <- drums "X X X X|" Tr808.cl
+  kcks' <- drums "X _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.bd2
+  let kcks = stereoMap (sqrEnv gBPM 0 16 *) <$> kcks'
+  
+  chhs' <- drums "O . _ .|_ . _ .|. . _ .|_ . _ .|" Tr808.chh
+  let chhs = stereoMap (sqrEnv gBPM 0.25 32 *) <$> chhs'
 
-  return $ har [kcks, clls, pad, clps, high, chhs, ohhs, lead1, lead2, lead3, lead4]
+  ohhs' <- drums "_ _ o _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
+  let ohhs = stereoMap (sqrEnv gBPM 0.25 32 *) <$> ohhs'
+
+  clps' <- drums "_ _ _ _|X _ _ _|_ X _ _|X _ _ _|" Hm.clap
+  let clps = stereoMap (sqrEnv gBPM 0.75 16 *) <$> clps'
+
+  clls' <- drums "X X X X|" Tr808.cl
+  let clls = stereoMap (sqrEnv gBPM 0.5 64 *) <$> clls'
+
+  return $ har [kcks, clls, pad1, pad2, clps, high, chhs, ohhs, lead1, lead2, lead3, lead4]
 
 songEnv = SongEnv { _bpm=128
                   , _beatLength=8*64
