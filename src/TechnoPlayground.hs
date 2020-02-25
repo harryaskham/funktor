@@ -223,19 +223,6 @@ songEnv = SongEnv { _bpm=140
                   , _beatLength=128
                   }
 
--- Okay weirdly, once we run once with the Mac options,
--- we then apparently get permanently enabled on mac.
-
--- The options to dacBy when using jabras with the mac
-macJabraOpts :: Options
-macJabraOpts =
-  def
-  <> setCoreAudio
-  <> setRates 44100 1
-  <> setBufs 512 1024
-  <> setOutput "dac:1"
-  <> setInput "adc:2"
-
 -- dac for jabras
 dj :: (RenderCsd a) => a -> IO ()
 dj = dacBy macJabraOpts

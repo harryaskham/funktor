@@ -26,7 +26,7 @@ root = D
 song :: SongM
 song = do
   pad' <-
-    compileI nightPad
+    compileI razorPad
     [ Pch root 8 0.6 8
     , Pch (doN 5 succC root) 8 0.6 4
     , Pch (doN 3 succC root) 8 0.6 4
@@ -35,12 +35,12 @@ song = do
   let pad = stereoMap (sqrEnv gBPM 0 (1/8) *) <$> pad'
 
   kcks <- drums "X _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.bd2
-  chhs <- drums "_ _ _ _|_ . _ .|. . _ .|_ . _ .|" Tr808.chh
-  ohhs <- drums "_ _ _ _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
-  snrs <- drums "_ _ _ _|X _ _ _|_ _ _ _|X _ _ _|" Tr808.sn
+  chhs <- drums "O . _ .|_ . _ .|. . _ .|_ . _ .|" Tr808.chh
+  ohhs <- drums "_ _ o _|_ _ . _|_ _ . _|_ _ . _|" Tr808.ohh
+  clps <- drums "_ _ _ _|X _ _ _|_ X _ _|X _ _ _|" Hm.clap
   clls <- drums "X X X X|" Tr808.cl
 
-  return $ har [pad, kcks, chhs, ohhs, snrs, clls]
+  return $ har [pad, kcks, chhs, ohhs, clps, clls]
 
 songEnv = SongEnv { _bpm=128
                   , _beatLength=128
