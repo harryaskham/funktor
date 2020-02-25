@@ -28,8 +28,6 @@ import System.Random
 -- TODO: Fix performance issues. Something to do with stitching segments together.
 -- TODO: Separate instruments for arp and lead
 -- TODO: Weighting on the generator
--- TODO: Pad + fast square for garage pad
--- TODO: Monoid for SongM
 
 data TechnoGenerator = TechnoGenerator { _drumPatterns :: [Seg Sig2]
                                        , _arps :: [[Pch]]
