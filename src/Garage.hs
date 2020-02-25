@@ -92,7 +92,7 @@ song = do
   return $ har [kcks, clls, pad1, pad2, clps, high, chhs, ohhs, lead1, lead2, lead3, lead4]
 
 songEnv = SongEnv { _bpm=128
-                  , _beatLength=8*64
+                  , _beatLength=1024
                   }
 
 gar' = runSongM songEnv song
