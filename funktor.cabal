@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.31.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8ddcb249ea1900e0068c5ac97e991941300290d304be56654aa037dfac81212f
+-- hash: 6c0be01dee30896db838c980cc421c2b3c2a78b0412ae4f751d6c313a9fedb85
 
 name:           funktor
 version:        0.1.0.0
@@ -31,6 +31,7 @@ library
       ArpAttempt
       Croatia
       DnbPlayground
+      Garage
       HouseMonad
       HouseSong
       LatePlane
