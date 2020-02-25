@@ -219,6 +219,9 @@ randomFrom xs = (xs !!) <$> liftIO (randomRIO (0, length xs - 1))
 randEnum :: (Enum a, Bounded a, MonadIO m) => m a
 randEnum = randomFrom [minBound..maxBound]
 
+takeIxs :: [Int] -> [a] -> [a]
+takeIxs ixs xs = pure (xs !!) <*> ixs
+
 -- Okay weirdly, once we run once with the Mac options,
 -- we then apparently get permanently enabled on mac.
 -- The options to dacBy when using jabras with the mac
@@ -226,7 +229,7 @@ macJabraOpts :: Options
 macJabraOpts =
   def
   <> setCoreAudio
-  <> setRates 44100 1
+  <> setRates 44100 32
   <> setBufs 512 1024
   <> setOutput "dac:1"
   <> setInput "adc:2"
