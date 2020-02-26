@@ -74,6 +74,18 @@ song = do
     $ expandScale [8, 9, 10] (minorScale root) ?? 0.2 ?? (1/2)
   let lead4 = stereoMap (sqrEnv gBPM 0 16 *) <$> lead4'
 
+  bass1' <-
+    compileI fmBass2
+    [ Pch root 6 0.5 1
+    , Silent 1
+    ]
+  let bass1 = stereoMap (sqrEnv gBPM 0.5 16 *) <$> bass1'
+
+  bass2' <-
+    compileI fmBass2
+    $ Pch <$> minorChord root ?? 6 ?? 0.6 ?? 1
+  let bass2 = stereoMap (sqrEnv gBPM 0 16 *) <$> bass2'
+
   kcks' <- drums "X _ _ _|o _ _ _|o _ _ _|o _ _ _|" Tr808.bd2
   let kcks = stereoMap (sqrEnv gBPM 0 16 *) <$> kcks'
   
@@ -89,7 +101,7 @@ song = do
   clls' <- drums "X X X X|" Tr808.cl
   let clls = stereoMap (sqrEnv gBPM 0.5 64 *) <$> clls'
 
-  return $ har [kcks, clls, pad1, pad2, clps, high, chhs, ohhs, lead1, lead2, lead3, lead4]
+  return $ har [kcks, clls, pad1, pad2, clps, high, chhs, ohhs, lead1, lead2, lead3, lead4, bass1, bass2]
 
 songEnv = SongEnv { _bpm=128
                   , _beatLength=1024
