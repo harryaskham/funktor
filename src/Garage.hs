@@ -21,7 +21,7 @@ import Control.Monad.Random
 import Data.List
 import System.Random
 
-root = B
+root = D
 
 song :: SongM
 song = do
