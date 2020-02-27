@@ -126,6 +126,25 @@ sqrEnv bpm phase onFor = usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
 sinEnv :: Bpm -> D -> Sig -> SegEnv
 sinEnv bpm phase onFor = uosc' phase (beatsToHz $ Beats bpm (onFor * 2))
 
+-- A ramp env
+rampEnv :: Bpm -> Sig -> D -> Sig -> SegEnv
+rampEnv bpm ram phase onFor = uramp' ram phase (beatsToHz $ Beats bpm (onFor * 2))
+
+-- Inserts the necessary 0-length points to allow us to compile the table
+expandTable [] = []
+expandTable (amp:dur:xs) = amp:dur:amp:0:expandTable xs
+
+-- Tabulated env
+-- Takes e.g. [1, 4, -1, 12] for an on-4 off-12 pattern.
+tabEnv :: (MonadReader SongEnv m) => [Double] -> m Sig
+tabEnv pattern = do
+  gBPM <- asks (view bpm)
+  return $ ublosc (lins $ expandTable pattern) (beatsToHz $ Beats gBPM (sig . double $ patLength))
+  where
+    -- Infer the pattern length from the lengths of the segments
+    -- Only works as long as we have at least two segments
+    patLength = sum $ (pattern !!) <$> [1,3..length pattern - 1]
+
 -- A constantly-on envelope.
 constEnv :: SegEnv
 constEnv = 1

@@ -23,18 +23,22 @@ import System.Random
 
 root = E
 
+
 song :: SongM
 song = do
   gBPM <- asks (view bpm)
 
+  kcks <- drums "X _ _ _|" Tr808.bd2
+
   test' <-
     compileI sawOrgan
-    [ Pch root 8 0.5 1
-    , Silent 1
-    ]
-  let test = stereoMap (sqrEnv gBPM 0 4 *) <$> test'
+    [ Pch root 8 0.5 4 ]
+  -- TODO: Refactor so we can just pass in [1, 4, -1, 12]
+ 
+  testEnv <- tabEnv [1, 4, -1, 12]
+  let test = stereoMap (testEnv*) <$> test'
 
-  return test
+  return $ har [test, kcks]
   
 songEnv = SongEnv { _bpm=140
                   , _beatLength=1024
