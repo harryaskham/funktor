@@ -20,6 +20,7 @@ import HouseMonad
 import DnbPlayground
 import TechnoPlayground
 import Garage
+import TableTest
 
 main :: IO ()
 main = runToDisk =<< gar'
