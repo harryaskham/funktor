@@ -27,16 +27,19 @@ song :: SongM
 song = do
   gBPM <- asks (view bpm)
 
-  kcks <- drums "X _ _ _|" Tr808.bd2
+  kcks <- drums "X _ O _|" Tr808.bd2
+  clls <- drums ". . . .|" Tr808.cl
 
   test <- do
-    i <- compileI sawOrgan [ Pch root 8 0.5 4 ]
-    e <- sqrTabEnv [OnFor 4, OffFor 12]
+    i <- compileI sqrOrgan [ Pch root 8 0.5 (1/4)
+                           , Silent (1/4)
+                           ]
+    e <- sqrTabEnv [OnFor 2, OffFor 6]
     return $ stereoMap (e*) <$> i
  
-  return $ har [test, kcks]
+  return $ har [test, kcks, clls]
   
-songEnv = SongEnv { _bpm=140
+songEnv = SongEnv { _bpm=170
                   , _beatLength=1024
                   }
 
