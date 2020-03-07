@@ -127,6 +127,10 @@ sqrEnv bpm phase onFor = usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
 sinEnv :: Bpm -> D -> Sig -> SegEnv
 sinEnv bpm phase onFor = uosc' phase (beatsToHz $ Beats bpm (onFor * 2))
 
+-- Monadic version of sinEnv
+sinEnvM :: (MonadReader SongEnv m) => D -> Sig -> m SegEnv
+sinEnvM = liftFst3 sinEnv (asks $ view bpm)
+
 -- A ramp env
 rampEnv :: Bpm -> Sig -> D -> Sig -> SegEnv
 rampEnv bpm ram phase onFor = uramp' ram phase (beatsToHz $ Beats bpm (onFor * 2))

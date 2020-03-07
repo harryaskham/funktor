@@ -39,34 +39,54 @@ arpPat2 notes octave velocity duration =
   <*> ZipList (repeat velocity)
   <*> ZipList (repeat duration)
 
+arpPat3 :: ArpDef
+arpPat3 notes octave velocity duration =
+  getZipList
+  $ Pch
+  <$> ZipList ((cycle notes !!) <$> [3, 3, 1, 2, 1])
+  <*> ZipList (repeat octave)
+  <*> ZipList (repeat velocity)
+  <*> ZipList (repeat duration)
+
 song = do
   d <- do
-    b <- drums "X|." Tr808.bd2
-    c <- drums "O _ o |o . .|" Tr808.chh
-    cl <- drums "_|o" Hm.clap
-    return $ har [b, c, cl]
+    b <- drums "X|.|" Tr808.bd2
+    c <- drums "_ . . .|" Tr808.chh
+    o <- drums ". _ _ _|" Tr808.ohh
+    cl <- drums "_|o|" Hm.clap
+    return $ har [b, c, o, cl]
 
   a1 <- do
-    i <- compileI banyan $ arpPat1 (majorChord Eb) 8 0.5 2
-    e <- sqrTabEnv [OnFor 8, OffFor 4]
+    i <- compileI banyan $ arpPat1 (majorChord Eb) 8 0.3 2
+    e <- sinEnvM 0.8 (bars 6)
     return $ stereoMap (*e) <$> i
 
   a2 <- do
-    i <- compileI simpleBass $ arpPat2 (minorScale C) 8 0.5 1
-    e <- sqrTabEnv [OffFor 4, OnFor 8]
+    i <- compileI simpleBass $ arpPat2 (minorScale C) 8 0.3 1
+    e <- sinEnvM 0.4 (bars 4)
     return $ stereoMap (*e) <$> i
 
   a3 <- do
-    i <- compileI epiano2 $ arpPat2 (minorScale C) 7 0.5 4
-    e <- sqrTabEnv [OnFor 12, OffFor 4]
+    i <- compileI epiano2 $ arpPat2 (minorScale C) 7 0.2 4
+    e <- sinEnvM 0.5 (bars 3)
     return $ stereoMap (*e) <$> i
 
   a4 <- do
-    i <- compileI fmBass1 $ arpPat1 (majorChord Bb) 5 0.5 4
-    e <- sqrTabEnv [OnFor 6, OffFor 3]
+    i <- compileI fmBass1 $ arpPat1 (majorChord Bb) 5 0.3 4
+    e <- sinEnvM 0.3 (bars 7)
     return $ stereoMap (*e) <$> i
 
-  return $ har [d, a1, a2, a3, a4]
+  a5 <- do
+    i <- compileI fmDroneFastm $ arpPat3 (minorChord C) 8 0.3 8
+    e <- sinEnvM 0.5 (bars 2)
+    return $ stereoMap (*e) <$> i
+
+  a6 <- do
+    i <- compileI razorLead $ arpPat3 (majorScale C) 8 0.5 (1/2)
+    e <- sinEnvM 0 (bars 3)
+    return $ stereoMap (*e) <$> i
+
+  return $ har [d, a1, a2, a3, a4, a5, a6]
 
 
 songEnv = SongEnv { _bpm=140
