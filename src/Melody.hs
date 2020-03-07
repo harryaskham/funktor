@@ -123,6 +123,9 @@ previewSong (Song bpm delayedSegments) = runB bpm . compileSong $ Song bpm (remo
 sqrEnv :: Bpm -> D -> Sig -> SegEnv
 sqrEnv bpm phase onFor = usqr' phase (beatsToHz $ Beats bpm (onFor * 2))
 
+sqrEnvM :: (MonadReader SongEnv m) => D -> Sig -> m SegEnv
+sqrEnvM = liftFst3 sqrEnv (asks $ view bpm)
+
 -- A sin env that will flow in and out per the phase needed.
 sinEnv :: Bpm -> D -> Sig -> SegEnv
 sinEnv bpm phase onFor = uosc' phase (beatsToHz $ Beats bpm (onFor * 2))
