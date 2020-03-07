@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7b9e604859de483765f97eb3548d4bb56a97dbf7c858fb5afa50b7d046047625
+-- hash: a942bf29f33f74fd2cdcf77df0aa7c0906119bc025793b5c9ded4f57ce7a42b6
 
 name:           funktor
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       AirportTechno
       ArpAttempt
+      ArpPatterns
       Croatia
       DnbPlayground
       Garage

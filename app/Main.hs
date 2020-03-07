@@ -21,6 +21,7 @@ import DnbPlayground
 import TechnoPlayground
 import Garage
 import TableTest
+import ArpPatterns
 
 main :: IO ()
 main = runToDisk =<< gar'
