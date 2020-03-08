@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2fd242c8c2dada945b430e998e46fa23c09c37c6b4592292324e0a05a266dfab
+-- hash: 566f9eda86653b9ec4c0b914c575bfdf9bd9a70ca583c78ed573c8b903b30ae2
 
 name:           funktor
 version:        0.1.0.0
@@ -63,6 +63,7 @@ library
     , listsafe
     , mtl
     , random
+    , random-shuffle
     , sort
     , split
   default-language: Haskell2010
@@ -88,6 +89,7 @@ executable funktor-exe
     , listsafe
     , mtl
     , random
+    , random-shuffle
     , sort
     , split
   default-language: Haskell2010
@@ -114,6 +116,7 @@ test-suite funktor-test
     , listsafe
     , mtl
     , random
+    , random-shuffle
     , sort
     , split
   default-language: Haskell2010

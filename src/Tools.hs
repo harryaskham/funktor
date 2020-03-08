@@ -12,6 +12,7 @@ import Control.Monad
 import Control.Lens hiding (at)
 import Control.Monad.Reader
 import Control.Monad.Trans.IO
+import Control.Monad.Random
 
 -- TODO: rethink the melody env
 -- TODO: beatLength in the Env is awful.
@@ -26,7 +27,7 @@ makeLenses ''SongEnv
 -- Has an environment in SongEnv
 -- Has SE to allow drums alongside computational waveforms
 -- Also has IOT to enable e.g. randomness
-type SongT = ReaderT SongEnv (IOT SE)
+type SongT = ReaderT SongEnv (RandT StdGen (IOT SE))
 type SongM = SongT (Seg Sig2)
 
 -- A MonadIO like class for SE
@@ -39,12 +40,17 @@ instance MonadSE SE where
 instance MonadSE (IOT SE) where
   liftSE = lift . liftSE
 
+instance (RandomGen g, MonadSE m) => MonadSE (RandT g m) where
+  liftSE = lift . liftSE
+
 instance MonadSE SongT where
   liftSE = lift . liftSE
 
 -- Kind of a valid runner, but also handles seg -> sig conversion
 runSongM :: SongEnv -> SongM -> IO (SE Sig2)
-runSongM env song = runSeg <$$> runIOT (runReaderT song env)
+runSongM env song = do
+  g <- newStdGen
+  runSeg <$$> runIOT (evalRandT (runReaderT song env) g)
 
 instance Semigroup SongM where
   a <> b = cotraverse mel [a, b]

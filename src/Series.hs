@@ -18,6 +18,7 @@ import Control.Monad.Reader
 import Control.Monad.Random
 import Data.List
 import System.Random
+import System.Random.Shuffle
 
 fibSeries :: [Integer]
 fibSeries = 1:1:fibFrom 1 1
@@ -29,9 +30,13 @@ fibSeries = 1:1:fibFrom 1 1
 cyclicGet :: [a] -> Int -> a
 cyclicGet xs i = xs !! (i `mod` length xs)
 
-notes' = sort $ expandScale [4..9] (minorScale C) <*> [0.5] <*> [1, 2, 4]
-notes = cyclicGet notes' <$> (fromInteger <$> fibSeries)
-song = compileI razorPadSlow notes
+song :: SongM
+song = do
+  g <- liftIO newStdGen
+  let notes' = expandScale [6..9] (bluesScale C) <*> [0.5] <*> [1/2, 1/4, 1]
+      notes = cyclicGet notes' <$> (fromInteger . (`mod` 128) <$> fibSeries)
+  notes <- shuffleM (take 128 notes)
+  compileI hammondOrgan notes
 
 songEnv = SongEnv { _bpm=110
                   , _beatLength=128

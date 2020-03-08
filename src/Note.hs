@@ -114,6 +114,7 @@ expandScale os ns = Pch <$> ns <*> os
 
 majorScale = toScale $ ScaleDef [0, 2, 4, 5, 7, 9, 11]
 minorScale = toScale $ ScaleDef [0, 2, 3, 5, 7, 8, 10]
+bluesScale = toScale $ ScaleDef [0, 3, 5, 6, 7, 10]
 
 majorChord = toScale $ ScaleDef [0, 4, 7]
 major7Chord = toScale $ ScaleDef [0, 4, 7, 9]
