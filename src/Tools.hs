@@ -192,10 +192,12 @@ predC a = if a == minBound then maxBound else pred a
 
 -- Do N times
 doN :: Int -> (a -> a) -> a -> a
+doN 0 _ = id
 doN n f = foldl1 (.) (replicate n f)
 
 -- Do N times monadically
 doNM :: (Monad m) => Int -> (a -> m a) -> a -> m a
+doNM 0 _ = return
 doNM n f = foldl1 (>=>) (replicate n f)
 
 pink2 = fromMono <$> pink

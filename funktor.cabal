@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a942bf29f33f74fd2cdcf77df0aa7c0906119bc025793b5c9ded4f57ce7a42b6
+-- hash: 2fd242c8c2dada945b430e998e46fa23c09c37c6b4592292324e0a05a266dfab
 
 name:           funktor
 version:        0.1.0.0
@@ -41,6 +41,7 @@ library
       Note
       PlaneToSJC
       Saturday
+      Series
       TableTest
       Tabs
       TechnoPlayground

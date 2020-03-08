@@ -22,6 +22,7 @@ import TechnoPlayground
 import Garage
 import TableTest
 import ArpPatterns
+import Series
 
 main :: IO ()
 main = runToDisk =<< gar'
