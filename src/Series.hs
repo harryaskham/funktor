@@ -32,7 +32,6 @@ cyclicGet xs i = xs !! (i `mod` length xs)
 
 song :: SongM
 song = do
-  g <- liftIO newStdGen
   let notes' = expandScale [6..9] (bluesScale C) <*> [0.5] <*> [1/2, 1/4, 1]
       notes = cyclicGet notes' <$> (fromInteger . (`mod` 128) <$> fibSeries)
   notes <- shuffleM (take 128 notes)
