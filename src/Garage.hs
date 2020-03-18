@@ -27,13 +27,16 @@ song :: SongM
 song = do
   gBPM <- asks (view bpm)
 
-  pad1' <-
-    compileI razorPad
-    [ Pch root 8 0.4 8
-    , Pch (doN 7 succC root) 8 0.4 4
-    , Pch (doN 3 succC root) 8 0.4 4
-    ]
-  let pad1 = stereoMap (sqrEnv gBPM 0.5 32 * sqrEnv gBPM 0 (1/8) *) <$> pad1'
+  pad1 <- do
+    i <-
+      compileI razorPad
+      [ Pch root 8 0.4 8
+      , Pch (doN 7 succC root) 8 0.4 4
+      , Pch (doN 3 succC root) 8 0.4 4
+      ]
+    e1 <- sqrEnvM 0.5 32
+    e2 <- sqrEnvM 0 (1/8)
+    return $ i & withEnv e1 & withEnv e2
 
   pad2' <-
     compileI razorPad

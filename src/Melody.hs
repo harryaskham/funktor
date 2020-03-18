@@ -32,6 +32,10 @@ newtype SegDuration = SegDuration Sig
 -- An envelope for a segment.
 type SegEnv = Sig
 
+-- Add envelope to signal neatly
+withEnv :: SegEnv -> Seg Sig2 -> Seg Sig2
+withEnv e = fmap $ stereoMap (e*)
+
 -- TODO: Delayable could be used here to reconcile the delayed segment
 -- piece with class constraint on first data element?
 
