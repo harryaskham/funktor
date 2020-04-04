@@ -23,6 +23,7 @@ import Garage
 import TableTest
 import ArpPatterns
 import Series
+import Sample
 
 main :: IO ()
 main = runToDisk =<< gar'
