@@ -15,7 +15,7 @@ loadSample path = do
 
 song :: SongM
 song = do
-  s <- loadSample "samples/Ensoniq-ESQ-1-Sympy-C4.wav"
+  s <- loadSample "samples/wiley816.wav"
   return $ toSeg s
 
 songEnv = SongEnv { _bpm=12
