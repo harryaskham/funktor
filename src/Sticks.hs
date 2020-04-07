@@ -26,16 +26,7 @@ song :: SongM
 song = do
   gBPM <- asks (view bpm)
 
-  sam1 <- toSeg <$> loadSample "samples/Basic Bashing.wav"
-  sam2 <- toSeg <$> loadSample "samples/Chord Jangle.wav"
-  sam4 <- toSeg <$> loadSample "samples/Echoplex.wav"
-  sam5 <- toSeg <$> loadSample "samples/Metal Rhythm 1.wav"
-  sam6 <- toSeg <$> loadSample "samples/Metal Rhythm 2.wav"
-  sam7 <- toSeg <$> loadSample "samples/Rootsy.wav"
-  sam8 <- toSeg <$> loadSample "samples/Sitar Guitar.wav"
-  sam9 <- toSeg <$> loadSample "samples/Slow Wah.wav"
-
-  intro1 <- do
+  intro0 <- do
     kicks <- drums "X|O|O|O" Tr808.bd2
     wobble <- do
       i <- compileI nightPad (Pch <$> [D, F, A, Fs] <*> pure 8 <*> pure 0.5 <*> pure 4)
@@ -45,8 +36,11 @@ song = do
       i <- compileI razorLead (Pch <$> [A, Fs, D, F] <*> pure 9 <*> pure 0.5 <*> pure (1/4))
       e <- sqrTabEnv [OffFor 28, OnFor 4]
       return $ stereoMap (e*) <$> i
+    return $ har [kicks, wobble, drop]
+
+  intro1 <- do
     let guitar = loop $ mul 1.3 $ constLim (beatsToSecs $ Beats gBPM 8) $ toSeg $ scaleWav 0 1.15 1 "samples/Delay Muted.wav"
-    return $ har [kicks, guitar, wobble, drop]
+    return $ har [intro0, guitar]
 
   intro2 <- do
     drms <- do
@@ -95,25 +89,32 @@ song = do
     return $ har [drms, bass, guitar, wobble, drop]
 
   {-
-  e1 <- sqrTabEnv [OnFor 32, OffFor 1000]
+  e0 <- sqrTabEnv [OnFor 16, OffFor 1000]
+  e1 <- sqrTabEnv [OffFor 16, OnFor 16, OffFor 1000]
   e2 <- sqrTabEnv [OffFor 32, OnFor 32, OffFor 1000]
   e3 <- sqrTabEnv [OffFor 64, OnFor 8, OffFor 1000]
   e4 <- sqrTabEnv [OffFor 72, OnFor 32, OffFor 1000]
-  return $ har [ stereoMap (*e1) <$> intro1
+  return $ har [ stereoMap (*e0) <$> intro0
+               , stereoMap (*e1) <$> intro1
                , stereoMap (*e2) <$> intro2
                , stereoMap (*e3) <$> fill
                , stereoMap (*e4) <$> v1
                ]
-               -}
+  -}
 
-  forBeats 4 $ har [intro1, intro2, fill, v1]
-    {-
-  cotraverse mel [ forBeats 4 intro1
-                 , forBeats 4 intro2
-                 , forBeats 4 fill
-                 , forBeats 4 v1
-                 ]
-                 -}
+  return
+    $ mel
+    $ (\(x, d) -> constLim (beatsToSecs $ Beats gBPM d) x)
+    <$> [ (intro0, 32)
+        , (intro1, 32)
+        , (intro2, 32)
+        , (fill, 8)
+        , (v1, 64)
+        , (intro2, 32)
+        , (v1, 64)
+        , (intro0, 32)
+        , (fill, 32)
+        ]
 
 songEnv = SongEnv { _bpm=150
                   , _beatLength=1024
