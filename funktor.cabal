@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1d5cf6c09fca4d12dcaf8bdb4f858ba5e246fc3ec4de719add300d1bbcb85a1d
+-- hash: a27e79bf5a31ecd8afa2e329502895a931915e8f376ff4f784a8d4c81a3a6cd1
 
 name:           funktor
 version:        0.1.0.0
@@ -43,6 +43,7 @@ library
       Sample
       Saturday
       Series
+      Sticks
       TableTest
       Tabs
       TechnoPlayground

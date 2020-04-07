@@ -24,6 +24,7 @@ import TableTest
 import ArpPatterns
 import Series
 import Sample
+import Sticks
 
 main :: IO ()
 main = runToDisk =<< gar'
