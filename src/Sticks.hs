@@ -26,8 +26,6 @@ import System.Random
 -- metal rhythim for a drop
 -- other metal rhythem for fills
 
-root = E
-
 song :: SongM
 song = do
   gBPM <- asks (view bpm)
@@ -48,11 +46,15 @@ song = do
   intro <- do
     d <- drums "X|O|O|O" Tr808.bd2
     wobble <- do
-      i <- compileI nightPad (Pch <$> minorChord root <*> pure 8 <*> pure 0.5 <*> pure 4)
-      e <- sqrTabEnv [OnFor (1/4), OffFor (1/2)]
+      i <- compileI nightPad (Pch <$> [D, F, A, Fs] <*> pure 8 <*> pure 0.5 <*> pure 4)
+      e <- sqrTabEnv [OnFor (1/2), OffFor (1/2)]
+      return $ stereoMap (e*) <$> i
+    drop <- do
+      i <- compileI razorLead (Pch <$> [A, Fs, D, F] <*> pure 9 <*> pure 0.5 <*> pure (1/4))
+      e <- sqrTabEnv [OffFor 28, OnFor 4]
       return $ stereoMap (e*) <$> i
     let guitar = loop $ constLim (beatsToSecs $ Beats gBPM 8) $ toSeg $ scaleWav 0 1.15 1 "samples/Delay Muted.wav"
-    return $ har [d, guitar]
+    return $ har [d, guitar, wobble, drop]
 
   return $ mel [intro]
 
