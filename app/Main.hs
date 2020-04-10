@@ -25,6 +25,7 @@ import ArpPatterns
 import Series
 import Sample
 import Sticks
+import SticksTwo
 
 main :: IO ()
 main = runToDisk =<< gar'
