@@ -22,7 +22,7 @@ import Control.Monad.Random
 import Data.List
 import System.Random
 
-speedMod = 1.0
+speedMod = 1
 
 song :: SongM
 song = do
@@ -34,8 +34,7 @@ song = do
   cyms <- drums "_ _ _ _|_ _ _ _|_ _ _ _|X _ _ _" Tr808.cym
   clps <- drums "_ _ _ _|O _ _ _|_ _ _ _|o _ _ _" Hm.sn1
 
-  let guitar = loop $ mul 0.8 $ constLim (beatsToSecs $ Beats gBPM 8) $ toSeg $ scaleWav 0 (1.058*speedMod) 1 "samples/SitarGuitar.wav"
-  let guitar1 = loop $ mul 0.8 $ constLim (beatsToSecs $ Beats gBPM 2) $ toSeg $ scaleWav 0 (1.058*speedMod) 1 "samples/SitarGuitar.wav"
+  let guitar = loopBy 9 $ mul 0.8 $ constLim (beatsToSecs $ Beats gBPM 16) $ toSeg $ scaleWav 0 (1.058*speedMod) 1 "samples/SitarGuitar.wav"
 
   wobble <- do
     i <- compileI razorLead $ Pch <$> [D, A, D, F] <*> pure 9 <*> pure 0.5 <*> pure 4
@@ -47,11 +46,10 @@ song = do
         ns = takeIxs [0, 4, 4, 3, 2, 1, 6, 6, 6, 7, 8, 7, 12, 12, 13, 12] notes
     compileI banyan ns
 
-  envPlayWith (replicate 10 16)
-    [ har [guitar, arp, kcks]
-    , har [guitar1, arp, kcks]
+  envPlayWith (replicate 9 16)
+    [ har [guitar, kcks]
     , har [guitar, arp, kcks, ohhs]
-    , har [guitar1, arp, kcks, ohhs, wobble]
+    , har [guitar, arp, kcks, ohhs, wobble]
     , har [arp, kcks, ohhs, wobble, chhs]
     , har [kcks, chhs, ohhs, cyms, clps, guitar, wobble, arp]
     , har [guitar, arp, kcks]
@@ -74,7 +72,7 @@ envPlayWith lens sigs = do
 
 
 songEnv = SongEnv { _bpm=speedMod*128
-                  , _beatLength=1024
+                  , _beatLength=9*16
                   }
 
 st2' = runSongM songEnv song
