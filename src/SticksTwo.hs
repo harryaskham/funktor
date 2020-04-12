@@ -58,19 +58,6 @@ song = do
     , har [arp]
     ] 
 
-envPlayWith :: (MonadReader SongEnv m) => [Double] -> [Seg Sig2] -> m (Seg Sig2)
-envPlayWith lens sigs = do
-  let total = sum lens
-      dels = 0 : scanl1 (+) lens
-
-  envs <-
-    sequence
-    $ (\(len, del) -> sqrTabEnv [OffFor del, OnFor len, OffFor $ total-len-del])
-    <$> zip lens dels
-  
-  return $ har $ (\(sig, env) -> stereoMap (env*) <$> sig) <$> zip sigs envs
-
-
 songEnv = SongEnv { _bpm=speedMod*128
                   , _beatLength=9*16
                   }

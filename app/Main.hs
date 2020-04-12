@@ -26,6 +26,7 @@ import Series
 import Sample
 import Sticks
 import SticksTwo
+import SticksThree
 
 main :: IO ()
 main = runToDisk =<< gar'

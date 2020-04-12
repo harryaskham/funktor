@@ -195,3 +195,16 @@ compileI instr notes = do
   bpm <- asks (view bpm)
   beatLength <- asks (view beatLength)
   return $ toSeg $ compileTrack bpm instr (toMel (repeatToBeats beatLength notes))
+
+-- Play a sequence of segments at the given lengths using enveloping only.
+envPlayWith :: (MonadReader SongEnv m) => [Double] -> [Seg Sig2] -> m (Seg Sig2)
+envPlayWith lens sigs = do
+  let total = sum lens
+      dels = 0 : scanl1 (+) lens
+
+  envs <-
+    sequence
+    $ (\(len, del) -> sqrTabEnv [OffFor del, OnFor len, OffFor $ total-len-del])
+    <$> zip lens dels
+  
+  return $ har $ (\(sig, env) -> stereoMap (env*) <$> sig) <$> zip sigs envs
