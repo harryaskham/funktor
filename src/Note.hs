@@ -7,7 +7,7 @@ import Data.Functor ((<&>))
 import Tools
 import Control.Lens
 
-data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As | Bb | B deriving (Eq, Ord, Bounded, Show)
+data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As | Bb | B | B' | H deriving (Eq, Ord, Bounded, Show)
 type Octave = Int
 type Duration = Double
 type Velocity = Double
@@ -37,7 +37,9 @@ instance Enum Note where
   fromEnum A = 9
   fromEnum As = 10
   fromEnum Bb = 10
+  fromEnum B' = 10
   fromEnum B = 11
+  fromEnum H = 11
 
   toEnum 0 = C
   toEnum 1 = Cs

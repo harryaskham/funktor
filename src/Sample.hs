@@ -8,10 +8,8 @@ import Control.Monad.Reader
 import Tools
 import Control.Lens
 
-loadSample :: (MonadReader SongEnv m, MonadSE m) => String -> m Sig2
-loadSample path = do
-  gBPM <- asks (view bpm)
-  let sam = wav path
-  -- Apply some stretching
-      stretched = wide 2 sam
-  liftSE $ runSam gBPM stretched
+loadWav :: (MonadReader SongEnv m, MonadSE m) => Sig -> Sig -> String -> m (Seg Sig2)
+loadWav beatLength stretch path =
+  forBeats
+    beatLength
+    (toSeg $ scaleWav 0 stretch 1 path)

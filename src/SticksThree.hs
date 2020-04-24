@@ -22,18 +22,26 @@ import Control.Monad.Random
 import Data.List
 import System.Random
 
+-- TODO: drop imports
+-- one theme
+-- simple syntax
+-- use squares to bring voices in
+-- instr list in order
+-- theme in different orders
+-- sometimes reversed! crab
+-- have voices oscillate after theme introduction - fuguewave, const then fugue - need a max-of wave combiner
+-- then either just repeat theme, or improvise on theme, or improvise in key
+-- find instruments that work
+-- guitar becomes just one instrument
+-- drums also oscillate
+-- oscillate with primes and calculate cycle, truncate at perfect loop
+
 song :: SongM
 song = do
-  gBPM <- asks (view bpm)
-
   kcks <- drums "X _ _ _|O _ _ _|O _ _ _|O _ _ _" Tr808.bd2
-  chhs <- drums "X _ o _|O O _ _|X O o .|_ _ X _" Hm.chh
-  ohhs <- drums "_ . _ _|_ _ O _|_ _ _ _|O O _ _" Hm.ohh
-  snrs <- drums "_ _ X _|_ o _ _|" Hm.sn1
-  let drums = smallRoom2 <$> har [kcks, chhs, ohhs, snrs]
-  let guitar = loop $ constLim (beatsToSecs $ Beats gBPM 16) $ toSeg $ scaleWav 0 0.9 1 "samples/Echoplex.wav"
+  guitar <- loop <$> loadWav 16 0.9 "samples/Echoplex.wav"
 
-  return $ har [drums, guitar]
+  return $ har [kcks, guitar]
 
 songEnv = SongEnv { _bpm=128
                   , _beatLength=128
