@@ -208,3 +208,8 @@ envPlayWith lens sigs = do
     <$> zip lens dels
   
   return $ har $ (\(sig, env) -> stereoMap (env*) <$> sig) <$> zip sigs envs
+
+modEnv :: SegEnv -> SegEnv
+modEnv env = (env * (1.0 - balance)) + (balance * env)
+  where
+    balance = 0.2

@@ -20,6 +20,11 @@ import Data.List
 import System.Random
 import System.Random.Shuffle
 
+primes :: [Integer]
+primes = 2 : primes'
+  where isPrime (p:ps) n = p*p > n || n `rem` p /= 0 && isPrime ps n
+        primes' = 3 : filter (isPrime primes') [5, 7 ..]
+
 fibSeries :: [Integer]
 fibSeries = 1:1:fibFrom 1 1
   where
@@ -29,17 +34,3 @@ fibSeries = 1:1:fibFrom 1 1
 
 cyclicGet :: [a] -> Int -> a
 cyclicGet xs i = xs !! (i `mod` length xs)
-
-song :: SongM
-song = do
-  let notes' = expandScale [6..9] (bluesScale C) <*> [0.5] <*> [1/2, 1/4, 1]
-      notes = cyclicGet notes' <$> (fromInteger . (`mod` 128) <$> fibSeries)
-  notes <- shuffleM (take 128 notes)
-  compileI hammondOrgan notes
-
-songEnv = SongEnv { _bpm=110
-                  , _beatLength=128
-                  }
-
-srs' = runSongM songEnv song
-srs = dac =<< srs'

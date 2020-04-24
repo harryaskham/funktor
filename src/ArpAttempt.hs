@@ -30,11 +30,6 @@ envs =
   , (sqrEnv gBPM 0.5 (bars 4)) * (sqrEnv gBPM 0 1)
   ]
 
-modEnv :: SegEnv -> SegEnv
-modEnv env = (env * (1.0 - balance)) + (balance * env)
-  where
-    balance = 0.2
-
 song' :: Note -> Song
 song' root = Song gBPM $ EnvSegment <$+> segs <*++> envs
   where
