@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module SticksThree where
 
@@ -37,52 +38,77 @@ import System.Random
 -- drums also oscillate
 -- oscillate with primes and calculate cycle, truncate at perfect loop
 
+data Fugue = Fugue { _theme :: [Note]
+                   , _octaves :: [Octave]
+                   , _voices :: [[Note] -> [Octave] -> [Pch]]
+                   , _instruments :: [Patch2]
+                   , _enterBeats :: Int
+                   }
+makeLenses ''Fugue
+
+zipEnvsWith :: (SegEnv -> Sig -> Sig) -> [SegEnv] -> [Seg Sig2] -> [Seg Sig2]
+zipEnvsWith f es ss = getZipList $ (fmap <$> (stereoMap <$> (f <$> ZipList es))) <*> ZipList ss
+
+compileFugue :: (MonadReader SongEnv m, MonadRandom m) => Fugue -> m (Seg Sig2)
+compileFugue f = do
+  -- A set of envelopes that have increasingly long intro times
+  introEnvs <- traverse (\i -> sqrTabEnv [OffFor (fromIntegral $ i*f^.enterBeats), OnFor 1024]) [0..20]
+  let continuation = expandScale [7, 8, 9] (f^.theme) <*> [0.25, 0.2, 0.1] <*> [4, 8, 3/2, 1, 2, 10/4, 15/4]
+  continuationIxs <- replicateM (length (f^.voices)) $ getRandomRs (0, length continuation - 1)
+  let continuations = takeIxs <$> continuationIxs ?? continuation
+      themeNotes = repeatToBeats (length (f^.voices) * f^.enterBeats) <$> ((f^.voices) ?? (f^.theme) ?? (f^.octaves))
+      -- notesPerVoice = (++) <$> themeNotes <*> continuations
+      notesPerVoice = themeNotes
+  compiledVoices <-
+    sequence
+    $ getZipList
+    $ ZipList (compileI <$> f^.instruments)
+    <*> ZipList notesPerVoice
+  return $ har $ zipEnvsWith (\e1 e2 -> minabs [e1,e2]) introEnvs compiledVoices
+
 song :: SongM
 song = do
-  --let theme o v d = Pch <$> [B', A, C, H] ?? o ?? v ?? d
-  let theme o v d = Pch <$> [D, F, Bb, A, D, C] ?? o ?? v ?? d
-      introN = 16
+  let fugue = Fugue { _theme=[D, F, Bb, A, D, C]
+                    , _octaves=[8, 8, 8, 8, 8, 8]
+                    , _voices=[ \ns os -> Pch <$> ns <*> (subtract 2 <$> os) ?? 0.25 ?? 1
+                              , \ns os -> Pch <$> ns <*> os ?? 0.25 ?? 1
+                              , \ns os -> Pch <$> ns <*> (subtract 1 <$> os) ?? 0.25 ?? 8
+                              , \ns os -> Pch <$> reverse ns <*> ((+1) <$> os) ?? 0.25 ?? (5/4)
+                              , \ns os -> Pch <$> ns <*> ((+1) <$> os) ?? 0.25 ?? 16
+                              , \ns os -> Pch <$> reverse ns <*> os ?? 0.25 ?? (3/2)
+                              , \ns os -> Pch <$> ns <*> os ?? 0.25 ?? (1/3)
+                              ]
+                    -- , _instruments=[fmBass1, epiano2, hammondOrgan, banyan, overtonePad, dreamPad, harpsichord]
+                    , _instruments=replicate 7 sawOrgan
+                    , _enterBeats=16
+                    }
+  fC <- compileFugue fugue
 
-  voice1 <- compileI hammondOrgan (repeatToBeats 64 $ theme 7 0.3 4)
-  voice2 <- compileI hammondOrgan (repeatToBeats 48 $ theme 8 0.3 8)
-  voice3 <- compileI hammondOrgan (repeatToBeats 32 $ reverse (theme 7 0.3 3))
-  voice4 <- compileI hammondOrgan (repeatToBeats 16 $ theme 9 0.3 16)
-  voice5 <- compileI hammondOrgan (repeatToBeats 16 $ reverse (theme 8 0.3 (3/2)))
-
+  guitar <- loop . mul 0.3 <$> loadWav 8 0.93 "samples/MetalRhythm2.wav"
   kcks <- drums "X _ _ _|O _ _ _|O _ _ _|O _ _ _" Tr808.bd2
   snr1 <- drums "_ _ X _|_ _ _ _|_ _ X _|_ _ X _" Hm.sn1
   snr2 <- drums "_ _ _ _|_ _ O _|_ _ _ _|_ _ O _" Hm.sn2
   chhs <- drums "O _ o _|. _ . _|" Tr808.chh
-  ohhs <- drums "_ . _ .|_ . _ .|" Tr808.ohh
-  clps <- drums "O O O O|_ _ _ _|_ _ _ _|_ _ _ _" Hm.clap
-  guitar <- loop . mul 0.8 <$> loadWav 16 1.02 "samples/doomy.wav"
+  ohhs <- drums "_ _ _ .|_ _ _ .|" Tr808.ohh
+  clps <- drums ". . . .|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|_ _ _ _|" Hm.clap
 
-  -- Sinusoidal envelopes with increasing prime wavelengths
-  --primeEnvs <- ZipList . fmap modEnv <$> traverse (sinEnvM 0) (sig . int . fromIntegral <$> take 20 primes)
-  primeEnvs <- ZipList . fmap modEnv <$> traverse (sinEnvM 0) [4,8,12,16,24,32]
+  drumEnvs <-
+    sequence
+    $ getZipList
+    $ sqrEnvM
+    <$> ZipList [0.0, 0.2, 0.4, 0.5, 0.8, 0.5]
+    <*> ZipList [16, 12, 24, 16, 16, 32]
 
-  --drumEnvs <- traverse (sqrEnvM 0.5) (sig . int . fromIntegral <$> drop 3 (take 20 primes))
-  drumEnvs <- traverse (sqrEnvM 0.5) [4,8,12,16,24,32]
-
-  -- Square envelopes for entering voices.
-  introEnvs <- ZipList <$> traverse (\i -> sqrTabEnv [OffFor (i*introN), OnFor 1024]) [0..20]
 
   -- Square envelopes for constantly on before oscillation
-  constEnvs <- ZipList <$> traverse (\i -> sqrTabEnv [OffFor (i*introN), OnFor introN, OffFor 1024]) [0..20]
+  -- constEnvs <- ZipList <$> traverse (\i -> sqrTabEnv [OffFor (i*introN), OnFor introN, OffFor 1024]) [0..20]
 
   -- Take the max of the two waves to concatenate the square intro.
-  let withIntros = (\e1 e2 -> minabs [e1, e2]) <$> primeEnvs <*> introEnvs
-      voiceEnvs = getZipList $ (\e1 e2 -> maxabs [e1, e2]) <$> constEnvs <*> withIntros
-
-  let zipEnvs es ss = getZipList $ (fmap <$> (stereoMap <$> ((*) <$> ZipList es))) <*> ZipList ss
-      drms = har $ zipEnvs drumEnvs [chhs, snr2, ohhs, snr1, clps, kcks]
-      voices = har $ zipEnvs voiceEnvs [voice1, voice2, voice3, voice4, voice5]
-
-  -- return $ har [drms, voices, guitar]
-  return $ har [drms, voices]
+  let drms = har $ zipEnvsWith (*) drumEnvs [snr1, snr2, ohhs, chhs, clps, kcks]
+  return $ har [mul 0.5 <$> drms, fC]
 
 songEnv = SongEnv { _bpm=128
-                  , _beatLength=1024
+                  , _beatLength=256
                   }
 
 st3' = runSongM songEnv song
