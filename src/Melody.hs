@@ -36,6 +36,9 @@ type SegEnv = Sig
 withEnv :: SegEnv -> Seg Sig2 -> Seg Sig2
 withEnv e = fmap $ stereoMap (e*)
 
+zipEnvsWith :: (SegEnv -> Sig -> Sig) -> [SegEnv] -> [Seg Sig2] -> [Seg Sig2]
+zipEnvsWith f es ss = getZipList $ (fmap <$> (stereoMap <$> (f <$> ZipList es))) <*> ZipList ss
+
 -- TODO: Delayable could be used here to reconcile the delayed segment
 -- piece with class constraint on first data element?
 
