@@ -1,6 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Tools where
 
@@ -14,7 +16,6 @@ import Control.Monad.Reader
 import Control.Monad.Trans.IO
 import Control.Monad.Random
 
--- TODO: rethink the melody env
 -- TODO: beatLength in the Env is awful.
 --       only needed to replicate melodies forever
 --       so they dont run out but this is a bug.
@@ -34,17 +35,15 @@ type SongM = SongT (Seg Sig2)
 class (Monad m) => MonadSE m where
   liftSE :: SE a -> m a
 
+  default liftSE :: (MonadTrans t, MonadSE m', m ~ t m') => SE a -> m a
+  liftSE = lift . liftSE
+
 instance MonadSE SE where
   liftSE = id
 
-instance MonadSE (IOT SE) where
-  liftSE = lift . liftSE
-
-instance (RandomGen g, MonadSE m) => MonadSE (RandT g m) where
-  liftSE = lift . liftSE
-
-instance MonadSE SongT where
-  liftSE = lift . liftSE
+instance MonadSE (IOT SE)
+instance (RandomGen g, MonadSE m) => MonadSE (RandT g m)
+instance MonadSE SongT
 
 -- Kind of a valid runner, but also handles seg -> sig conversion
 runSongM :: SongEnv -> SongM -> IO (SE Sig2)
