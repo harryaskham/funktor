@@ -61,7 +61,6 @@ song = do
                               ]
                     , _voiceEnvs=voiceEnvs
                     , _instruments=repeat guitar
-                    -- , _instruments=[sqrOrgan, sawOrgan, hammondOrgan, triOrgan, epiano2, banyan, harpsichord]
                     , _enterBeats=8
                     }
   fC <- compileFugue fugue
