@@ -1,15 +1,21 @@
 # funktor
 
+## Overview
+An opinionated music construction playground build on top of the excellent `csound-expression` library.
+
 ## Requirements
 - `stack`
 - `csound 6.14`
 
-## Overview
-An opinionated music construction playground build on top of the excellent `csound-expression` library.
-
 ### Quick Example
-A quick and dirty example song highlighting features like stochastic notes, drum tab DSL, etc.
+A quick and dirty example song highlighting:
+
+- Stochastic note generation
+- Drum tab DSL
+- `Applicative` melody construction
+
 Doesn't sound great, mostly here for didactic purposes!
+The `src` directory contains other songs as modules.
 [Click to play .wav compiled from the below](/example.wav)
 
 ```haskell
