@@ -9,7 +9,8 @@ An opinionated music construction playground build on top of the excellent `csou
 
 ### Quick Example
 A quick and dirty example song highlighting features like stochastic notes, drum tab DSL, etc.
-Doesn't sound great! ![Link to .wav](example.wav)
+Doesn't sound great, mostly here for didactic purposes!
+[Click to play .wav compiled from the below](/example.wav)
 
 ```haskell
 song :: SongM
