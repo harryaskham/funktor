@@ -30,7 +30,7 @@ song = do
   -- Open hats, always on
   oHats <- drums "o _ o _|_ _ o _" Tr808.ohh
 
-  -- Group the durms
+  -- Group the drums
   let drms = har [kicks, cHats, oHats]
 
   -- Bassline - 5 notes from two chords at 2/3 velocity every 4 beats
