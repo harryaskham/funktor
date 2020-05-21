@@ -67,7 +67,7 @@ songEnv = SongEnv { _bpm=140
 
 To play the song in real-time e.g. in GHCi:
 ```haskell
-dac =<< runSongM songEnv song`
+dac =<< runSongM songEnv song
 ```
 
 Or to compile to a WAV:
