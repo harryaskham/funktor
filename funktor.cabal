@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f945eff6fea1dde84f3d484be7acdca967a4e63ca4c037d72f29c8266a827a8a
+-- hash: cf96fba2944fa5157c7cf7009a4f97861567d85e80206ca59ec584f837a6244c
 
 name:           funktor
 version:        0.1.0.0
@@ -32,6 +32,7 @@ library
       ArpPatterns
       Croatia
       DnbPlayground
+      ExampleTrack
       Fugue
       Garage
       HouseMonad
