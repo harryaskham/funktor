@@ -3,10 +3,6 @@
 ## Overview
 An opinionated music construction playground build on top of the excellent `csound-expression` library.
 
-## Requirements
-- `stack`
-- `csound 6.14`
-
 ### Quick Example
 A quick and dirty example song highlighting:
 
@@ -92,3 +88,7 @@ data SongEnv = SongEnv { _bpm :: Bpm
 type SongT = ReaderT SongEnv (RandT StdGen (IOT SE))
 type SongM = SongT (Seg Sig2)
 ```
+
+## Requirements
+- `stack`
+- `csound 6.14`
