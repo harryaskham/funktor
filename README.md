@@ -8,7 +8,8 @@
 An opinionated music construction playground build on top of the excellent `csound-expression` library.
 
 ### Quick Example
-A quick and dirty example song highlighting features like stochastic notes, drum tab DSL, etc:
+A quick and dirty example song highlighting features like stochastic notes, drum tab DSL, etc.
+Doesn't sound great! ![Link to .wav](example.wav)
 
 ```haskell
 song :: SongM
@@ -57,9 +58,15 @@ songEnv = SongEnv { _bpm=140
                   }
 ```
 
-To play the song in real-time e.g. in GHCi: `λ> dac =<< runSongM songEnv song`
+To play the song in real-time e.g. in GHCi:
+```haskell
+dac =<< runSongM songEnv song`
+```
 
-Or to compile to a WAV: `λ> runToDisk =<< runSongM songEnv song`
+Or to compile to a WAV:
+```haskell
+runToDisk =<< runSongM songEnv song
+```
 
 ### Design
 
