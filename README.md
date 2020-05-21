@@ -17,7 +17,7 @@ A quick and dirty example song highlighting:
 Doesn't sound great, mostly here for didactic purposes!
 The `src` directory contains other songs as modules.
 
-[Click to play .wav compiled from the below](/example.wav?raw=true)
+[Link to a .wav compiled from the below.](/example.wav?raw=true) GitHub doesn't seem to want to stream this, so `Save As...` if you want to hear it.
 
 ```haskell
 song :: SongM
