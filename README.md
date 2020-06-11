@@ -34,7 +34,6 @@ song = do
   let drms = har [kicks, cHats, oHats]
 
   -- Bassline - 5 notes from two chords at 2/3 velocity every 4 beats
-  -- Oscillates in and out on a sinewave every 16 beats
   bass <- do
     let notes = take 5 $ minorChord D ++ reverse (majorChord Bb)
     compileI (withDeepBass 1.0 fmBass1) $ Pch <$> notes ?? 6 ?? (2/3) ?? 4
