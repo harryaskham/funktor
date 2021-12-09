@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "funktor:lib"
+
+    - path: "./app/Main.hs"
+      component: "funktor:exe:funktor-exe"
+
+    - path: "./app/Paths_funktor.hs"
+      component: "funktor:exe:funktor-exe"
+
+    - path: "./test"
+      component: "funktor:test:funktor-test"
