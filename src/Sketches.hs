@@ -20,21 +20,32 @@ import Note
 import System.IO.Unsafe
 import System.Random
 import Tabs
-import Tools hiding (bpm)
+import Tools
+  ( Beats (Beats),
+    SongEnv (SongEnv),
+    cotraverse,
+    forBeats,
+    limSig,
+    runSongM,
+    runToDisk,
+    (<$$>),
+    (<$+>),
+    (<*++>),
+  )
 
-bpm = 128
+n octave dur note = Pch note octave 0.5 dur
 
-songEnv = SongEnv bpm 128
+play bpm beats s = dac =<< runSongM (SongEnv bpm beats) (har <$> s)
 
-n octave note = Pch note octave 0.5 1
-
-play s = dac =<< runSongM songEnv (har <$> s)
-
-record s = runToDisk =<< runSongM songEnv (har <$> s)
+record bpm beats s = runToDisk =<< runSongM (SongEnv bpm beats) (har <$> s)
 
 piano = compileI epianoBright
 
 bass = compileI (withDeepBass 0.75 pwBass)
+
+organ = compileI (deepPad cathedralOrgan)
+
+razor = compileI (deepPad razorLead)
 
 zipEnvs es xs' =
   do
@@ -42,7 +53,7 @@ zipEnvs es xs' =
     return [withEnv e x | (e, x) <- zip es xs]
 
 sketch1 :: IO ()
-sketch1 = record do
+sketch1 = play 128 128 do
   es <-
     sequence $
       sqrEnvM
@@ -51,10 +62,35 @@ sketch1 = record do
   zipEnvs
     es
     [ drums "X|o|o|o|" bd2,
-      drums "_|X" sn,
+      drums "_|X" sn1,
       drums "O o _ .|" chh,
       drums "_ _ X _|" ohh,
       drums "_|_|_|. o O X|" cym,
-      (piano $ n <$> [7, 8] <*> minorChord Eb) <**> (withEnv <$> sqrEnvM (1 / 5) 4),
-      bass $ n 6 <$> (take 5 . cycle . reverse . minorChord =<< [Ab, Eb])
+      piano (n <$> [7, 8] <*> pure 1 <*> minorChord Eb) <**> (withEnv <$> sqrEnvM (1 / 5) 4),
+      bass $ n 6 1 <$> (take 5 . cycle . reverse . minorChord =<< [Ab, Eb])
     ]
+
+silence = Silent 1
+
+sketch2 :: IO ()
+sketch2 = play 140 128 do
+  let root = Bb
+      ns o r s =
+        intercalate
+          [n o (1 / 4) r, silence, n o (1 / 4) r]
+          (pure . n 8 (1 / 2) <$> take 7 (cycle . reverse $ s r))
+      kcks = drums "X|o|o|o|" bd2
+      hats = drums "O o o .|" chh
+      snrs = drums "_|X|_|X O _ _" sn1
+      cyms = drums "_|_|_|X" cym
+  es <- sequence $ sqrEnvM <$+> [0, 0.5, 0.25, 0.5, 0.75] <*++> replicate 5 32
+  zipEnvs
+    es
+    ( fmap har . sequence
+        <$> [ [kcks, hats],
+              [kcks, snrs],
+              [razor $ ns 7 root minorScale, cyms],
+              [piano (drop 2 $ ns 8 root minorScale)],
+              [organ (ns 6 root minorScale), hats, cyms]
+            ]
+    )

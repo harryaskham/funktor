@@ -89,5 +89,10 @@ type SongM = SongT (Seg Sig2)
 ```
 
 ## Requirements
-- `stack`
-- `csound 6.14`
+- `stack` or `cabal`
+- `csound 6.17` or `6.14`
+
+## Running
+- `stack ghci` or `cabal repl` should both drop into GHCI
+- `nix-shell` will enable e.g. `cabal --enable-nix repl` or `cabal --enable-nix run`
+- Began as a `stack` project but Cabal/Nix seem better supported on M1 macs so I'll probably remove Stack and go Cabal-only if I need to introduce new deps. For now it should run as either Cabal or Stack as I haven't made any configuration changes for a while.

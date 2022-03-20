@@ -1,13 +1,13 @@
 cradle:
-  stack:
-    - path: "./src"
-      component: "funktor:lib"
+  cabal:
+    - path: "src"
+      component: "lib:funktor"
 
-    - path: "./app/Main.hs"
+    - path: "app/Main.hs"
       component: "funktor:exe:funktor-exe"
 
-    - path: "./app/Paths_funktor.hs"
+    - path: "app/Paths_funktor.hs"
       component: "funktor:exe:funktor-exe"
 
-    - path: "./test"
+    - path: "test"
       component: "funktor:test:funktor-test"

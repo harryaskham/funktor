@@ -2,23 +2,23 @@
 
 module DnbPlayground where
 
-import Csound.Base hiding (Tab, clp, Duration)
-import Csound.Sam
+import Control.Lens
+import Control.Monad.Random
+import Control.Monad.Reader
+import Csound.Base hiding (Duration, Tab, clp)
+import Csound.Catalog.Drum.Hm as Hm
+import Csound.Catalog.Drum.Tr808 as Tr808
+import Csound.Catalog.Effect
 import Csound.Patch
+import Csound.Sam
+import Data.List
+import Data.Ord
+import Data.Sort
+import Melody
+import Note
+import System.IO.Unsafe
 import Tabs
 import Tools
-import Note
-import Melody
-import Data.Sort
-import Data.Ord
-import Control.Lens
-import Csound.Catalog.Drum.Tr808 as Tr808
-import Csound.Catalog.Drum.Hm as Hm
-import Csound.Catalog.Effect
-import System.IO.Unsafe
-import Control.Monad.Reader
-import Control.Monad.Random
-import Data.List
 
 -- TODO:
 -- named patterns and arps that we can concat and introduce expressively
@@ -31,10 +31,13 @@ import Data.List
 
 root = D
 
-sn1P1 = Tr808.sn' $ TrSpec 0.8 0 342 (Just 0.085)
-sn1P2 = Tr808.sn' $ TrSpec 0.8 3 300 (Just 0.085)
-sn1P3 = Tr808.sn' $ TrSpec 0.8 6 259 (Just 0.085)
-sn1P4 = Tr808.sn' $ TrSpec 0.8 9 200 (Just 0.085)
+sn1P1 = Tr808.sn1' $ TrSpec 0.8 0 342 (Just 0.085)
+
+sn1P2 = Tr808.sn1' $ TrSpec 0.8 3 300 (Just 0.085)
+
+sn1P3 = Tr808.sn1' $ TrSpec 0.8 6 259 (Just 0.085)
+
+sn1P4 = Tr808.sn1' $ TrSpec 0.8 9 200 (Just 0.085)
 
 song :: SongM
 song = do
@@ -48,7 +51,7 @@ song = do
 
   snrs1 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Hm.sn1
   snrs2 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|" Hm.sn1
-  snrs3 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Tr808.sn
+  snrs3 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Tr808.sn1
 
   snrsP1 <- drums "_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" sn1P4
   snrsP2 <- drums "_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|_ _ X _ _ _ _ _|" sn1P3
@@ -70,66 +73,71 @@ song = do
   clps1 <- drums "_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|_ _ _ _ _ _ _ _|X _ _ _ _ _ _ _|" Hm.clap
 
   break1 <-
-    cotraverse har
-    [ drums "O _ _ _|o _ _ _|o _ _ _|o _ _ _|O _ o _|o _ o _|. . o o|O O X X|" Tr808.cym
-    --drums "o . _ _|. _ . _|_ _ . _|. _ . .|_ _ o _|. _ . _|. . . .|_ . _ .|" Tr808.chh
-    --, drums "_ _ O _|_ . _ _|X _ _ .|_ _ _ _|X _ _ O|_ . _ _|O o . .|_ _ o _|" Tr808.sn
-    ]
+    cotraverse
+      har
+      [ drums "O _ _ _|o _ _ _|o _ _ _|o _ _ _|O _ o _|o _ o _|. . o o|O O X X|" Tr808.cym
+      --drums "o . _ _|. _ . _|_ _ . _|. _ . .|_ _ o _|. _ . _|. . . .|_ . _ .|" Tr808.chh
+      --, drums "_ _ O _|_ . _ _|X _ _ .|_ _ _ _|X _ _ O|_ . _ _|O o . .|_ _ o _|" Tr808.sn
+      ]
 
   intro <-
-    cotraverse mel
-    [ forBeats 24 (har [kcks7, chhs4, snrs3])
-    , forBeats 8 break1
-    ]
+    cotraverse
+      mel
+      [ forBeats 24 (har [kcks7, chhs4, snrs3]),
+        forBeats 8 break1
+      ]
 
   let pat0 = har [kcks7, snrs3, chhs4, cyms1]
       pat1 = har [kcks7, snrs3, chhs4, cyms1, clps1]
 
   pad <-
-    compileI dreamPad
-    $ Pch <$> minorChord root ?? 6 ?? 0.5 ?? 16
+    compileI dreamPad $
+      Pch <$> minorChord root ?? 6 ?? 0.5 ?? 16
 
   bass <-
-    compileI (withDeepBass 1.0 pwBass)
-    $ Pch
-    <$> [root, doN 2 succC root, doN 3 succC root, doN 7 succC root]
-    <*> [5]
-    <*> [0.5, 0.0]
-    <*> [2]
+    compileI (withDeepBass 1.0 pwBass) $
+      Pch
+        <$> [root, doN 2 succC root, doN 3 succC root, doN 7 succC root]
+        <*> [5]
+        <*> [0.5, 0.0]
+        <*> [2]
 
   lead <-
-    compileI frenchHorn
-    $ ((expandScale [6, 7, 8] (minorScale root) !!)
-    <$> [0, 5, 5, 2, 14, 20, 12, 12, 3, 2, 7, 7])
-    <*> [0.4]
-    <*> replicate 4 0.25
+    compileI frenchHorn $
+      ( (expandScale [6, 7, 8] (minorScale root) !!)
+          <$> [0, 5, 5, 2, 14, 20, 12, 12, 3, 2, 7, 7]
+      )
+        <*> [0.4]
+        <*> replicate 4 0.25
 
   arp1 <-
-    compileI epiano2
-    $ ((expandScale [6, 7, 8] (minorScale root) !!)
-    <$> [0, 1, 2, 3, 10, 9, 8, 7, 2, 3, 4, 5, 16, 15, 14, 13])
-    <*> [0.4]
-    <*> [1]
+    compileI epiano2 $
+      ( (expandScale [6, 7, 8] (minorScale root) !!)
+          <$> [0, 1, 2, 3, 10, 9, 8, 7, 2, 3, 4, 5, 16, 15, 14, 13]
+      )
+        <*> [0.4]
+        <*> [1]
 
   let arpat1 root =
-        take 8 . cycle $ Pch <$> minorChord root ++ majorChord (doN 5 succC root) <*> [7] <*> [0.5] <*> [1/2]
+        take 8 . cycle $ Pch <$> minorChord root ++ majorChord (doN 5 succC root) <*> [7] <*> [0.5] <*> [1 / 2]
       arpat2 root =
-        doN <$> [0, 2, 0, 3, 0, 5, 0, 6] <*> [succN] <*> [Pch root 7 0.5 (1/2)]
+        doN <$> [0, 2, 0, 3, 0, 5, 0, 6] <*> [succN] <*> [Pch root 7 0.5 (1 / 2)]
       arpat3 root =
-        doN <$> [0, 2, 3, 2, 3, 5, 7, 5, 7, 8, 10, 8, 10, 12, 14, 15] <*> [succN] <*> [Pch root 7 0.3 (1/2)]
+        doN <$> [0, 2, 3, 2, 3, 5, 7, 5, 7, 8, 10, 8, 10, 12, 14, 15] <*> [succN] <*> [Pch root 7 0.3 (1 / 2)]
       arpat4 root =
-        doN <$> [0, 0, 0, -1, 3, 3, 3, 2] <*> [succN] <*> [Pch root 7 0.3 (1/2)]
+        doN <$> [0, 0, 0, -1, 3, 3, 3, 2] <*> [succN] <*> [Pch root 7 0.3 (1 / 2)]
       arpat5 root =
         getZipList
-        (ZipList (Pch <$> (doN <$> [0, 7, 6, 5, 3, 5, 3, 2] <*> [succC] <*> [root]) <*> [6] <*> [0.5])
-        <*> ZipList [5, 1, 1, 1, 5, 1, 1, 1])
-      arpat6 root = (sort (expandScale [7, 8, 9] (minorChord root) <*> [0.3] <*> [1/2]) !!) <$> randomRs (0, 8) (mkStdGen 42)
-      arpat7 root = (sort (expandScale [7, 8] (majorScale root) <*> [0.2] <*> [1/2]) !!) <$> randomRs (0, 13) (mkStdGen 666)
+          ( ZipList (Pch <$> (doN <$> [0, 7, 6, 5, 3, 5, 3, 2] <*> [succC] <*> [root]) <*> [6] <*> [0.5])
+              <*> ZipList [5, 1, 1, 1, 5, 1, 1, 1]
+          )
+      arpat6 root = (sort (expandScale [7, 8, 9] (minorChord root) <*> [0.3] <*> [1 / 2]) !!) <$> randomRs (0, 8) (mkStdGen 42)
+      arpat7 root = (sort (expandScale [7, 8] (majorScale root) <*> [0.2] <*> [1 / 2]) !!) <$> randomRs (0, 13) (mkStdGen 666)
       arpat8 root = (sort (expandScale [7, 8, 9] (majorScale root) <*> [0.1] <*> [2]) !!) <$> randomRs (0, 13) (mkStdGen 66)
       arpat9 root =
-        getZipList
-        $ (ZipList $ Pch <$> cycle (reverse $ majorChord root) <*> [6] <*> [0.5])
-        <*> ZipList [5, 3, 5, 3]
+        getZipList $
+          (ZipList $ Pch <$> cycle (reverse $ majorChord root) <*> [6] <*> [0.5])
+            <*> ZipList [5, 3, 5, 3]
 
   arp2 <- compileI guitar $ arpat1 root
   arp3 <- compileI banyan $ arpat2 root
@@ -145,8 +153,12 @@ song = do
 
   return $ pat1 =:= arp12 =:= arp10 =:= arp11
 
-songEnv = SongEnv { _bpm=174
-                  , _beatLength=512
-                  }
+songEnv =
+  SongEnv
+    { _bpm = 174,
+      _beatLength = 512
+    }
+
 dnb' = runSongM songEnv song
+
 dnb = dac =<< dnb'
