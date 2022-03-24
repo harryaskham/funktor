@@ -14,6 +14,7 @@ import Csound.Patch
 import Csound.Sam
 import Data.List
 import Data.Ord
+import Data.Ratio ((%))
 import Data.Sort
 import Melody
 import Note
@@ -31,6 +32,7 @@ import Tools
     (<$$>),
     (<$+>),
     (<*++>),
+    (<*+>),
   )
 
 n octave dur note = Pch note octave 0.5 dur
@@ -46,6 +48,10 @@ bass = compileI (withDeepBass 0.75 pwBass)
 organ = compileI (deepPad cathedralOrgan)
 
 razor = compileI (deepPad razorLead)
+
+razorP = compileI (deepPad razorPad)
+
+marim = compileI simpleMarimba
 
 zipEnvs es xs' =
   do
@@ -94,3 +100,14 @@ sketch2 = play 140 128 do
               [organ (ns 6 root minorScale), hats, cyms]
             ]
     )
+
+sketch3 :: IO ()
+sketch3 = play 140 128 do
+  let ns root i off = take i . drop off . cycle $ n 7 (2 / fromIntegral i) <$> minorScale root
+      s ins root i off = ins $ ns root i off
+      ss ins root = s ins root <$> [2, 1] <*> [0, 2]
+      os = concat . transpose $ (ss marim <$> minorChord C) ++ (ss razorP <$> majorChord Eb)
+      voices = fromIntegral $ length os
+  es <- sequence $ sqrTabEnv <$> [[OffFor (i * 8), OnFor (2 * 8), OffFor ((voices - 1 - i) * 8)] | i <- [0 .. voices - 1]]
+  drms <- har <$> sequence [drums "X|o|o|o|" bd2, drumsDr (concat $ replicate 8 "X O o . | X O o o . . | ") chh 0.2, drums "_ | _ _ O _" ohh]
+  pure . (drms =:=) . har <$> zipEnvs es os
