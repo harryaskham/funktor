@@ -6,11 +6,20 @@ module Sketches where
 import Control.Lens
 import Control.Monad.Random
 import Control.Monad.Reader
+import Croatia (clp)
 import Csound.Base hiding (Duration, Tab, clp)
+import Csound.Catalog.Drum.Hm (clap)
 import qualified Csound.Catalog.Drum.Hm as Hm
 import Csound.Catalog.Drum.Tr808 hiding (bass)
 import Csound.Catalog.Effect
 import Csound.Patch
+  ( cathedralOrgan,
+    epianoBright,
+    pwBass,
+    razorLead,
+    simpleMarimba,
+    withDeepBass,
+  )
 import Csound.Sam
 import Data.List
 import Data.Ord
@@ -29,8 +38,10 @@ import Tools
     limSig,
     runSongM,
     runToDisk,
+    stereoMap,
     (<$$>),
     (<$+>),
+    (<***>),
     (<*++>),
     (<*+>),
   )
@@ -48,8 +59,6 @@ bass = compileI (withDeepBass 0.75 pwBass)
 organ = compileI (deepPad cathedralOrgan)
 
 razor = compileI (deepPad razorLead)
-
-razorP = compileI (deepPad razorPad)
 
 marim = compileI simpleMarimba
 
@@ -105,9 +114,18 @@ sketch3 :: IO ()
 sketch3 = play 140 128 do
   let ns root i off = take i . drop off . cycle $ n 7 (2 / fromIntegral i) <$> minorScale root
       s ins root i off = ins $ ns root i off
-      ss ins root = s ins root <$> [2, 1] <*> [0, 2]
-      os = concat . transpose $ (ss marim <$> minorChord C) ++ (ss razorP <$> majorChord Eb)
+      ss ins is os root = s ins root <$> is <*> os
+      os = concat . transpose $ (ss bass [2, 1] [0, 2, 1] <$> minorChord C) ++ (ss marim [3, 6, 2] [1, 0] <$> minorChord C)
       voices = fromIntegral $ length os
-  es <- sequence $ sqrTabEnv <$> [[OffFor (i * 8), OnFor (2 * 8), OffFor ((voices - 1 - i) * 8)] | i <- [0 .. voices - 1]]
-  drms <- har <$> sequence [drums "X|o|o|o|" bd2, drumsDr (concat $ replicate 8 "X O o . | X O o o . . | ") chh 0.2, drums "_ | _ _ O _" ohh]
-  pure . (drms =:=) . har <$> zipEnvs es os
+  es <- sequence $ sqrTabEnv <$> [[OffFor (i * 8), OnFor (4 * 8), OffFor ((voices - 4 - i) * 8)] | i <- [0 .. voices - 1]]
+  dre <- sqrTabEnv [OnFor 12, OffFor 4]
+  drms <-
+    har
+      <$> sequence
+        [ drums "X|o|o|o|" bd2 <&> withEnv dre,
+          drumsDr (concat $ replicate 4 "_|X|_|O _ X X|") clap 0.3,
+          drumsDr (concat $ replicate 4 "X O o .|X O o o . .|") chh 0.2,
+          drums "_ | _ _ O _" ohh
+        ]
+  let drms' = smallRoom2 . stereoMap (fxCompress 1.0 (0.1, 0.9) 1.0 (0.1, 0.9) 1.0) <$> drms
+  pure . (drms' =:=) . har <$> zipEnvs es os
