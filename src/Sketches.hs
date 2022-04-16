@@ -21,17 +21,6 @@ import System.IO.Unsafe
 import System.Random
 import Tabs
 import Tools
-  ( Beats (Beats),
-    SongEnv (SongEnv),
-    cotraverse,
-    forBeats,
-    limSig,
-    runSongM,
-    runToDisk,
-    (<$$>),
-    (<$+>),
-    (<*++>),
-  )
 
 n octave dur note = Pch note octave 0.5 dur
 
@@ -40,6 +29,8 @@ play bpm beats s = dac =<< runSongM (SongEnv bpm beats) (har <$> s)
 record bpm beats s = runToDisk =<< runSongM (SongEnv bpm beats) (har <$> s)
 
 piano = compileI epianoBright
+
+epiano = compileI epiano1
 
 bass = compileI (withDeepBass 0.75 pwBass)
 
@@ -94,3 +85,15 @@ sketch2 = play 140 128 do
               [organ (ns 6 root minorScale), hats, cyms]
             ]
     )
+
+sketch3 :: IO ()
+sketch3 = record 140 384 do
+  let arps root =
+        [ sort $ expandScale [6 .. 9] (minorChord root) ?? 0.3 ?? 0.5,
+          sort $ expandScale [8 .. 10] (minorChord (doN 5 succC root)) ?? 0.3 ?? 0.75,
+          sortOn Down $ expandScale [5, 6] (minorChord (doN 10 succC root)) <*> [0.3, 0.4] ?? 0.25,
+          sortOn Down $ expandScale [8, 10] (minorScale root) <*> [0.3, 0.2] ?? 1,
+          sort $ expandScale [8] (majorChord (doN 3 succC root)) ?? 0.7 ?? 3
+        ]
+  envs <- sequence (sinEnvM <$+> [0, 0.2, 0.4, 0.6, 0.8] <*++> [1, 2, 3, 4, 5])
+  toSeg . stereoMap (equalizer [(0.1, 0.1)] 0.1) . runSeg <$$> zipEnvs envs (epiano <$> arps Fs)
