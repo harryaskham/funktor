@@ -87,7 +87,7 @@ sketch2 = play 140 128 do
     )
 
 sketch3 :: IO ()
-sketch3 = record 140 384 do
+sketch3 = play 140 384 do
   let arps root =
         [ sort $ expandScale [6 .. 9] (minorChord root) ?? 0.3 ?? 0.5,
           sort $ expandScale [8 .. 10] (minorChord (doN 5 succC root)) ?? 0.3 ?? 0.75,
