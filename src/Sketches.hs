@@ -6,7 +6,9 @@ module Sketches where
 import Control.Lens
 import Control.Monad.Random
 import Control.Monad.Reader
+import Csound.Air.Filter (clp)
 import Csound.Base hiding (Duration, Tab, clp)
+import Csound.Catalog.Drum.Hm (clap)
 import qualified Csound.Catalog.Drum.Hm as Hm
 import Csound.Catalog.Drum.Tr808 hiding (bass)
 import Csound.Catalog.Effect
@@ -87,7 +89,7 @@ sketch2 = play 140 128 do
     )
 
 sketch3 :: IO ()
-sketch3 = play 140 384 do
+sketch3 = play 140 256 do
   let arps root =
         [ sort $ expandScale [6 .. 9] (minorChord root) ?? 0.3 ?? 0.5,
           sort $ expandScale [8 .. 10] (minorChord (doN 5 succC root)) ?? 0.3 ?? 0.75,
@@ -97,3 +99,19 @@ sketch3 = play 140 384 do
         ]
   envs <- sequence (sinEnvM <$+> [0, 0.2, 0.4, 0.6, 0.8] <*++> [1, 2, 3, 4, 5])
   toSeg . stereoMap (equalizer [(0.1, 0.1)] 0.1) . runSeg <$$> zipEnvs envs (epiano <$> arps Fs)
+
+sketch3b :: IO ()
+sketch3b = play 140 256 do
+  let arps root =
+        [ sort $ expandScale [6 .. 9] (minorChord root) ?? 0.3 ?? 0.5,
+          sort $ expandScale [8 .. 10] (minorChord (doN 5 succC root)) ?? 0.3 ?? 0.75,
+          sortOn Down $ expandScale [5, 6] (minorChord (doN 10 succC root)) <*> [0.3, 0.4] ?? 0.25,
+          sortOn Down $ expandScale [8, 10] (minorScale root) <*> [0.3, 0.2] ?? 1,
+          sort $ expandScale [8] (majorChord (doN 3 succC root)) ?? 0.7 ?? 3
+        ]
+  envs <- sequence (sinEnvM <$+> [0, 0.2, 0.4, 0.6, 0.8] <*++> [1, 2, 3, 4, 5])
+  rest <- toSeg . stereoMap (equalizer [(0.1, 0.1)] 0.1) . runSeg <$$> zipEnvs envs (epiano <$> arps Fs)
+  kcks <- drums "X" bd2
+  snrs <- drumsDrop "_ _ o |_ _ O _|_ _ O _ |X _ X X|" clap 0.2 4
+  hats <- drumsDrop "O o o .|" chh 0.1 8
+  return $ kcks : snrs : hats : rest
