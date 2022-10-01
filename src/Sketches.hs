@@ -160,7 +160,7 @@ sketch4 = play 140 128 do
   pure . (drms' =:=) . har <$> zipEnvs es os
 
 sketch5 :: IO ()
-sketch5 = play 150 256 do
+sketch5 = record 150 256 do
   let arp ns pat = (ns !!) <$> pat
       a1 = arp (minorChord C) [0, 0, 2, 1, 1, 0, 2, 1]
       a2 = arp (major7Chord Eb) [2, 1, 3, 0, 3, 2, 0, 1]
@@ -176,4 +176,8 @@ sketch5 = play 150 256 do
   ohhs <- drums "_ _ X _ | O o _ o" ohh
   clps <- drums (concat (replicate 3 "_ | X | ") ++ "_ | X X X X") clap
   let drms = har $ withEnv <$+> es <*++> [kcks, chhs, ohhs, clps]
-  return [stereoMap (fxLoFi 0.2 0.2) <$> drms, fxTrem 1 (1 / 7) (3 / 4) <$> bass, arps]
+  return
+    [ stereoMap (fxLoFi 0.2 0.2) <$> drms,
+      fxTrem 1 (1 / 7) (3 / 4) <$> bass,
+      arps
+    ]
