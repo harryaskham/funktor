@@ -7,7 +7,7 @@ import Control.Lens
 import Control.Monad.Random
 import Control.Monad.Reader
 import Csound.Air.Filter (clp)
-import Csound.Base hiding (Duration, Tab, clp)
+import Csound.Base hiding (Duration, Tab, clp, pulse, sqr, tri)
 import Csound.Catalog.Drum.Hm (clap)
 import qualified Csound.Catalog.Drum.Hm as Hm
 import Csound.Catalog.Drum.Tr808 hiding (bass)
@@ -19,6 +19,7 @@ import Csound.Patch
     pwBass,
     razorLead,
     simpleMarimba,
+    waveOrgan,
     withDeepBass,
   )
 import Csound.Sam
@@ -50,6 +51,18 @@ organ = compileI (deepPad cathedralOrgan)
 razor = compileI (deepPad razorLead)
 
 marim = compileI simpleMarimba
+
+sqr :: MonadReader SongEnv m => [Pch] -> m (Seg Sig2)
+sqr = compileI $ waveOrgan rndSqr
+
+tri :: MonadReader SongEnv m => [Pch] -> m (Seg Sig2)
+tri = compileI $ waveOrgan rndTri
+
+saw :: MonadReader SongEnv m => [Pch] -> m (Seg Sig2)
+saw = compileI $ waveOrgan rndSaw
+
+pulse :: MonadReader SongEnv m => [Pch] -> m (Seg Sig2)
+pulse = compileI $ waveOrgan rndPulse
 
 zipEnvs es xs' =
   do
@@ -145,3 +158,22 @@ sketch4 = play 140 128 do
         ]
   let drms' = smallRoom2 . stereoMap (fxCompress 1.0 (0.1, 0.9) 1.0 (0.1, 0.9) 1.0) <$> drms
   pure . (drms' =:=) . har <$> zipEnvs es os
+
+sketch5 :: IO ()
+sketch5 = play 150 256 do
+  let arp ns pat = (ns !!) <$> pat
+      a1 = arp (minorChord C) [0, 0, 2, 1, 1, 0, 2, 1]
+      a2 = arp (major7Chord Eb) [2, 1, 3, 0, 3, 2, 0, 1]
+      a3 = arp (minor7Chord G) [3, 0, 1, 0, 2, 0, 1, 0]
+  arps <- tri (n 8 (1 / 4) <$> (a1 ++ a2 ++ a3 ++ a2))
+  let b1 = n 5 4 <$> [C, Bb, Eb, Fs]
+      b2 = n 6 4 <$> [C, Fs, Eb, Bb]
+  bassE <- sqrTabEnv [OffFor 32, OnFor 64]
+  bass <- withEnv bassE <$> sqr (concat [b1, b1, b1, b2])
+  es <- sequence (sqrEnvM <$+> [0, 0.25, 0.5, 0.75] <*++> replicate 4 16)
+  kcks <- drums "X" bd2
+  chhs <- drums "O o . . | _ _ X _" chh
+  ohhs <- drums "_ _ X _ | O o _ o" ohh
+  clps <- drums (concat (replicate 3 "_ | X | ") ++ "_ | X X X X") clap
+  let drms = har $ withEnv <$+> es <*++> [kcks, chhs, ohhs, clps]
+  return [stereoMap (fxLoFi 0.2 0.2) <$> drms, fxTrem 1 (1 / 7) (3 / 4) <$> bass, arps]
