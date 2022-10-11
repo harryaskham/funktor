@@ -181,3 +181,31 @@ sketch5 = play 150 256 do
       fxTrem 1 (1 / 7) (3 / 4) <$> bass,
       arps
     ]
+
+bit8 :: Sig2 -> Sig2
+bit8 = stereoMap (fxLoFi 0.2 0.2)
+
+data NoteTab = S | S' | S'' | S''' | N Note Octave | N' Note Octave | N'' Note Octave | N''' Note Octave
+
+noteTab :: NoteTab -> Pch
+noteTab S = Silent 1
+noteTab S' = Silent (1 / 2)
+noteTab S'' = Silent (1 / 4)
+noteTab S''' = Silent (1 / 8)
+noteTab (N n o) = Pch n o 1.0 1
+noteTab (N' n o) = Pch n o 1.0 (1 / 2)
+noteTab (N'' n o) = Pch n o 1.0 (1 / 4)
+noteTab (N''' n o) = Pch n o 1.0 (1 / 8)
+
+sketch6 :: IO ()
+sketch6 = play 140 256 do
+  kcks <- bit8 <$$> drums "X" bd2
+  snrs <- bit8 <$$> drums "_|X" clap
+  hats <- bit8 <$$> drums "_ X" chh
+  let b1 = n 6 4 <$> [Eb, F, Ab, Bb]
+      b2 = n 7 4 <$> [Eb, Bb, Ab, G]
+  b <- bit8 . fxTrem 0 0.14 0.3 <$$> sqr (concat [b1, b1, b1, b2])
+  let n1 = noteTab <$> [N Eb 8, S, N' G 8, N'' Ab 8, N'' G 8, N F 8]
+      n2 = noteTab <$> [N Eb 9, S, N' Bb 8, N'' Ab 8, N'' F 8, N'' Ab 8, N'' F 8, N'' G 8, N'' D 8]
+  m <- bit8 <$$> tri (n1 ++ n2 ++ reverse n1 ++ reverse n2)
+  return [kcks, snrs, hats, m]

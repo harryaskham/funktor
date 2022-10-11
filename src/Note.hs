@@ -1,17 +1,22 @@
 module Note where
 
-import Csound.Base hiding (Duration)
-import System.Random
-import Data.List
-import Data.Functor ((<&>))
-import Tools
 import Control.Lens
+import Csound.Base hiding (Duration)
+import Data.Functor ((<&>))
+import Data.List
+import System.Random
+import Tools
 
 data Note = C | Cs | Db | D | Ds | Eb | E | F | Fs | Gb | G | Gs | Ab | A | As | Bb | B | B' | H deriving (Eq, Ord, Bounded, Show)
+
 type Octave = Int
+
 type Duration = Double
+
 type Velocity = Double
+
 type PartialNote = Velocity -> Duration -> Pch
+
 data Pch = Pch Note Octave Velocity Duration | Silent Duration
 
 instance Eq Pch where
@@ -95,12 +100,13 @@ rndFrom g n xs = genericIndex xs <$> indices
   where
     indices = take n $ randomRs (0, length xs - 1) g
 
--- Takes a list of note weightings and converts to a list of notes ready to be randomized. 
+-- Takes a list of note weightings and converts to a list of notes ready to be randomized.
 weightsToPchs :: [(Note, Int)] -> [Octave -> Velocity -> Duration -> Pch]
 weightsToPchs weights = Pch <$> concat (uncurry (flip replicate) <$> weights)
 
 -- The definition of a scale in terms of semitone offsets.
 newtype ScaleDef = ScaleDef [Int]
+
 type ChordDef = ScaleDef
 
 -- An alias for a scale as a list of notes.
@@ -108,48 +114,60 @@ type Scale = [Note]
 
 -- Compile a scale with a root note.
 toScale :: ScaleDef -> Note -> Scale
-toScale (ScaleDef offsets) root = toEnum <$> (offsets <&> (+fromEnum root))
+toScale (ScaleDef offsets) root = toEnum <$> (offsets <&> (+ fromEnum root))
 
 -- Converts a scale to a bunch of partial notes that span the given octaves.
 expandScale :: [Octave] -> Scale -> [PartialNote]
 expandScale os ns = Pch <$> ns <*> os
 
 majorScale = toScale $ ScaleDef [0, 2, 4, 5, 7, 9, 11]
+
 minorScale = toScale $ ScaleDef [0, 2, 3, 5, 7, 8, 10]
+
 bluesScale = toScale $ ScaleDef [0, 3, 5, 6, 7, 10]
 
 majorChord = toScale $ ScaleDef [0, 4, 7]
+
 major7Chord = toScale $ ScaleDef [0, 4, 7, 9]
+
 minorChord = toScale $ ScaleDef [0, 3, 7]
+
 minor7Chord = toScale $ ScaleDef [0, 3, 7, 8]
 
 -- TODO: Missing diminished chords
-minorChords n = [ minorChord n
-                , majorChord (doN 3 succC n)
-                , minorChord (doN 5 succC n)
-                , minorChord (doN 7 succC n)
-                , majorChord (doN 8 succC n)
-                , majorChord (doN 10 succC n) ]
+minorChords n =
+  [ minorChord n,
+    majorChord (doN 3 succC n),
+    minorChord (doN 5 succC n),
+    minorChord (doN 7 succC n),
+    majorChord (doN 8 succC n),
+    majorChord (doN 10 succC n)
+  ]
 
-majorChords n = [ majorChord n
-                , minorChord (doN 2 succC n)
-                , minorChord (doN 4 succC n)
-                , majorChord (doN 5 succC n)
-                , majorChord (doN 7 succC n)
-                , minorChord (doN 9 succC n) ]
+majorChords n =
+  [ majorChord n,
+    minorChord (doN 2 succC n),
+    minorChord (doN 4 succC n),
+    majorChord (doN 5 succC n),
+    majorChord (doN 7 succC n),
+    minorChord (doN 9 succC n)
+  ]
 
 -- Take the next highest note
 succN :: Pch -> Pch
-succN (Pch n o v d) = if n == maxBound
-                         then Pch minBound (o+1) v d
-                         else Pch (succ n) o v d
+succN (Pch n o v d) =
+  if n == maxBound
+    then Pch minBound (o + 1) v d
+    else Pch (succ n) o v d
+succN (Silent n) = Silent n
 
 -- Next lowest note
 predN :: Pch -> Pch
-predN (Pch n o v d) = if n == minBound
-                         then Pch maxBound (o-1) v d
-                         else Pch (pred n) o v d
-
+predN (Pch n o v d) =
+  if n == minBound
+    then Pch maxBound (o -1) v d
+    else Pch (pred n) o v d
+predN (Silent n) = Silent n
 
 -- Takes the root, octave weightings to choose from, velocities to choose from, and the durations of each note
 -- Returns a cycle of notes in the minor scale.
@@ -157,9 +175,9 @@ noteCycle :: Int -> Int -> Note -> [Octave] -> [Velocity] -> [Duration] -> IO [P
 noteCycle totalN loopN root octaves vels durs = do
   g <- newStdGen
   return $ getZipList $ ZipList (take totalN . cycle $ rndFrom g loopN noteGen) <*> ZipList durs
-    where
-      notes = weightsToPchs $ zip (minorScale root) (repeat 1)
-      noteGen = notes <*> octaves <*> vels
+  where
+    notes = weightsToPchs $ zip (minorScale root) (repeat 1)
+    noteGen = notes <*> octaves <*> vels
 
 -- Gets n random chords from the given chord notelist
 -- TODO: Find way to avoid passing around all this info all the time.
@@ -167,8 +185,8 @@ randomChordsFrom :: Int -> [[Note]] -> Octave -> Velocity -> Duration -> IO (Tra
 randomChordsFrom n chords octave vel dur = do
   g <- newStdGen
   return $ mel $ makeChord <$> rndFrom g n chords
-    where 
-      makeChord chordNotes = toChord $ Pch <$> chordNotes ?? octave ?? vel ?? dur
+  where
+    makeChord chordNotes = toChord $ Pch <$> chordNotes ?? octave ?? vel ?? dur
 
 -- Takes a list of notes and repeats them until we have a certain number of beats by duration.
 -- Relies on lazy scan-zip to cycle indefinitely.
