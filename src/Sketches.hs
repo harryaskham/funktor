@@ -248,7 +248,7 @@ sketch6 = play 140 256 do
   return [kcks, snrs, hats, m]
 
 sketch7 :: IO ()
-sketch7 = play 120 256 do
+sketch7 = play 120 2048 do
   let surround i v a b ns = i $ noteTab v <$> replicate a S ++ ns ++ replicate b S
   m1 <- surround muted 0.03 0 27 [N''' F 8, N''' G 8, N''' Bb 8, N''' D 9]
   m2 <- surround muted 0.03 7 20 [N F 8, N G 8, N Bb 8, N D 9]
