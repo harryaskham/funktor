@@ -12,13 +12,24 @@ import Csound.Catalog.Drum.Hm (clap)
 import qualified Csound.Catalog.Drum.Hm as Hm
 import Csound.Catalog.Drum.Tr808 hiding (bass)
 import Csound.Catalog.Effect
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
+--https://hackage.haskell.org/package/csound-catalog-0.7.6/docs/Csound-Patch.html
 import Csound.Patch
   ( cathedralOrgan,
+    dreamPad,
     epiano1,
     epianoBright,
+    mutedPiano,
     pwBass,
     razorLead,
     simpleMarimba,
+    underwaterPad,
     waveOrgan,
     withDeepBass,
   )
@@ -40,7 +51,9 @@ play bpm beats s = dac =<< runSongM (SongEnv bpm beats) (har <$> s)
 
 record bpm beats s = runToDisk =<< runSongM (SongEnv bpm beats) (har <$> s)
 
-piano = compileI epianoBright
+muted = compileI mutedPiano
+
+epianoB = compileI epianoBright
 
 epiano = compileI epiano1
 
@@ -64,6 +77,10 @@ saw = compileI $ waveOrgan rndSaw
 pulse :: MonadReader SongEnv m => [Pch] -> m (Seg Sig2)
 pulse = compileI $ waveOrgan rndPulse
 
+upad = compileI underwaterPad
+
+--dpad = compileI dreamPad
+
 zipEnvs es xs' =
   do
     xs <- sequence xs'
@@ -83,7 +100,7 @@ sketch1 = play 128 128 do
       drums "O o _ .|" chh,
       drums "_ _ X _|" ohh,
       drums "_|_|_|. o O X|" cym,
-      piano (n <$> [7, 8] <*> pure 1 <*> minorChord Eb) <**> (withEnv <$> sqrEnvM (1 / 5) 4),
+      epianoB (n <$> [7, 8] <*> pure 1 <*> minorChord Eb) <**> (withEnv <$> sqrEnvM (1 / 5) 4),
       bass $ n 6 1 <$> (take 5 . cycle . reverse . minorChord =<< [Ab, Eb])
     ]
 
@@ -107,7 +124,7 @@ sketch2 = play 140 128 do
         <$> [ [kcks, hats],
               [kcks, snrs],
               [razor $ ns 7 root minorScale, cyms],
-              [piano (drop 2 $ ns 8 root minorScale)],
+              [epianoB (drop 2 $ ns 8 root minorScale)],
               [organ (ns 6 root minorScale), hats, cyms]
             ]
     )
@@ -185,17 +202,37 @@ sketch5 = play 150 256 do
 bit8 :: Sig2 -> Sig2
 bit8 = stereoMap (fxLoFi 0.2 0.2)
 
-data NoteTab = S | S' | S'' | S''' | N Note Octave | N' Note Octave | N'' Note Octave | N''' Note Octave
+data NoteTab
+  = S
+  | S'
+  | S''
+  | S'''
+  | S_
+  | S__
+  | S___
+  | N Note Octave
+  | N' Note Octave
+  | N'' Note Octave
+  | N''' Note Octave
+  | N_ Note Octave
+  | N__ Note Octave
+  | N___ Note Octave
 
-noteTab :: NoteTab -> Pch
-noteTab S = Silent 1
-noteTab S' = Silent (1 / 2)
-noteTab S'' = Silent (1 / 4)
-noteTab S''' = Silent (1 / 8)
-noteTab (N n o) = Pch n o 1.0 1
-noteTab (N' n o) = Pch n o 1.0 (1 / 2)
-noteTab (N'' n o) = Pch n o 1.0 (1 / 4)
-noteTab (N''' n o) = Pch n o 1.0 (1 / 8)
+noteTab :: Velocity -> NoteTab -> Pch
+noteTab _ S = Silent 1
+noteTab _ S' = Silent (1 / 2)
+noteTab _ S'' = Silent (1 / 4)
+noteTab _ S''' = Silent (1 / 8)
+noteTab _ S_ = Silent 2
+noteTab _ S__ = Silent 4
+noteTab _ S___ = Silent 8
+noteTab v (N n o) = Pch n o v 1
+noteTab v (N' n o) = Pch n o v (1 / 2)
+noteTab v (N'' n o) = Pch n o v (1 / 4)
+noteTab v (N''' n o) = Pch n o v (1 / 8)
+noteTab v (N_ n o) = Pch n o v 2
+noteTab v (N__ n o) = Pch n o v 4
+noteTab v (N___ n o) = Pch n o v 8
 
 sketch6 :: IO ()
 sketch6 = play 140 256 do
@@ -205,7 +242,19 @@ sketch6 = play 140 256 do
   let b1 = n 6 4 <$> [Eb, F, Ab, Bb]
       b2 = n 7 4 <$> [Eb, Bb, Ab, G]
   b <- bit8 . fxTrem 0 0.14 0.3 <$$> sqr (concat [b1, b1, b1, b2])
-  let n1 = noteTab <$> [N Eb 8, S, N' G 8, N'' Ab 8, N'' G 8, N F 8]
-      n2 = noteTab <$> [N Eb 9, S, N' Bb 8, N'' Ab 8, N'' F 8, N'' Ab 8, N'' F 8, N'' G 8, N'' D 8]
+  let n1 = noteTab 1 <$> [N Eb 8, S, N' G 8, N'' Ab 8, N'' G 8, N F 8]
+      n2 = noteTab 1 <$> [N Eb 9, S, N' Bb 8, N'' Ab 8, N'' F 8, N'' Ab 8, N'' F 8, N'' G 8, N'' D 8]
   m <- bit8 <$$> tri (n1 ++ n2 ++ reverse n1 ++ reverse n2)
   return [kcks, snrs, hats, m]
+
+sketch7 :: IO ()
+sketch7 = play 120 1024 do
+  let surround i v a b ns = i $ noteTab v <$> replicate a S ++ ns ++ replicate b S
+  m1 <- surround muted 0.03 0 27 [N''' F 8, N''' G 8, N''' Bb 8, N''' D 9]
+  m2 <- surround muted 0.03 7 20 [N F 8, N G 8, N Bb 8, N D 9]
+  m3 <- surround muted 0.03 17 17 [N Bb 7, S, S, N'' G 7, N'' D 7, S''', N F 7]
+  m4 <- surround muted 0.03 48 3 [N A 9, S, N F 9, S'', S', S''', N''' F 9, N G 9]
+  m5 <- surround muted 0.05 61 19 [N__ F 10, N__ Bb 10, N___ G 10, N___ Bb 10]
+  m6 <- surround upad 0.4 12 41 [N__ F 8, S, N_ F 8, N__ Bb 8, S, N__ G 8, N___ F 8]
+  kcks <- withEnv <$> sqrTabEnv [OffFor 56, OnFor 32] <*> drums "o|_|_|_" bd2
+  return $ smallHall2 <$$> [kcks, m1, m2, m3, m4, m5, m6]
